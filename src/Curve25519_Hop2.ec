@@ -111,10 +111,11 @@ module MHop2 = {
   
   proc cswap (x2 z2 x3 z3 : zp, toswap : bool) : zp * zp * zp * zp =
   {
-    if(toswap)
-    { (x2,z2,x3,z3) = (x3,z3,x2,z2); }
-    else
-    { (x2,z2,x3,z3) = (x2,z2,x3,z3); }
+    if (toswap){
+      (x2,z2,x3,z3) <- (x3,z3,x2,z2);
+    } else {
+      (x2,z2,x3,z3) <- (x2,z2,x3,z3);
+    }
     return (x2,z2,x3,z3);
   }
 

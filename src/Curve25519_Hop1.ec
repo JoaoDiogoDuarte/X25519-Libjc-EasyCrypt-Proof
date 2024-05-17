@@ -4,8 +4,6 @@ import Zp_25519 ZModpRing Ring.IntID.
 
 from Jasmin require import JModel.
 
-(** generic stuff **)
-
 (* exp exp *)
 lemma expE (z : zp) (e1 e2 : int) : 0 <= e1 /\ 0 <= e2 =>
   ZModpRing.exp (ZModpRing.exp z e1) e2 =

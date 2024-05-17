@@ -1,5 +1,6 @@
-require import List Int IntDiv Ring CoreMap.
+require import List Int IntDiv Ring CoreMap W64limbs.
 require import EClib.
+require ZModP.
 
 import Ring.IntID.
 
@@ -11,9 +12,6 @@ op p = 2^255 - 19 axiomatized by pE.
 lemma two_pow255E: 2^255 = 57896044618658097711785492504343953926634992332820282019728792003956564819968 by done.
 
 (* Embedding into ring theory *)
-
-require ZModP.
-
 clone import ZModP.ZModRing as Zp_25519 with
         op p <- p 
         rename "zmod" as "zp"
@@ -47,8 +45,6 @@ rewrite pE. trivial. smt().
 move =>*. apply (ltz_trans (2*p+19) (x+19) (2*2^255)).  smt(). 
 simplify. rewrite pE; trivial. trivial.
 qed.
-
-require import W64limbs.
 
 op inzp_limbs base l = inzp (val_limbs base l).
 

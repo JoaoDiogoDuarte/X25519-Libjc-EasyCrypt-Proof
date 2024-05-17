@@ -1,4 +1,4 @@
-require import List Int IntDiv CoreMap Ring StdOrder.
+require import List Int IntDiv CoreMap Ring StdOrder W64limbs.
 import Ring.IntID IntOrder.
 from Jasmin require import JModel JWord JWord_array.
 
@@ -27,13 +27,6 @@ proof.
   move=> H. have E: len = len2 + (len - len2) by smt().
   by rewrite {1} E iota_add // /#.
 qed.
-
-
-(* MOVE TO... ??? *)
-
-require import W64limbs.
-
-
 
   (* different views on datatypes *)
 lemma of_int2u64 i0 i1:

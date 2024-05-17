@@ -308,9 +308,8 @@ move=> *. apply (bW64W (max nx ny + 1)); first smt().
 by apply bW64D.
 qed.
 
-axiom ge_mul4 (x y u v: int): (* TODO move somewhere else *)
+axiom ge_mul4 (x y u v: int):
  0 <= x && 0 <= y && x < u && y < v => x*y < u*v.
-
 
 lemma bW64M nx ny (x y: W64.t):
  bW64 nx x =>
@@ -657,22 +656,6 @@ have ->: 2 ^ (64 * (1 + size xs)) * b2i x1 = 2^64*2^(64*size xs)*b2i x1.
 smt().
 qed.
 
-
-
-(*lemma carryprop_limbs64_ncP x c:
- 0 < size x =>
- 1 + nth_digits (digits64 x) (size x - 1) < W64.modulus =>
- val_limbs64 (carryprop_limbs64 x c).`2 = val_limbs64 x + b2i c.
-proof.
-elim: x c => //= x xs IH c H0 /=.
-rewrite /nth_digits /=; case: (size xs = 0) => /= E ?.
- rewrite size_eq0 in E; rewrite E carryprop_limbs64_nil /val_digits /=.
- rewrite to_uintD_small of_uintK; smt(modz_small).
-  have E2: 0 < size xs by smt(size_ge0).
-smt. (* TODO: find correct lemma *)
-qed.
-*)
-
 lemma nosmt carryprop_limbs64_ncP bx x c:
  0 < size x =>
  1 + bx < W64.modulus =>
@@ -858,11 +841,3 @@ proof.
   rewrite -IH; congr.
   by apply mul1hi_limbsP. trivial.
 qed.
-
-
-
-(*
-lemma xxx x0 x1 x2 y0 y1 z:
- (mul_limbs64 [x0;x1;x2] [y0;y1]) = z.
-simplify.
-*)

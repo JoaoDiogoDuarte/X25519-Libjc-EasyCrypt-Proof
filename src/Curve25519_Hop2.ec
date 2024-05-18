@@ -10,7 +10,7 @@ module MHop2 = {
   proc add(f g : zp) : zp = 
   {
     var h: zp;
-    h <- f + g;
+    h <- Zp_25519.( + ) f g;
     return h;
   }
 
@@ -26,7 +26,7 @@ module MHop2 = {
   proc mul_a24 (f : zp, a24 : int) : zp =
   {
     var h: zp;
-    h <- f * (inzp a24);
+    h <-  Zp_25519.( * ) f (inzp a24);
     return h;
   }
 
@@ -34,7 +34,7 @@ module MHop2 = {
   proc mul (f g : zp) : zp =
   {
     var h : zp;
-    h <- f * g;
+    h <-  Zp_25519.( * ) f g;
     return h;
   }
 
@@ -154,10 +154,10 @@ module MHop2 = {
     z2 <- witness;
     z3 <- witness;
 
-    x2 <- Zp.one;
-    z2 <- Zp.zero;
+    x2 <- Zp_25519.one;
+    z2 <- Zp_25519.zero;
     x3 <- init;
-    z3 <- Zp.one;
+    z3 <- Zp_25519.one;
 
     return (x2, z2, x3, z3);
   }
@@ -269,7 +269,7 @@ lemma eq_h2_decode_scalar_25519 k:
           ==> res = decodeScalar25519 k].
 proof.
   proc; wp; rewrite /decodeScalar25519 /=; skip.
-  move => _ hk; rewrite hk //.
+  move => &mk hk. rewrite hk //.
 qed.
 
 (** step 2 : decode_u_coordinate **)
@@ -278,7 +278,7 @@ lemma eq_h2_decode_u_coordinate u:
           ==> res = decodeUCoordinate u].
 proof.
   proc; wp; rewrite /decode_u_coordinate /=; skip.
-  move => _ hu; rewrite hu //.
+  move => &mu hu; rewrite hu //.
 qed.
 
 (** step 3 : ith_bit **)
@@ -310,7 +310,7 @@ lemma eq_h2_add_and_double (qx : zp) (nqs : (zp * zp) * (zp * zp)):
          ==> ((res.`1, res.`2),(res.`3, res.`4)) = add_and_double1 qx nqs].
 proof.
   proc; inline *; wp; skip.
-  rewrite /add_and_double1 /=. smt(expr2).
+  rewrite /add_and_double1 /=. rewrite !expr2. smt().
 qed.
 
 (** step 6 : montgomery_ladder_step **)
@@ -366,7 +366,7 @@ proc.
   rewrite /montgomery_ladder3.
 
   while (foldl (montgomery_ladder3_step k' init')
-               ((Zp.one, Zp.zero), (init, Zp.one), false)
+               ((Zp_25519.one, Zp_25519.zero), (init, Zp_25519.one), false)
                (rev (iota_ 0 255))
          =
          foldl (montgomery_ladder3_step k' init')
@@ -376,10 +376,10 @@ proc.
   wp.
   ecall (eq_h2_montgomery_ladder_step k' init' ((x2,z2),(x3,z3),swapped) ctr).
   skip. simplify.
-  move => &hr [?] ? ? ?. smt(unroll_ml3s).
-  skip. move => &hr [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] ?. subst.
+  move => &hr [hk] H H0 H1. smt(unroll_ml3s).
+  skip. move => &hr [H1] [H2] [H3] [H4] [H5] [H6] [H7] [H8] [H9] [H10] [H11] [H12] [H13] H14. subst.
   split; first by done.
-  move => ? ? ? ? ? ? ?.
+  move => ctr0 swapped x2 x3 z2 z3 ctrle0.
   have _ : rev (iota_ 0 (ctr0 + 1)) = []; smt(iota0).
 qed.
 
@@ -393,7 +393,7 @@ proof.
   (* directly rewriting expE takes too long *)
   have ee :  exp (exp z 4) (2 ^ (e - 2)) =  exp z (2^2 * 2 ^ (e - 2)). smt(expE).
   rewrite ee. congr.
-  rewrite pow_add //.
+  rewrite -exprD_nneg //.
 qed.
 
 lemma it_sqr1_0 (e : int) (z : zp) :
@@ -422,18 +422,18 @@ proof.
   smt(it_sqr1_0).
   *)
 
-  move => &hr [[?]] [?] hin ?. simplify.
-  split; first by smt(). move => ?.
-  split; first by smt(). move => ?.
-  rewrite hin. move : H2. apply it_sqr1_m2_exp4.
+  move => &hr [[H0]] [H1] hin H2. simplify.
+  split; first by smt(). move => H3.
+  split; first by smt(). move => H4.
+  rewrite hin. move : H3. apply it_sqr1_m2_exp4.
   wp. skip.
-  move => &hr [?] [?] [?] ?. simplify.
+  move => &hr [?] [?] [?] H4. simplify.
   split.
-  split; first by smt(). move => ?.
-  split; first by smt(). move => ?.
-  subst. move : H3.  apply it_sqr1_m2_exp4.
-  move => ? ? ? [?] [?] ->. subst.
-  have ieq0 : i0 = 0. smt().
+  split; first by smt(). move => H5.
+  split; first by smt(). move => H6.
+  subst. move : H5.  apply it_sqr1_m2_exp4.
+  move => f i ile0 [igt0] [imod2_0] ->. subst.
+  have ieq0 : i = 0. smt().
   rewrite it_sqr1_0 /#.
 qed.
 
@@ -452,7 +452,7 @@ proof.
   ecall (eq_h2_it_sqr 10  t1). wp.
   ecall (eq_h2_it_sqr 4   t2). wp.
   skip. simplify.
-  move => &hr ?. 
+  move => &hr H. 
   move=> ? ->. move=> ? ->. 
   move=> ? ->. move=> ? ->.
   move=> ? ->. move=> ? ->.
@@ -467,7 +467,7 @@ proof.
   proc. inline MHop2.mul. wp. sp.
   ecall (eq_h2_invert z2).
   skip. simplify.
-  move => &hr [?] [?] ? ?. move=> ->.
+  move => &hr [H] [H0] H1 H2. move=> ->.
   rewrite encodePoint1E /= H0 H1 //.
 qed.
 

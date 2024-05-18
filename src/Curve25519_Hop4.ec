@@ -1,25 +1,29 @@
-require import AllCore Bool List Int IntExtra IntDiv CoreMap Real Zp.
-from Jasmin require import JModel.
+require import AllCore Bool List Int IntDiv CoreMap Real Zp_25519 Ring EClib.
+from Jasmin require import JModel JWord_array.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
 require import Curve25519_Hop2.
 require import Curve25519_Hop3.
-require import Curve25519_smulx.
-import Zp ZModpRing.
+(* require import Curve25519_smulx. *) 
+import Zp_25519 ZModpRing.
 import Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Curve25519_Hop3.
-import Curve25519_smulx.
-
-require import Array4 Array8.
+(* import Curve25519_smulx. *)
 require import W64limbs.
+
+
+clone PolyArray as Array4  with op size <- 4.
+clone PolyArray as Array8  with op size <- 8.
+clone WArray    as WArray16  with op size <- 16.
 
 (** representation : move to another file/use rep3/5 **)
 type Rep4 = W64.t Array4.t.
-op valRep4  (x : Rep4) : int = val_limbs64 (to_list x).
+op valRep4  (x : Rep4) : int = val_limbs64 (Array4.to_list x).
 op inzpRep4 (x : Rep4) : zp  = inzp (valRep4 x) axiomatized by inzpRep4E.
 abbrev zpcgrRep4 (x : Rep4) (z : int) : bool = zpcgr (valRep4 x) z.
 (** ************************************* **)
 
 (** step 0 : add sub mul sqr **)
+
 equiv eq_h4_add : MHop2.add ~ M._fe64_add_rrs:
    f{1} = inzpRep4 f{2} /\
    g{1} = inzpRep4 g{2}

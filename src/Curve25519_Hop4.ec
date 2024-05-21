@@ -4,10 +4,9 @@ require import Curve25519_Spec.
 require import Curve25519_Hop1.
 require import Curve25519_Hop2.
 require import Curve25519_Hop3.
-(* require import Curve25519_smulx. *) 
+require import Curve25519_ref4.
 import Zp_25519 ZModpRing.
-import Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Curve25519_Hop3.
-(* import Curve25519_smulx. *)
+import Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Curve25519_ref4
 require import W64limbs.
 
 

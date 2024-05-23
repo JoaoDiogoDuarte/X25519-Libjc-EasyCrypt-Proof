@@ -54,3 +54,7 @@ op scalarmult (k:W256.t) (u:W256.t) : W256.t =
       encodePoint (r.`1) axiomatized by scalarmultE.
 
 hint simplify scalarmultE.
+
+op scalarmult_base (k:W256.t) : W256.t =
+   scalarmult (k) (W256.of_int(9%Int)).
+

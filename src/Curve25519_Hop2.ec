@@ -145,7 +145,12 @@ module MHop2 = {
 
   proc decode_scalar (k' : W256.t) : W256.t =
   {
-    return k';  (* PLACEHOLDER *) 
+    k'.[0] <- false;
+    k'.[1] <- false;
+    k'.[2] <- false;
+    k'.[255] <- false;
+    k'.[254] <- true;
+    return k';
   }
 
   proc decode_u_coordinate (u' : W256.t) : zp =

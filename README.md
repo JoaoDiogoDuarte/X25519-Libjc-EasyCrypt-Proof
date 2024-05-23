@@ -8,8 +8,8 @@ Below are files that run without errors as of writing. Note that the imports may
 - [X] Zp_25519.ec
 - [X] Curve25519_spec.ec
 - [X] Curve25519_Hop1.ec
-- [ ] Curve25519_Hop2.ec
-- [ ] Curve25519_Hop3.ec
+- [X] Curve25519_Hop2.ec
+- [X] Curve25519_Hop3.ec
 - [ ] Curve25519_Hop4.ec
 
 The original Easycrypt files can be found [in the x25519 branch in libjc](https://github.com/tfaoliveira/libjc/tree/x25519/proof/crypto_scalarmult/curve25519).

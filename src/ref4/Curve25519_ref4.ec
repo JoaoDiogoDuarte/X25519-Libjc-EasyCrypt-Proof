@@ -26,7 +26,7 @@ module M = {
   proc __store4 (p:W64.t, a:W64.t Array4.t) : unit = {
     var aux: int;
     
-    var i:int;
+    var i:int;+
     
     i <- 0;
     while (i < 4) {
@@ -73,9 +73,6 @@ module M = {
   }
   
   proc __decode_u_coordinate4 (u:W64.t Array4.t) : W64.t Array4.t = {
-    
-    
-    
     u.[3] <- (u.[3] `&` (W64.of_int 9223372036854775807));
     return (u);
   }

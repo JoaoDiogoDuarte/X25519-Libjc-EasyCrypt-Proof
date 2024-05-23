@@ -377,12 +377,32 @@ proof.
 qed.
 
 (** step 6: scalarmult with updated montgomery_ladder3 **)
+
+op scalarmult_internal1(u: zp) (k:W256.t) : W256.t =
+   let r = montgomery_ladder3 u k in
+   encodePoint1 (r.`1) axiomatized by scalarmult_internal1E.
+
+(* lemma scalarmult = scalarmult1 *)
+lemma eq_scalarmult_internal1 (u:zp) (k:W256.t) :
+  k.[0] = false => scalarmult_internal1 u k = scalarmult_internal u k.
+  proof.
+  move => H.
+  rewrite /scalarmult_internal1. simplify.
+  rewrite eq_encodePoint1 /scalarmult_internal.
+  simplify. 
+  congr.
+  have ml123 : montgomery_ladder u k = select_tuple_12 (montgomery_ladder3 u k).
+  apply eq_montgomery_ladder123. apply H.
+  rewrite ml123 /select_tuple_12 //.
+qed.
+
+hint simplify scalarmult_internal1E.
+
 op scalarmult1 (k:W256.t) (u:W256.t) : W256.t =
   let k = decodeScalar25519 k in
   let u = decodeUCoordinate u in
-  let r = montgomery_ladder3 u k in
-      encodePoint1 (r.`1) axiomatized by scalarmult1E.
-
+  scalarmult_internal1 u k axiomatized by scalarmult1E.
+ 
 hint simplify scalarmult1E.
 
 op scalarmult_base1(k:W256.t) : W256.t =
@@ -395,7 +415,7 @@ proof.
   simplify.
   pose du := decodeUCoordinate u.
   pose dk := decodeScalar25519 k.
-  rewrite eq_encodePoint1.
+  rewrite eq_encodePoint1 /scalarmult_internal. simplify.
   congr.
   have kb0f  : (dk).[0] = false. (* k bit 0 false *)
     rewrite /dk /decodeScalar25519 //.
@@ -409,3 +429,5 @@ lemma eq_scalarmult_base1 (k:W256.t) :
 proof.
   apply eq_scalarmult1.
 qed.
+
+

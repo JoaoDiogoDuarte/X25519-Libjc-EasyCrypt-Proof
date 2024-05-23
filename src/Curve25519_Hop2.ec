@@ -278,29 +278,50 @@ module MHop2 = {
     x3 <- witness;
     z2 <- witness;
     z3 <- witness;
-    (x2, z2, x3, z3) <@ montgomery_ladder (u'', k');
-    r <@ encode_point (x2, z2);
+    
     return r;
   }
 
   proc scalarmult_base(k': W256.t) : W256.t = {
     var u'' : zp;
+    var x2 : zp;
+    var z2 : zp;
+    var x3 : zp;
+    var z3 : zp;
     var r : W256.t;
+   
     r <- witness;
+    x2 <- witness;
+    x3 <- witness;
+    z2 <- witness;
+    z3 <- witness;
+
     k'  <@ decode_scalar (k');
     u'' <@ decode_u_coordinate_base ();
-    r <@ scalarmult_internal (u'', k');
+    (x2, z2, x3, z3) <@ montgomery_ladder (u'', k');
+    r <@ encode_point (x2, z2);
     return r;
   }
 
   proc scalarmult (k' u' : W256.t) : W256.t =
   {
     var u'' : zp;
+    var x2 : zp;
+    var z2 : zp;
+    var x3 : zp;
+    var z3 : zp;
     var r : W256.t;
+   
     r <- witness;
+    x2 <- witness;
+    x3 <- witness;
+    z2 <- witness;
+    z3 <- witness;
+
     k'  <@ decode_scalar (k');
     u'' <@ decode_u_coordinate (u');
-    r <@ scalarmult_internal (u'', k');
+    (x2, z2, x3, z3) <@ montgomery_ladder (u'', k');
+    r <@ encode_point (x2, z2);
     return r;
   }
 }.
@@ -323,6 +344,12 @@ proof.
   move => &mu hu; rewrite hu //.
 qed.
 
+lemma eq_h2_decode_u_coordinate_base:
+hoare[ MHop2.decode_u_coordinate_base: true ==> res = decodeUCoordinate(W256.of_int(9%Int))].
+proof.
+  proc; wp; rewrite /decode_u_coordinate_base /=; skip. auto => />.
+qed.
+    
 (** step 3 : ith_bit **)
 lemma eq_h2_ith_bit (k : W256.t) i:
   hoare [MHop2.ith_bit : k' = k /\ ctr = i ==> res = ith_bit k i].
@@ -514,6 +541,7 @@ proof.
 qed.
 
 (** step 11 : scalarmult **)
+
 lemma eq_h2_scalarmult (k u : W256.t) : 
   hoare[MHop2.scalarmult : k' = k /\ u' = u ==> res = scalarmult k u].
 proof.
@@ -522,9 +550,25 @@ proof.
   ecall (eq_h2_encode_point (x2,z2)).     simplify.
   ecall (eq_h2_montgomery_ladder u'' k'). simplify.
   ecall (eq_h2_decode_u_coordinate u').   simplify.
-  ecall (eq_h2_decode_scalar_25519 k').   simplify.
+  ecall (eq_h2_decode_scalar k').   simplify.
   skip.
   move => &hr [?] [?] [?] [?] [?] [?] ?.
+  move=> ? -> ? ->. split.
+    by rewrite /decodeScalar25519 /=.
+  move=> ? ? ? ? -> => /#.
+qed.
+
+lemma eq_h2_scalarmult_base (k : W256.t) : 
+  hoare[MHop2.scalarmult_base : k' = k  ==> res = scalarmult_base k].
+proof.
+  rewrite -eq_scalarmult_base1.
+  proc. sp.
+  ecall (eq_h2_encode_point (x2,z2)). simplify.
+  ecall (eq_h2_montgomery_ladder (inzp(9%Int)) (k')). simplify.
+  ecall (eq_h2_decode_u_coordinate_base).  simplify.
+  ecall (eq_h2_decode_scalar k').   simplify.
+  skip.
+  move => &hr [?] [?] [?] [?] [?]  ?.
   move=> ? -> ? ->. split.
     by rewrite /decodeScalar25519 /=.
   move=> ? ? ? ? -> => /#.

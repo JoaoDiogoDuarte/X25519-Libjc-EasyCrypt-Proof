@@ -7,16 +7,19 @@ require import Curve25519_Hop2.
 import Zp_25519 ZModpRing Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Ring.IntID.
 
 (** step 1 : decode_scalar_25519 **)
-lemma ill_decode_scalar_25519 : islossless MHop2.decode_scalar_25519.
+lemma ill_decode_scalar_25519 : islossless MHop2.decode_scalar.
 proof. islossless. qed.
 
 lemma eq_h3_decode_scalar_25519 k:
-  phoare [ MHop2.decode_scalar_25519 : k' = k
+  phoare [ MHop2.decode_scalar : k' = k
            ==> res = decodeScalar25519 k] = 1%r.
-proof. by conseq ill_decode_scalar_25519 (eq_h2_decode_scalar_25519 k). qed.
+proof. by conseq ill_decode_scalar_25519 (eq_h2_decode_scalar k). qed.
 
 (** step 2 : decode_u_coordinate **)
 lemma ill_decode_u_coordinate : islossless MHop2.decode_u_coordinate.
+proof. islossless. qed.
+
+lemma ill_decode_u_coordinate_base : islossless MHop2.decode_u_coordinate_base.
 proof. islossless. qed.
 
 lemma eq_h3_decode_u_coordinate u:
@@ -148,6 +151,16 @@ proof.
   call(_: true ==> true). apply ill_encode_point.
   call(_: true ==> true). apply ill_montgomery_ladder.
   call(_: true ==> true). apply ill_decode_u_coordinate.
+  call(_: true ==> true). apply ill_decode_scalar_25519.
+  skip. trivial.
+qed.
+
+lemma ill_scalarmult_base : islossless MHop2.scalarmult_base.
+proof.
+  proc. sp.
+  call(_: true ==> true). apply ill_encode_point.
+  call(_: true ==> true). apply ill_montgomery_ladder.
+  call(_: true ==> true). apply ill_decode_u_coordinate_base.
   call(_: true ==> true). apply ill_decode_scalar_25519.
   skip. trivial.
 qed.

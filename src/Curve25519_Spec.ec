@@ -47,11 +47,14 @@ op encodePoint (q: zp * zp) : W256.t =
   let q = q.`1 * (ZModpRing.exp q.`2 (p - 2)) in
       W256.of_int (asint q) axiomatized by encodePointE.
 
+op scalarmult_internal(k: zp) (u: W256.t) : W256.t =
+   let r = montgomery_ladder k u in
+   encodePoint (r.`1) axiomatized by scalarmult_internalE. 
+
 op scalarmult (k:W256.t) (u:W256.t) : W256.t =
   let k = decodeScalar25519 k in
   let u = decodeUCoordinate u in
-  let r = montgomery_ladder u k in
-      encodePoint (r.`1) axiomatized by scalarmultE.
+  scalarmult_internal u k  axiomatized by scalarmultE. 
 
 hint simplify scalarmultE.
 

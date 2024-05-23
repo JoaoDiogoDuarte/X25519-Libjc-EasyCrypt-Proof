@@ -26,8 +26,7 @@ module M = {
   proc __store4 (p:W64.t, a:W64.t Array4.t) : unit = {
     var aux: int;
     
-    var i:int;+
-    
+    var i:int;    
     i <- 0;
     while (i < 4) {
       Glob.mem <-

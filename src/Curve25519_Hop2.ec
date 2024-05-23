@@ -68,6 +68,25 @@ module MHop2 = {
     return f;
   }
 
+ proc tobytes(p : zp) : W256.t =  {
+      var a : W256.t;
+      a <- witness;
+      a <- W256.of_int (asint p);
+      return a;   
+  }
+  proc store(s: W256.t) : zp  =  {
+      var p : zp;
+      p <- witness;
+      p <-  inzp(W256.to_uint(s)); (* need to convert to int ? *)   
+    return p;
+  }
+  proc load (p: zp) : W256.t = {
+      var a : W256.t;
+      a <- witness;
+      a <- W256.of_int(asint p);
+      return a;
+  }
+
   (* f ** 2**255-19-2 *)
   proc invert (z1' : zp) : zp =
   {
@@ -124,14 +143,9 @@ module MHop2 = {
     return k'.[ctr];
   }
 
-  proc decode_scalar_25519 (k' : W256.t) : W256.t =
+  proc decode_scalar (k' : W256.t) : W256.t =
   {
-    k'.[0] <- false;
-    k'.[1] <- false;
-    k'.[2] <- false;
-    k'.[255] <- false;
-    k'.[254] <- true;
-    return k';
+    return k';  (* PLACEHOLDER *) 
   }
 
   proc decode_u_coordinate (u' : W256.t) : zp =
@@ -139,6 +153,14 @@ module MHop2 = {
     var u'' : zp;
     (* last bit of u is cleared but that can be introduced at the same time as arrays *)
     u'' <- inzp ( to_uint u' );
+    return u'';
+  }
+
+    proc decode_u_coordinate_base () : zp =
+  {
+    var u'' : zp;
+    (* last bit of u is cleared but that can be introduced at the same time as arrays *)
+    u'' <- inzp ( 9 );
     return u'';
   }
 
@@ -236,36 +258,51 @@ module MHop2 = {
     r <- witness;
     z2 <@ invert (z2);
     r <@  mul (x2, z2);
-    (* no need to 'freeze' or 'tobytes' r in this spec *)
     return (W256.of_int (asint r));
   }
 
-  proc scalarmult (k' u' : W256.t) : W256.t =
-  {
-    var u'' : zp;
+   proc scalarmult_internal(u'': zp,  k': W256.t ) : W256.t = {
+    
     var x2 : zp;
     var z2 : zp;
     var x3 : zp;
     var z3 : zp;
     var r : W256.t;
-   
-    r <- witness;
+    r <- witness;  
     x2 <- witness;
     x3 <- witness;
     z2 <- witness;
     z3 <- witness;
-
-    k'  <@ decode_scalar_25519 (k');
-    u'' <@ decode_u_coordinate (u');
     (x2, z2, x3, z3) <@ montgomery_ladder (u'', k');
     r <@ encode_point (x2, z2);
+    return r;
+  }
+
+  proc scalarmult_base(k': W256.t) : W256.t = {
+    var u'' : zp;
+    var r : W256.t;
+    r <- witness;
+    k'  <@ decode_scalar (k');
+    u'' <@ decode_u_coordinate_base ();
+    r <@ scalarmult_internal (u'', k');
+    return r;
+  }
+
+  proc scalarmult (k' u' : W256.t) : W256.t =
+  {
+    var u'' : zp;
+    var r : W256.t;
+    r <- witness;
+    k'  <@ decode_scalar (k');
+    u'' <@ decode_u_coordinate (u');
+    r <@ scalarmult_internal (u'', k');
     return r;
   }
 }.
 
 (** step 1 : decode_scalar_25519 **)
-lemma eq_h2_decode_scalar_25519 k:
-  hoare [ MHop2.decode_scalar_25519 : k' = k
+lemma eq_h2_decode_scalar k:
+  hoare [ MHop2.decode_scalar : k' = k
           ==> res = decodeScalar25519 k].
 proof.
   proc; wp; rewrite /decodeScalar25519 /=; skip.

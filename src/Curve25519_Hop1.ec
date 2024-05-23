@@ -385,6 +385,9 @@ op scalarmult1 (k:W256.t) (u:W256.t) : W256.t =
 
 hint simplify scalarmult1E.
 
+op scalarmult_base1(k:W256.t) : W256.t =
+  scalarmult1 (k) (W256.of_int(9%Int)).
+
 (* lemma scalarmult = scalarmult1 *)
 lemma eq_scalarmult1 (k:W256.t) (u:W256.t) :
   scalarmult1 k u = scalarmult k u.
@@ -399,4 +402,10 @@ proof.
   have ml123 : montgomery_ladder du dk = select_tuple_12 (montgomery_ladder3 du dk).
     move : kb0f. apply eq_montgomery_ladder123.
   rewrite ml123 /select_tuple_12 //.
+qed.
+
+lemma eq_scalarmult_base1 (k:W256.t) :
+    scalarmult_base1 k = scalarmult_base k.
+proof.
+  apply eq_scalarmult1.
 qed.

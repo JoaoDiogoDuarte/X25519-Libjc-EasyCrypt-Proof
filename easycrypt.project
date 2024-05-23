@@ -1,4 +1,5 @@
 [general]
 timeout = 30
 
-idirs= src
+idirs = src
+idirs = src/ref4

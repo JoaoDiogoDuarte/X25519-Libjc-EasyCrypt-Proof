@@ -41,16 +41,13 @@ module MHop2 = {
   (* h = f * f *)
   proc sqr (f : zp) : zp =
   {
-    var h : zp;
-    (*h <- f * f;*)
-    h <- exp f 2;
-    return h;
+    return exp f 2;
   }
 
   (* iterated sqr *)
-  proc it_sqr (i : int, f : zp) : zp =
+  proc it_sqr (f : zp, i: int) : zp =
   {
-    var h : zp;
+   var h : zp;
     h <- witness;
 
     h <@ sqr(f);
@@ -108,21 +105,21 @@ module MHop2 = {
     t2 <@ sqr (t0);
     t1 <@ mul (t1, t2);
     t2 <@ sqr (t1);
-    t2 <@ it_sqr (4, t2);
+    t2 <@ it_sqr (t2, 4);
     t1 <@ mul (t1, t2);
-    t2 <@ it_sqr (10, t1);
+    t2 <@ it_sqr (t1, 10);
     t2 <@ mul (t1, t2);
-    t3 <@ it_sqr (20, t2);
+    t3 <@ it_sqr (t2, 20);
     t2 <@ mul (t2, t3);
-    t2 <@ it_sqr (10, t2);
+    t2 <@ it_sqr (t2, 10);
     t1 <@ mul (t1, t2);
-    t2 <@ it_sqr (50, t1);
+    t2 <@ it_sqr (t1, 50);
     t2 <@ mul (t1, t2);
-    t3 <@ it_sqr (100, t2);
+    t3 <@ it_sqr (t2, 100);
     t2 <@ mul (t2, t3);
-    t2 <@ it_sqr (50, t2);
+    t2 <@ it_sqr (t2, 50);
     t1 <@ mul (t1, t2);
-    t1 <@ it_sqr (4, t1);
+    t1 <@ it_sqr (t1, 4);
     t1 <@ sqr (t1);
     t1 <@ mul (t0, t1);
     return t1;
@@ -452,7 +449,17 @@ proc.
   have _ : rev (iota_ 0 (ctr0 + 1)) = []; smt(iota0).
 qed.
 
-(** step 8 : iterated square **)
+    (** step 8 : iterated square **)
+
+lemma it_sqr1_0 (e : int) (z : zp) :
+  0 = e => it_sqr1 e z = z.
+proof.
+  move => ?.
+  rewrite eq_it_sqr1. smt().
+  rewrite /it_sqr. subst. simplify.
+  rewrite expr1 //.
+qed.
+
 lemma it_sqr1_m2_exp4 (e : int) (z : zp) :
   0 <= e - 2 => it_sqr1 e z = it_sqr1 (e-2) (exp (exp z 2) 2).
 proof.
@@ -463,15 +470,6 @@ proof.
   have ee :  exp (exp z 4) (2 ^ (e - 2)) =  exp z (2^2 * 2 ^ (e - 2)). smt(expE).
   rewrite ee. congr.
   rewrite -exprD_nneg //.
-qed.
-
-lemma it_sqr1_0 (e : int) (z : zp) :
-  0 = e => it_sqr1 e z = z.
-proof.
-  move => ?.
-  rewrite eq_it_sqr1. smt().
-  rewrite /it_sqr. subst. simplify.
-  rewrite expr1 //.
 qed.
 
 lemma eq_h2_it_sqr (e : int) (z : zp) : 
@@ -490,19 +488,19 @@ proof.
   wp. skip. progress. smt(). smt(). smt(it_sqr1_m2_exp4).
   smt(it_sqr1_0).
   *)
-
-  move => &hr [[H0]] [H1] hin H2. simplify.
+  simplify.
+  move => &hr [[H [H0 hin]]] H1. simplify.
   split; first by smt(). move => H3.
   split; first by smt(). move => H4.
   rewrite hin. move : H3. apply it_sqr1_m2_exp4.
-  wp. skip.
-  move => &hr [?] [?] [?] H4. simplify.
+  wp. skip. simplify.
+  move => &hr [H] [H0] [H1] H2. simplify.
   split.
-  split; first by smt(). move => H5.
-  split; first by smt(). move => H6.
-  subst. move : H5.  apply it_sqr1_m2_exp4.
-  move => f i ile0 [igt0] [imod2_0] ->. subst.
-  have ieq0 : i = 0. smt().
+  split; first by smt(). move => H3.
+  split; first by smt(). move => H4.
+  subst. move : H3.  apply it_sqr1_m2_exp4.
+  move => H3 H4 H5 [H6] [H7]  ->. subst.
+  have ieq0 : H4 = 0. smt().
   rewrite it_sqr1_0 /#.
 qed.
 

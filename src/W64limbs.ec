@@ -454,6 +454,8 @@ qed.
 **********************************************************************************************)
 
 abbrev digits64 = List.map W64.to_uint.
+abbrev digits8 = List.map W8.to_uint.
+
 abbrev val_limbs base l = val_digits base (digits64 l).
 abbrev bW64_limbs w = List.all (bW64 w).
 
@@ -609,6 +611,8 @@ qed.
 op nth_digits (x: int list) (n: int) : int = nth 0 x n.
 
 abbrev val_digits64 = val_digits (2^64).
+abbrev val_digits8 = val_digits (2^8).
+abbrev val_limbs8 x = val_digits8 (digits8 x).
 abbrev val_limbs64 x = val_digits64 (digits64 x).
 
 lemma val_limbs64_cons x xs:

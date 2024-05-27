@@ -1,4 +1,4 @@
-require import AllCore Bool List Int IntDiv CoreMap Real Zp_25519 Ring EClib Array4.
+require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Array4.
 from Jasmin require import JModel JWord_array.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
@@ -6,14 +6,19 @@ require import Curve25519_Hop2.
 require import Curve25519_Hop3.
 require import Curve25519_ref4.
 import Zp_25519 ZModpRing.
-import Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Curve25519_ref4 Array4.
+import Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Curve25519_ref4 Array4 Array32 StdOrder.IntOrder.
 require import W64limbs.
 
 (** representation : move to another file/use rep3/5 **)
 type Rep4 = W64.t Array4.t.
+type Rep32 = W8.t Array32.t.
+
 op valRep4  (x : Rep4) : int = val_limbs64 (Array4.to_list x).
 op inzpRep4 (x : Rep4) : zp  = inzp (valRep4 x) axiomatized by inzpRep4E.
 abbrev zpcgrRep4 (x : Rep4) (z : int) : bool = zpcgr (valRep4 x) z.
+
+op valRep32  (x : Rep32) : int = val_limbs8 (Array32.to_list x).
+op inzpRep32 (x : Rep32) : zp  = inzp (valRep32 x) axiomatized by inzpRep32E.
 (** ************************************* **)
 
 (** step 0 : add sub mul sqr **)
@@ -23,7 +28,7 @@ equiv eq_h4_add : MHop2.add ~ M.__add4_rrs:
    g{1} = inzpRep4 g{2}
     ==>
    res{1} = inzpRep4 res{2}.
-proof.
+proof.   
  admit.
 qed.
 
@@ -62,7 +67,6 @@ equiv eq_h4_sqr : MHop2.sqr ~ M.__sqr4_rs:
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-proc.
 admit.
 qed.
 
@@ -180,7 +184,7 @@ proc.
 admit.
 qed.
 
-equiv eq_h4_sqr_ss : MHop2.sqr ~ M.__sqr4_ss:
+equiv eq_h4_sqr_ss : MHop2.sqr ~ M._sqr4_ss_:
     f{1} = inzpRep4 xa{2}
     ==>
     res{1} = inzpRep4 res{2}.
@@ -189,8 +193,17 @@ proc.
 admit.
 qed.
 
-equiv eq_h4_sqr_ss_ : MHop2.sqr ~ M._sqr4_ss_:
+equiv eq_h4_sqr_ss_ : MHop2.sqr ~ M.__sqr4_ss:
     f{1} = inzpRep4 xa{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+proc.
+admit.
+qed.
+
+equiv eq_h4_sqr_s_ : MHop2.sqr ~ M._sqr4_s_:
+    f{1} = inzpRep4 x{2}
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
@@ -211,30 +224,39 @@ qed.
 
 equiv eq_h4_tobytes :
     MHop2.tobytes ~ M.__tobytes4:
-true ==> true.
+    p{1} = inzpRep4 f{2} 
+    ==> 
+    to_list (W4u64.unpack64 res{1}) = to_list res{2}.
 proof.
-  admit.
+proc. 
+(* sp. auto => />. 
+move => &2 aux_3_R aux_4_R aux_3_R0 aux_4_R0 aux_3_R1 aux_4_R1 aux_3_R2 aux_4_R2 t_R0 aux_3_R3 aux_4_R3.
+move => aux_3_R4 aux_4_R4 f_R. 
+move => H H0 H1 H2 H3 H4 H5 H6. rewrite !setE => />.
+*)
+admit.
+
 qed.
 
 equiv eq_h4_load :
     MHop2.load ~ M.__load4 : 
 true ==> true.
 proof.
-  admit.
+  proc. wp. unroll for{2} ^while. by  auto => />.
 qed.
 
 equiv eq_h4_store :
     MHop2.store ~ M.__store4 : 
 true ==> true.
 proof.
-  admit.
+proc. wp. unroll for{2} ^while. by auto => />.
 qed.
 
 equiv eq_init_point4 :
     MHop2.init_points ~ M.__init_points4 : 
 true ==> true.
 proof.
-  admit.
+proc. wp. unroll for{2} ^while. sp. skip. by move => />.
 qed.
 
 
@@ -243,7 +265,7 @@ equiv eq_h4_decode_scalar_25519 :
   MHop2.decode_scalar ~ M.__decode_scalar:
   true ==> true.
 proof.
-admit.
+proc. wp. unroll for{2} ^while. wp. skip. move => *. done.
 qed.
 
 (** step 2 : decode_u_coordinate **)
@@ -251,21 +273,22 @@ equiv eq_h4_decode_u_coordinate :
   MHop2.decode_u_coordinate ~ M.__decode_u_coordinate4:
   true ==> true.
 proof.
-admit.
+ proc. by wp.
 qed.
 
 equiv eq_h4_decode_u_coordinate_base :
   MHop2.decode_u_coordinate_base~ M.__decode_u_coordinate_base4:
   true ==> true.
 proof.
-admit.
+proc. by wp.
 qed.
 
 (** step 3 : ith_bit **)
 equiv eq_h4_ith_bit :
-  MHop2.ith_bit ~ M.__ith_bit:
-  true ==> true.
+  MHop2.ith_bit ~ M.__ith_bit :
+  inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\  (ctr{1} = to_uint ctr{2}) ==> b2i res{1} = to_uint res{2}.
 proof.
+proc.  
 admit.
 qed.
 
@@ -286,9 +309,9 @@ proof.
 proc.
 do 4! unroll for{2} ^while.
 case: (toswap{1}).
-  rcondt {1} 1 => //. wp => /=; skip.
+  rcondt {1} 1 => //. wp => /=. skip.
     move => &1 &2 [#] 4!->> ??.
-    have mask_set :  (set0_64.`6 - toswap{2}) = W64.onew. rewrite /set0_64 /=. smt(@W64).
+    have mask_set :  (set0_64.`6 - toswap{2}) = W64.onew. rewrite /set0_64_ /=. smt(@W64).
     rewrite !mask_set /=.
     have lxor1 : forall (x1 x2:W64.t),  x1 `^` (x2 `^` x1) = x2.
       move=> *. rewrite xorwC -xorwA xorwK xorw0 //.
@@ -324,15 +347,15 @@ proc => /=.
   call eq_h4_mul_rss.
   call eq_h4_mul_sss.
   call eq_h4_add_sss.
-  call eq_h4_sqr_ss.
+  call eq_h4_sqr_ss_.
   call eq_h4_mul_a24_ss.
-  call eq_h4_sqr_ss.
+  call eq_h4_sqr_ss_.
   call eq_h4_sub_sss.
   call eq_h4_mul_sss.
   call eq_h4_sub_sss.
   call eq_h4_add_sss.
-  call eq_h4_sqr_ss.
-  call eq_h4_sqr_ss.
+  call eq_h4_sqr_ss_.
+  call eq_h4_sqr_ss_.
   call eq_h4_mul_sss.
   call eq_h4_mul_sss.
   call eq_h4_add_sss.
@@ -345,9 +368,33 @@ qed.
 (** step 6 : montgomery_ladder_step **)
 equiv eq_h4_montgomery_ladder_step :
  MHop2.montgomery_ladder_step ~ M.__montgomery_ladder_step4:
- true ==> true.
+   inzp (to_uint k'{1}) =   inzpRep32 k{2} /\
+   init'{1} = inzpRep4 init{2} /\
+   x2{1} = inzpRep4 x2{2} /\
+   z2{1} = inzpRep4 z2r{2} /\
+   x3{1} = inzpRep4 x3{2} /\
+   z3{1} = inzpRep4 z3{2} /\ 
+   b2i swapped{1} = to_uint swapped{2} /\
+   ctr'{1} = to_uint ctr{2}
+   ==>
+   res{1}.`1 = inzpRep4 res{2}.`1 /\
+   res{1}.`2 = inzpRep4 res{2}.`2 /\
+   res{1}.`3 = inzpRep4 res{2}.`3 /\
+   res{1}.`4 = inzpRep4 res{2}.`4 /\
+   b2i res{1}.`5 = to_uint res{2}.`5.
 proof.
-admit.
+proc => /=. 
+call eq_h4_add_and_double. wp.
+call eq_h4_cswap. wp.
+call eq_h4_ith_bit. skip. 
+move => &1 &2 [H0] [H1] [H2] [H3] [H4] [H5] [H6] H7. split.   
+auto => />. rewrite H0. 
+move => [H8 H9] H10 H11 H12 H13 H14. 
+split;  auto => />.  rewrite /H14 /H13. 
+rewrite /b2i. 
+case: (swapped{1} ^^ H10).
+move => *. smt. (* find correct calls *)
+move => *. smt. (* find the correct calls *)
 qed.   
 
 (** step 7 : montgomery_ladder **)
@@ -385,14 +432,55 @@ proof.
   proc.
 admit.
 qed.
+
+equiv eq_h4_it_sqr_ss :
+ MHop2.it_sqr ~ M._it_sqr4_ss_:
+   f{1}            =    inzpRep4 x{2} /\
+   i{1}            =    to_uint i{2}  /\
+   i{1}            <=   W64.modulus   /\
+    2              <=   i{1}          /\
+   i{1} %% 2        =   0
+   ==>
+   res{1} = inzpRep4 res{2}.
+proof.
+  proc.
+admit.
+qed.
+
 (** step 9 : invert **)
 equiv eq_h4_invert :
   MHop2.invert ~ M.__invert4 : 
      z1'{1} = inzpRep4 fs{2}
   ==> res{1} = inzpRep4 res{2}.
 proof.
-proc.
-  admit.
+  proc => /=.
+  call eq_h4_mul_ss.
+  call eq_h4_sqr_s_.
+  call eq_h4_it_sqr_s. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_s. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_ss. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_ss. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_s. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_ss. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_ss. wp.
+  call eq_h4_mul_ss.
+  call eq_h4_it_sqr_s. wp.
+  call eq_h4_sqr_ss.
+  call eq_h4_mul_ss.
+  call eq_h4_sqr_ss.
+  call eq_h4_mul_ss.
+  call eq_h4_mul_ss.
+  call eq_h4_sqr_s_.
+  call eq_h4_sqr_ss.
+  call eq_h4_sqr_ss. wp. 
+  skip. auto => />. move => *. progress.
+  congr. admit. admit. admit. admit. admit. admit. admit. admit.
 qed.
 
 equiv eq_h4_it_sqr_ss_ :
@@ -413,7 +501,7 @@ equiv eq_h4_encode_point :
   MHop2.encode_point ~ M.__encode_point4:
   true ==> true.
 proof.
-admit.
+  proc. sp. 
 qed.
 
 (** step 11 : scalarmult **)

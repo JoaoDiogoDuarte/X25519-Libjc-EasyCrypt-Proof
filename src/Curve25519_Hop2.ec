@@ -257,10 +257,13 @@ module MHop2 = {
   proc encode_point (x2 z2 : zp) : W256.t =
   {
     var r : zp;
+    var h : W256.t;
+    h <- witness;
     r <- witness;
     z2 <@ invert (z2);
     r <@  mul (x2, z2);
-    return (W256.of_int (asint r));
+    h <@  tobytes(r);
+    return h;
   }
 
    proc scalarmult_internal(u'': zp,  k': W256.t ) : W256.t = {
@@ -531,11 +534,12 @@ qed.
 lemma eq_h2_encode_point (q : zp * zp) : 
   hoare[MHop2.encode_point : x2 =  q.`1 /\ z2 = q.`2 ==> res = encodePoint1 q].
 proof.
-  proc. inline MHop2.mul. wp. sp.
+  proc. inline MHop2.mul MHop2.tobytes. wp. sp. 
   ecall (eq_h2_invert z2).
   skip. simplify.
-  move => &hr [H] [H0] H1 H2. move=> ->.
-  rewrite encodePoint1E /= H0 H1 //.
+  move => &hr [H] [H0 [H1 H2] H3] H4. 
+  rewrite encodePoint1E /=  H4 H1 => />.
+  congr; congr; congr. by congr.
 qed.
 
 (** step 11 : scalarmult **)

@@ -129,6 +129,7 @@ proof.
   skip. trivial.
 qed.
 
+
 lemma eq_h3_invert (z : zp) : 
   phoare[MHop2.invert : z1' =  z ==> res = invert2 z] = 1%r.
 proof. by conseq ill_invert (eq_h2_invert z). qed.
@@ -136,8 +137,7 @@ proof. by conseq ill_invert (eq_h2_invert z). qed.
 (** step 10 : encode point **)
 lemma ill_encode_point : islossless MHop2.encode_point.
 proof.
-  proc. inline MHop2.mul. wp; sp. call(_: true ==> true). apply ill_invert.
-  skip. trivial.
+  proc. inline MHop2.mul. wp; sp. call(_: true ==> true). apply ill_invert. trivial.
 qed.
 
 lemma eq_h3_encode_point (q : zp * zp) : 

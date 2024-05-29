@@ -166,11 +166,11 @@ qed.
 
 (** step 4: montgomery_ladder = select_tuple_12 montgomery_ladder3 **)
 lemma eq_montgomery_ladder123 (init : zp) (k: W256.t) :
-  k.[0] = false =>
-  montgomery_ladder init k = select_tuple_12 (montgomery_ladder3 init k).
+  k.[0] = false => montgomery_ladder init k = select_tuple_12 (montgomery_ladder3 init k).
 proof.
-  move => hkf.
-  by rewrite eq_montgomery_ladder1 eq_montgomery_ladder2 eq_montgomery_ladder3.
+  move => H.
+  rewrite eq_montgomery_ladder1 eq_montgomery_ladder2 eq_montgomery_ladder3. apply H.
+  trivial.
 qed.
 
 (** step 5: introduce reordering in encode point **)
@@ -379,17 +379,16 @@ qed.
 (** step 6: scalarmult with updated montgomery_ladder3 **)
 
 op scalarmult_internal1(u: zp) (k:W256.t) : W256.t =
-   let r = montgomery_ladder3 u k in
+   let r = montgomery_ladder3 u  k in
    encodePoint1 (r.`1) axiomatized by scalarmult_internal1E.
 
 (* lemma scalarmult = scalarmult1 *)
 lemma eq_scalarmult_internal1 (u:zp) (k:W256.t) :
   k.[0] = false => scalarmult_internal1 u k = scalarmult_internal u k.
   proof.
-  move => H.
   rewrite /scalarmult_internal1. simplify.
   rewrite eq_encodePoint1 /scalarmult_internal.
-  simplify. 
+  simplify. move => H. 
   congr.
   have ml123 : montgomery_ladder u k = select_tuple_12 (montgomery_ladder3 u k).
   apply eq_montgomery_ladder123. apply H.

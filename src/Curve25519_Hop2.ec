@@ -1,8 +1,12 @@
-require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring.
-from Jasmin require import JModel.
+require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr.
+from Jasmin require import JModel JWord JModel_x86.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
 import Zp_25519 ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID.
+import SLH64.
+
+require import Array4 Array5 Array8 Array32.
+require import WArray32 WArray40 WArray64.
 
 module MHop2 = {
 
@@ -63,25 +67,6 @@ module MHop2 = {
     }
 
     return f;
-  }
-
- proc tobytes(p : zp) : W256.t =  {
-      var a : W256.t;
-      a <- witness;
-      a <- W256.of_int (asint p);
-      return a;   
-  }
-  proc store(s: W256.t) : zp  =  {
-      var p : zp;
-      p <- witness;
-      p <-  inzp(W256.to_uint(s)); (* need to convert to int ? *)   
-    return p;
-  }
-  proc load (p: zp) : W256.t = {
-      var a : W256.t;
-      a <- witness;
-      a <- W256.of_int(asint p);
-      return a;
   }
 
   (* f ** 2**255-19-2 *)
@@ -152,10 +137,8 @@ module MHop2 = {
 
   proc decode_u_coordinate (u' : W256.t) : zp =
   {
-    var u'' : zp;
     (* last bit of u is cleared but that can be introduced at the same time as arrays *)
-    u'' <- inzp ( to_uint u' );
-    return u'';
+    return inzp ( to_uint u' );
   }
 
     proc decode_u_coordinate_base () : zp =
@@ -168,6 +151,7 @@ module MHop2 = {
 
   proc init_points (init : zp) : zp * zp * zp * zp = 
   {
+
     var x2 : zp;
     var z2 : zp;
     var x3 : zp;
@@ -244,8 +228,8 @@ module MHop2 = {
     z2 <- witness;
     z3 <- witness;
     (x2, z2, x3, z3) <@ init_points (init');
-    ctr <- 254;
     swapped <- false;
+    ctr <- 254;
     while (0 <= ctr)
     { (x2, z2, x3, z3, swapped) <@
         montgomery_ladder_step (k', init', x2, z2, x3, z3, swapped, ctr);
@@ -257,13 +241,11 @@ module MHop2 = {
   proc encode_point (x2 z2 : zp) : W256.t =
   {
     var r : zp;
-    var h : W256.t;
-    h <- witness;
     r <- witness;
     z2 <@ invert (z2);
     r <@  mul (x2, z2);
-    h <@  tobytes(r);
-    return h;
+    (* no need to 'freeze' or 'tobytes' r in this spec *)
+    return (W256.of_int (asint r));
   }
 
    proc scalarmult_internal(u'': zp,  k': W256.t ) : W256.t = {
@@ -278,7 +260,8 @@ module MHop2 = {
     x3 <- witness;
     z2 <- witness;
     z3 <- witness;
-    
+    (x2, z2, x3, z3) <@ montgomery_ladder(u'', k');
+    r <@ encode_point(x2, z2);
     return r;
   }
 
@@ -298,30 +281,20 @@ module MHop2 = {
 
     k'  <@ decode_scalar (k');
     u'' <@ decode_u_coordinate_base ();
-    (x2, z2, x3, z3) <@ montgomery_ladder (u'', k');
-    r <@ encode_point (x2, z2);
+    r   <@ scalarmult_internal(u'', k');
     return r;
   }
 
   proc scalarmult (k' u' : W256.t) : W256.t =
   {
     var u'' : zp;
-    var x2 : zp;
-    var z2 : zp;
-    var x3 : zp;
-    var z3 : zp;
     var r : W256.t;
    
     r <- witness;
-    x2 <- witness;
-    x3 <- witness;
-    z2 <- witness;
-    z3 <- witness;
 
     k'  <@ decode_scalar (k');
     u'' <@ decode_u_coordinate (u');
-    (x2, z2, x3, z3) <@ montgomery_ladder (u'', k');
-    r <@ encode_point (x2, z2);
+    r   <@ scalarmult_internal(u'', k');
     return r;
   }
 }.
@@ -534,44 +507,60 @@ qed.
 lemma eq_h2_encode_point (q : zp * zp) : 
   hoare[MHop2.encode_point : x2 =  q.`1 /\ z2 = q.`2 ==> res = encodePoint1 q].
 proof.
-  proc. inline MHop2.mul MHop2.tobytes. wp. sp. 
+  proc. inline MHop2.mul. wp. sp. 
   ecall (eq_h2_invert z2).
   skip. simplify.
-  move => &hr [H] [H0 [H1 H2] H3] H4. 
-  rewrite encodePoint1E /=  H4 H1 => />.
-  congr; congr; congr. by congr.
+  move => &hr [H] [H0] H1 H2 H3.  
+ 
+  rewrite encodePoint1E. progress. 
+  congr; congr; congr. rewrite -H1. apply H3.
 qed.
 
 (** step 11 : scalarmult **)
+
+lemma eq_h2_scalarmult_internal (u: zp,  k: W256.t) : 
+  hoare[MHop2.scalarmult_internal : k.[0] = false /\ k' = k /\ u'' = u ==> res = scalarmult_internal1 u k].
+proof.
+  proc. sp.
+  ecall (eq_h2_encode_point (x2, z2)). simplify.
+  ecall (eq_h2_montgomery_ladder u'' k'). simplify.
+  skip.
+  move => &1 [H0] [H1] [H2] [H3] [H4] [H5] [H6] H7. split. rewrite H6 => />.
+  move => H8 H9 H10 H11 H12.
+  smt().
+qed.
 
 lemma eq_h2_scalarmult (k u : W256.t) : 
   hoare[MHop2.scalarmult : k' = k /\ u' = u ==> res = scalarmult k u].
 proof.
   rewrite -eq_scalarmult1.
-  proc. sp.
-  ecall (eq_h2_encode_point (x2,z2)).     simplify.
-  ecall (eq_h2_montgomery_ladder u'' k'). simplify.
-  ecall (eq_h2_decode_u_coordinate u').   simplify.
-  ecall (eq_h2_decode_scalar k').   simplify.
+  proc.
+  pose dk := decodeScalar25519 k.
+  have kb0f  : (dk).[0] = false. (* k bit 0 false *)
+    rewrite /dk /decodeScalar25519 //.
+  ecall (eq_h2_scalarmult_internal u'' k'). 
+  ecall (eq_h2_decode_u_coordinate u'). 
+  ecall (eq_h2_decode_scalar k').   simplify. sp.
   skip.
-  move => &hr [?] [?] [?] [?] [?] [?] ?.
-  move=> ? -> ? ->. split.
-    by rewrite /decodeScalar25519 /=.
-  move=> ? ? ? ? -> => /#.
+  move => &hr [H] [H0] H1 H2 H3 H4 H5. split. rewrite H3 H0. apply kb0f.
+  move=> H6 H7 ->. rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
+  rewrite H5 H1 => />. rewrite H3 H0 => />. congr. congr. congr. rewrite H5 H1 => />. rewrite H3 H0 => />.  
 qed.
 
 lemma eq_h2_scalarmult_base (k : W256.t) : 
   hoare[MHop2.scalarmult_base : k' = k  ==> res = scalarmult_base k].
 proof.
   rewrite -eq_scalarmult_base1.
-  proc. sp.
-  ecall (eq_h2_encode_point (x2,z2)). simplify.
-  ecall (eq_h2_montgomery_ladder (inzp(9%Int)) (k')). simplify.
-  ecall (eq_h2_decode_u_coordinate_base).  simplify.
-  ecall (eq_h2_decode_scalar k').   simplify.
+  proc.
+  pose dk := decodeScalar25519 k.
+  have kb0f  : (dk).[0] = false. (* k bit 0 false *)
+    rewrite /dk /decodeScalar25519 //.
+  ecall (eq_h2_scalarmult_internal u'' k'). 
+  ecall (eq_h2_decode_u_coordinate_base). 
+  ecall (eq_h2_decode_scalar k').   simplify. sp.
   skip.
-  move => &hr [?] [?] [?] [?] [?]  ?.
-  move=> ? -> ? ->. split.
-    by rewrite /decodeScalar25519 /=.
-  move=> ? ? ? ? -> => /#.
+  move => &hr [H] [H0] [H1] [H2] [H3] H4 H5 H6 H7 H8. split. rewrite H6 H4. apply kb0f.
+  move=> H9 H10 ->. rewrite /scalarmult_base1  /scalarmult1.
+  progress. rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
+  rewrite H6 H4 => />. congr. congr. congr. rewrite H6 H4 => />. 
 qed.

@@ -1,4 +1,4 @@
-require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Array4.
+require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Distr.
 from Jasmin require import JModel JWord_array.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
@@ -9,12 +9,17 @@ import Zp_25519 ZModpRing.
 import Curve25519_Spec Curve25519_Hop1 Curve25519_Hop2 Curve25519_ref4 Array4 Array32 StdOrder.IntOrder.
 require import W64limbs.
 
+
+
 (** representation : move to another file/use rep3/5 **)
 type Rep4 = W64.t Array4.t.
 type Rep32 = W8.t Array32.t.
 
+
 op valRep4  (x : Rep4) : int = val_limbs64 (Array4.to_list x).
+op valRep4List  (x : W64.t list) : int = val_limbs64(x).
 op inzpRep4 (x : Rep4) : zp  = inzp (valRep4 x) axiomatized by inzpRep4E.
+op inzpRep4List (x: W64.t list) : zp = inzp (valRep4List x) axiomatized by inzpRep4ListE.
 abbrev zpcgrRep4 (x : Rep4) (z : int) : bool = zpcgr (valRep4 x) z.
 
 op valRep32  (x : Rep32) : int = val_limbs8 (Array32.to_list x).
@@ -220,67 +225,56 @@ proc.
 admit.
 qed.
 
-(** loading, storing and init **)
-
-equiv eq_h4_tobytes :
-    MHop2.tobytes ~ M.__tobytes4:
-    p{1} = inzpRep4 f{2} 
-    ==> 
-    to_list (W4u64.unpack64 res{1}) = to_list res{2}.
-proof.
-proc. 
-(* sp. auto => />. 
-move => &2 aux_3_R aux_4_R aux_3_R0 aux_4_R0 aux_3_R1 aux_4_R1 aux_3_R2 aux_4_R2 t_R0 aux_3_R3 aux_4_R3.
-move => aux_3_R4 aux_4_R4 f_R. 
-move => H H0 H1 H2 H3 H4 H5 H6. rewrite !setE => />.
-*)
-admit.
-
-qed.
-
-equiv eq_h4_load :
-    MHop2.load ~ M.__load4 : 
-true ==> true.
-proof.
-  proc. wp. unroll for{2} ^while. by  auto => />.
-qed.
-
-equiv eq_h4_store :
-    MHop2.store ~ M.__store4 : 
-true ==> true.
-proof.
-proc. wp. unroll for{2} ^while. by auto => />.
-qed.
+(** init **)
 
 equiv eq_init_point4 :
     MHop2.init_points ~ M.__init_points4 : 
-true ==> true.
+init{1} = inzpRep4 initr{2}
+==> 
+res{1}.`1 = inzpRep4 res{2}.`1 /\
+res{1}.`2 = inzpRep4 res{2}.`2 /\
+res{1}.`3 = inzpRep4 res{2}.`3 /\
+res{1}.`4 = inzpRep4 res{2}.`4.
 proof.
-proc. wp. unroll for{2} ^while. sp. skip. by move => />.
-qed.
-
+proc. 
+wp. unroll for{2} ^while. wp. skip. move => &1 &2 H H0 H1 H2 H3 H4 H5 H6.
+split; auto => />. rewrite /H4 /H0 /H2 /H3 /Zp_25519.one /set0_64_ /inzpRep4 => />.
+rewrite /valRep4 /to_list /mkseq -iotaredE => />.
+split; auto => />. rewrite /H5  /H0 /H3 /H2 /Zp_25519.zero /set0_64_ /inzpRep4 => />.
+rewrite /valRep4 /to_list /mkseq -iotaredE  => />.
+rewrite /H6  /H0 /H3 /H2 /Zp_25519.zero /set0_64_ /inzpRep4 //  /valRep4 /to_list /mkseq -iotaredE  => />.
+qed. 
 
 (** step 1 : decode_scalar_25519 **)
-equiv eq_h4_decode_scalar_25519 :
+ equiv eq_h4_decode_scalar_25519 :
   MHop2.decode_scalar ~ M.__decode_scalar:
-  true ==> true.
+  inzp(W256.to_uint(k'{1})) = inzpRep4 k{2}
+  ==> 
+  W32u8.to_list res{1} = to_list res{2}. 
 proof.
-proc. wp. unroll for{2} ^while. wp. skip. move => *. done.
+admit. (* HELP No idea how to prove these "bit manipulation tricks" in easycrypt *)
 qed.
+
 
 (** step 2 : decode_u_coordinate **)
 equiv eq_h4_decode_u_coordinate :
   MHop2.decode_u_coordinate ~ M.__decode_u_coordinate4:
-  true ==> true.
+  inzp(W256.to_uint  u'{1}) = inzpRep4 u{2}
+  ==> 
+  res{1} = inzpRep4 res{2}.
 proof.
- proc. by wp.
+ proc. wp. skip.
+ move => &1 &2 H0. rewrite H0.
+ congr. 
+admit. (* HELP This seems false...? *)
 qed.
 
 equiv eq_h4_decode_u_coordinate_base :
-  MHop2.decode_u_coordinate_base~ M.__decode_u_coordinate_base4:
-  true ==> true.
+  MHop2.decode_u_coordinate_base ~ M.__decode_u_coordinate_base4:
+  true ==> res{1} = inzpRep4 res{2}.
 proof.
-proc. by wp.
+proc. wp. skip. move => &1 &2 H.
+rewrite /inzpRep4. congr. rewrite /valRep4 /to_list /mkseq -iotaredE => />.
 qed.
 
 (** step 3 : ith_bit **)
@@ -288,9 +282,10 @@ equiv eq_h4_ith_bit :
   MHop2.ith_bit ~ M.__ith_bit :
   inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\  (ctr{1} = to_uint ctr{2}) ==> b2i res{1} = to_uint res{2}.
 proof.
-proc.  
-admit.
+proc.
+admit. (* HELP No idea how to prove these "bit manipulation tricks" in easycrypt *)
 qed.
+
 
 (** step 4 : cswap **)
 equiv eq_h4_cswap :
@@ -393,39 +388,43 @@ move => [H8 H9] H10 H11 H12 H13 H14.
 split;  auto => />.  rewrite /H14 /H13. 
 rewrite /b2i. 
 case: (swapped{1} ^^ H10).
-move => *. smt. (* find correct calls *)
-move => *. smt. (* find the correct calls *)
+move => *. smt(@W64). 
+move => *. smt(@W64). 
 qed.   
 
 (** step 7 : montgomery_ladder **)
 equiv eq_h4_montgomery_ladder :
   MHop2.montgomery_ladder ~ M.__montgomery_ladder4 :
-  true ==> true.
+   init'{1} = inzpRep4 u{2} /\
+   to_list (W32u8.unpack8 k'{1}) = Array32.to_list k{2}
+   ==>
+   res{1}.`1 = inzpRep4 res{2}.`1 /\
+   res{1}.`2 =inzpRep4  res{2}.`2.
 proof.
-admit.
+proc. sp.
+(*while((to_uint ctr = 0 \/ to_uint ctr = 1 \/ to_uint ctr = W64.max_int) /\
+      (to_uint ctr = 1 => valores à entrada) /\ (to_uint ctr = 0 => valores a meio) /\
+      (to_uint ctr = W64.max_int => valores à saida))
+*)
+ admit.
+
 qed.
 
  (** step 8 : iterated square, may be error in variable names, ened to chec  **)
 equiv eq_h4_it_sqr :
  MHop2.it_sqr ~ M._it_sqr4_p:
    f{1}            =    inzpRep4 x{2} /\
-   i{1}            =    to_uint i{2}  /\
-    i{1}           <=   W32.modulus   /\
-    2              <=   i{1}          /\
-   i{1} %% 2        =   0
+   i{1}            =    W32.to_uint i{2}  
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
- admit.
+proc. sp. wp. progress. admit.
 qed.
 
 equiv eq_h4_it_sqr_s :
  MHop2.it_sqr ~ M._it_sqr4_s_:
    f{1}            =    inzpRep4 x{2} /\
-   i{1}            =    to_uint i{2}  /\
-   i{1}            <=   W64.modulus   /\
-    2              <=   i{1}          /\
-   i{1} %% 2        =   0
+   i{1}            =    W32.to_uint i{2}
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
@@ -436,10 +435,7 @@ qed.
 equiv eq_h4_it_sqr_ss :
  MHop2.it_sqr ~ M._it_sqr4_ss_:
    f{1}            =    inzpRep4 x{2} /\
-   i{1}            =    to_uint i{2}  /\
-   i{1}            <=   W64.modulus   /\
-    2              <=   i{1}          /\
-   i{1} %% 2        =   0
+   i{1}            =    W32.to_uint i{2}
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
@@ -454,6 +450,7 @@ equiv eq_h4_invert :
   ==> res{1} = inzpRep4 res{2}.
 proof.
   proc => /=.
+  sp.
   call eq_h4_mul_ss.
   call eq_h4_sqr_s_.
   call eq_h4_it_sqr_s. wp.
@@ -479,29 +476,24 @@ proof.
   call eq_h4_sqr_s_.
   call eq_h4_sqr_ss.
   call eq_h4_sqr_ss. wp. 
-  skip. auto => />. move => *. progress.
-  congr. admit. admit. admit. admit. admit. admit. admit. admit.
+  admit.
 qed.
 
-equiv eq_h4_it_sqr_ss_ :
- MHop2.it_sqr ~ M._it_sqr4_ss_:
-   f{1}            =    inzpRep4 x{2} /\
-   i{1}            =    to_uint i{2}  /\
-   i{1}            <=   W64.modulus   /\
-    2              <=   i{1}          /\
-   i{1} %% 2        =   0
-   ==>
-   res{1} = inzpRep4 res{2}.
-proof.
-  proc. admit.
-qed.
 
 (** step 10 : encode point **)
 equiv eq_h4_encode_point : 
   MHop2.encode_point ~ M.__encode_point4:
-  true ==> true.
+  x2{1} = inzpRep4 x2{2} /\ 
+  z2{1} = inzpRep4 z2r{2}
+  ==>
+  inzp (to_uint res{1}) =  inzpRep4 res{2}.
 proof.
-  proc. sp. 
+  proc. inline M.__tobytes4. wp. 
+  call eq_h4_mul_rss. 
+  call eq_h4_invert.
+  wp. skip. move => &1 &2 [H] H0. split. auto => />. 
+  move => H1 H2 H3 H4. split. split. auto => />. auto => />.  
+admit. (* HELP I do not know how to prove bit tricks like these in easycrypt *)
 qed.
 
 (** step 11 : scalarmult **)
@@ -510,6 +502,10 @@ equiv eq_h4_scalarmult_internal :
   MHop2.scalarmult_internal ~ M.__curve25519_internal_ref4:
   true ==> true.
 proof.
+proc.
+call eq_h4_encode_point.
+call eq_h4_montgomery_ladder. wp. skip.
+move => *. split. split. progress.
 admit.
 qed.
 
@@ -517,6 +513,7 @@ equiv eq_h4_scalarmult :
   MHop2.scalarmult ~ M._curve25519_ref4:
   true ==> true.
 proof.
+proc.
 admit.
 qed.
 
@@ -556,3 +553,4 @@ equiv eq_h4_scalarmult_jade_base :
 proof.
 admit.
 qed.
+it_

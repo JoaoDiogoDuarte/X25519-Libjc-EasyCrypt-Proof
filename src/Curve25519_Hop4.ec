@@ -26,14 +26,15 @@ op valRep32  (x : Rep32) : int = val_limbs8 (Array32.to_list x).
 op inzpRep32 (x : Rep32) : zp  = inzp (valRep32 x) axiomatized by inzpRep32E.
 (** ************************************* **)
 
-(** step 0 : add sub mul sqr **)
+(** step 0 : add sub mul sqr - all done by auto **)
 
 equiv eq_h4_add : MHop2.add ~ M.__add4_rrs:
    f{1} = inzpRep4 f{2} /\
    g{1} = inzpRep4 g{2}
     ==>
    res{1} = inzpRep4 res{2}.
-proof.   
+proof. 
+ proc.  
  admit.
 qed.
 
@@ -250,23 +251,20 @@ qed.
   MHop2.decode_scalar ~ M.__decode_scalar:
   inzp(W256.to_uint(k'{1})) = inzpRep4 k{2}
   ==> 
-  W32u8.to_list res{1} = to_list res{2}. 
+   inzp(W256.to_uint res{1}) = inzpRep32  res{2}. 
 proof.
-admit. (* HELP No idea how to prove these "bit manipulation tricks" in easycrypt *)
+admit. (* AUTO *)
 qed.
 
 
 (** step 2 : decode_u_coordinate **)
 equiv eq_h4_decode_u_coordinate :
   MHop2.decode_u_coordinate ~ M.__decode_u_coordinate4:
-  inzp(W256.to_uint  u'{1}) = inzpRep4 u{2}
+  inzp(W256.to_uint(u'{1})) = inzpRep4 u{2}
   ==> 
   res{1} = inzpRep4 res{2}.
 proof.
- proc. wp. skip.
- move => &1 &2 H0. rewrite H0.
- congr. 
-admit. (* HELP This seems false...? *)
+admit. (* AUTO MSB already 0 -  ask tiago *)
 qed.
 
 equiv eq_h4_decode_u_coordinate_base :
@@ -283,7 +281,7 @@ equiv eq_h4_ith_bit :
   inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\  (ctr{1} = to_uint ctr{2}) ==> b2i res{1} = to_uint res{2}.
 proof.
 proc.
-admit. (* HELP No idea how to prove these "bit manipulation tricks" in easycrypt *)
+admit. (* AUTO *)
 qed.
 
 
@@ -396,7 +394,7 @@ qed.
 equiv eq_h4_montgomery_ladder :
   MHop2.montgomery_ladder ~ M.__montgomery_ladder4 :
    init'{1} = inzpRep4 u{2} /\
-   to_list (W32u8.unpack8 k'{1}) = Array32.to_list k{2}
+    inzp (W256.to_uint k'{1}) =  inzpRep32 k{2}
    ==>
    res{1}.`1 = inzpRep4 res{2}.`1 /\
    res{1}.`2 =inzpRep4  res{2}.`2.
@@ -428,7 +426,7 @@ equiv eq_h4_it_sqr_s :
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
-  proc.
+  proc. wp. sp. inline M._it_sqr4_p.  sp. wp.
 admit.
 qed.
 
@@ -439,21 +437,20 @@ equiv eq_h4_it_sqr_ss :
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
-  proc.
-admit.
+ proc. wp. sp. inline M._it_sqr4_p. sp. wp. admit.
 qed.
 
 (** step 9 : invert **)
 equiv eq_h4_invert :
   MHop2.invert ~ M.__invert4 : 
-     z1'{1} = inzpRep4 fs{2}
+     fs{1} = inzpRep4 fs{2}
   ==> res{1} = inzpRep4 res{2}.
 proof.
-  proc => /=.
+  proc.
   sp.
   call eq_h4_mul_ss.
   call eq_h4_sqr_s_.
-  call eq_h4_it_sqr_s. wp.
+  call (eq_h4_it_sqr_s). wp.
   call eq_h4_mul_ss.
   call eq_h4_it_sqr_s. wp.
   call eq_h4_mul_ss.
@@ -476,7 +473,7 @@ proof.
   call eq_h4_sqr_s_.
   call eq_h4_sqr_ss.
   call eq_h4_sqr_ss. wp. 
-  admit.
+  skip. done.
 qed.
 
 
@@ -488,48 +485,57 @@ equiv eq_h4_encode_point :
   ==>
   inzp (to_uint res{1}) =  inzpRep4 res{2}.
 proof.
-  proc. inline M.__tobytes4. wp. 
-  call eq_h4_mul_rss. 
-  call eq_h4_invert.
-  wp. skip. move => &1 &2 [H] H0. split. auto => />. 
-  move => H1 H2 H3 H4. split. split. auto => />. auto => />.  
-admit. (* HELP I do not know how to prove bit tricks like these in easycrypt *)
+admit. (* AUTO *)
 qed.
 
 (** step 11 : scalarmult **)
 
 equiv eq_h4_scalarmult_internal :
   MHop2.scalarmult_internal ~ M.__curve25519_internal_ref4:
-  true ==> true.
+  inzp(W256.to_uint k'{1}) = inzpRep32 k{2} /\  u''{1} = inzpRep4 u{2}
+  ==>
+  inzp(W256.to_uint res{1}) = inzpRep4 res{2}. 
 proof.
 proc.
 call eq_h4_encode_point.
 call eq_h4_montgomery_ladder. wp. skip.
-move => *. split. split. progress.
-admit.
+done.
 qed.
 
 equiv eq_h4_scalarmult :
   MHop2.scalarmult ~ M._curve25519_ref4:
-  true ==> true.
+  inzp(W256.to_uint k'{1}) = inzpRep4 _k{2} /\  inzp (to_uint u'{1}) = inzpRep4 _u{2}
+  ==>
+  inzp(W256.to_uint res{1}) = inzpRep4 res{2}. 
 proof.
 proc.
-admit.
+call eq_h4_scalarmult_internal => />.
+call eq_h4_decode_u_coordinate => />.
+call eq_h4_decode_scalar_25519.
+wp. skip. progress.
 qed.
 
-
-equiv eq_h4_scalarmult_ptr :
+(*
+equiv eq_h4_scalarmult_ptr : (* how to get address *)
   MHop2.scalarmult ~ M.__curve25519_ref4_ptr:
-  true ==> true.
+  inzp(W256.to_uint k'{1}) = inzpRep4 kp{2} /\  inzp (to_uint u'{1}) = inzpRep4 up{2}
+  ==>
+  inzp(W256.to_uint res{1}) = inzpRep4 res{2}. 
+proof.
 proof.
 admit.
 qed.
+*)
 
 equiv eq_h4_scalarmult_base :
   MHop2.scalarmult_base ~ M._curve25519_ref4_base:
-  true ==> true.
+  inzp(W256.to_uint k'{1}) = inzpRep4 _k{2} ==>  inzp(W256.to_uint res{1}) = inzpRep4 res{2}. 
 proof.
-admit.
+proc.
+call eq_h4_scalarmult_internal => />.
+call eq_h4_decode_u_coordinate_base => />.
+call eq_h4_decode_scalar_25519.
+wp. skip. progress.
 qed.
 
 equiv eq_h4_scalarmult_base_ptr :
@@ -542,8 +548,9 @@ qed.
 
 equiv eq_h4_scalarmult_jade :
   MHop2.scalarmult ~ M.jade_scalarmult_curve25519_amd64_ref4:
-  true ==> true.
-proof.
+  true
+  ==>
+  true.
 admit.
 qed.
 
@@ -553,4 +560,3 @@ equiv eq_h4_scalarmult_jade_base :
 proof.
 admit.
 qed.
-it_

@@ -70,45 +70,45 @@ module MHop2 = {
   }
 
   (* f ** 2**255-19-2 *)
-  proc invert (z1' : zp) : zp =
+  proc invert (fs : zp) : zp =
   {
-    var t0 : zp;
-    var t1 : zp;
-    var t2 : zp;
-    var t3 : zp;
+    var t1s : zp;
+    var t0s : zp;
+    var t2s : zp;
+    var t3s : zp;
 
-    t0 <- witness;
-    t1 <- witness;
-    t2 <- witness;
-    t3 <- witness;
-
-    t0 <@ sqr (z1');
-    t1 <@ sqr (t0);
-    t1 <@ sqr (t1);
-    t1 <@ mul (z1', t1);
-    t0 <@ mul (t0,  t1);
-    t2 <@ sqr (t0);
-    t1 <@ mul (t1, t2);
-    t2 <@ sqr (t1);
-    t2 <@ it_sqr (t2, 4);
-    t1 <@ mul (t1, t2);
-    t2 <@ it_sqr (t1, 10);
-    t2 <@ mul (t1, t2);
-    t3 <@ it_sqr (t2, 20);
-    t2 <@ mul (t2, t3);
-    t2 <@ it_sqr (t2, 10);
-    t1 <@ mul (t1, t2);
-    t2 <@ it_sqr (t1, 50);
-    t2 <@ mul (t1, t2);
-    t3 <@ it_sqr (t2, 100);
-    t2 <@ mul (t2, t3);
-    t2 <@ it_sqr (t2, 50);
-    t1 <@ mul (t1, t2);
-    t1 <@ it_sqr (t1, 4);
-    t1 <@ sqr (t1);
-    t1 <@ mul (t0, t1);
-    return t1;
-  }
+    t0s <- witness;
+    t1s <- witness;
+    t2s <- witness;
+    t3s <- witness;
+ 
+    t0s <@ sqr (fs);
+    t1s <@ sqr (t0s);
+    t1s <@ sqr (t1s);
+    t1s <@ mul (t1s, fs);
+    t0s <@ mul (t0s, t1s);
+    t2s <@ sqr (t0s);
+    t1s <@ mul (t1s, t2s);
+    t2s <@ sqr (t1s);
+    t2s <@ it_sqr (t2s, 4);
+    t1s <@ mul (t1s, t2s);
+    t2s <@ it_sqr (t1s, 10);
+    t2s <@ mul (t2s, t1s);
+    t3s <@ it_sqr (t2s, 20);
+    t2s <@ mul(t2s, t3s);
+    t2s <@ it_sqr (t2s, 10);
+    t1s <@ mul (t1s, t2s);
+    t2s <@ it_sqr (t1s, 50);
+    t2s <@ mul (t2s, t1s);
+    t3s <@ it_sqr (t2s, 100);
+    t2s <@ mul (t2s, t3s);
+    t2s <@ it_sqr (t2s, 50);
+    t1s <@ mul (t1s, t2s);
+    t1s <@ it_sqr (t1s, 4);
+    t1s <@ sqr (t1s);
+    t1s <@ mul (t1s, t0s);
+    return (t1s);
+   }
   
   proc cswap (x2 z2 x3 z3 : zp, toswap : bool) : zp * zp * zp * zp =
   {
@@ -138,6 +138,7 @@ module MHop2 = {
   proc decode_u_coordinate (u' : W256.t) : zp =
   {
     (* last bit of u is cleared but that can be introduced at the same time as arrays *)
+    u'.[256] <- false;
     return inzp ( to_uint u' );
   }
 
@@ -482,18 +483,18 @@ qed.
 
 (** step 9 : invert **)
 lemma eq_h2_invert (z : zp) : 
-  hoare[MHop2.invert : z1' =  z ==> res = invert2 z].
+  hoare[MHop2.invert : fs =  z ==> res = invert2 z].
 proof.
   proc.
   inline MHop2.sqr MHop2.mul.  wp.
-  ecall (eq_h2_it_sqr 4   t1). wp.
-  ecall (eq_h2_it_sqr 50  t2). wp.
-  ecall (eq_h2_it_sqr 100 t2). wp.
-  ecall (eq_h2_it_sqr 50  t1). wp.
-  ecall (eq_h2_it_sqr 10  t2). wp.
-  ecall (eq_h2_it_sqr 20  t2). wp.
-  ecall (eq_h2_it_sqr 10  t1). wp.
-  ecall (eq_h2_it_sqr 4   t2). wp.
+  ecall (eq_h2_it_sqr 4   t1s). wp.
+  ecall (eq_h2_it_sqr 50  t2s). wp.
+  ecall (eq_h2_it_sqr 100 t2s). wp.
+  ecall (eq_h2_it_sqr 50  t1s). wp.
+  ecall (eq_h2_it_sqr 10  t2s). wp.
+  ecall (eq_h2_it_sqr 20  t2s). wp.
+  ecall (eq_h2_it_sqr 10  t1s). wp.
+  ecall (eq_h2_it_sqr 4   t2s). wp.
   skip. simplify.
   move => &hr H. 
   move=> ? ->. move=> ? ->. 

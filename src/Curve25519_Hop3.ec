@@ -131,7 +131,7 @@ qed.
 
 
 lemma eq_h3_invert (z : zp) : 
-  phoare[MHop2.invert : z1' =  z ==> res = invert2 z] = 1%r.
+  phoare[MHop2.invert : fs =  z ==> res = invert2 z] = 1%r.
 proof. by conseq ill_invert (eq_h2_invert z). qed.
 
 (** step 10 : encode point **)
@@ -144,12 +144,19 @@ lemma eq_h3_encode_point (q : zp * zp) :
   phoare[MHop2.encode_point : x2 =  q.`1 /\ z2 = q.`2 ==> res = encodePoint1 q] = 1%r.
 proof. by conseq ill_encode_point (eq_h2_encode_point q). qed.
 
+lemma ill_scalarmult_internal : islossless MHop2.scalarmult_internal.
+proof.
+proc. sp.
+  call(_: true ==> true). apply ill_encode_point.
+  call(_: true ==> true). apply ill_montgomery_ladder.
+  skip. trivial.
+qed.
+
 (** step 11 : scalarmult **)
 lemma ill_scalarmult : islossless MHop2.scalarmult.
 proof.
   proc. sp.
-  call(_: true ==> true). apply ill_encode_point.
-  call(_: true ==> true). apply ill_montgomery_ladder.
+  call(_: true ==> true). apply ill_scalarmult_internal.
   call(_: true ==> true). apply ill_decode_u_coordinate.
   call(_: true ==> true). apply ill_decode_scalar_25519.
   skip. trivial.
@@ -158,8 +165,7 @@ qed.
 lemma ill_scalarmult_base : islossless MHop2.scalarmult_base.
 proof.
   proc. sp.
-  call(_: true ==> true). apply ill_encode_point.
-  call(_: true ==> true). apply ill_montgomery_ladder.
+  call(_: true ==> true). apply ill_scalarmult_internal.
   call(_: true ==> true). apply ill_decode_u_coordinate_base.
   call(_: true ==> true). apply ill_decode_scalar_25519.
   skip. trivial.

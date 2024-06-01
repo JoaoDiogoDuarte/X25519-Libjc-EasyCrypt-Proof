@@ -20,6 +20,7 @@ op valRep4  (x : Rep4) : int = val_limbs64 (Array4.to_list x).
 op valRep4List  (x : W64.t list) : int = val_limbs64(x).
 op inzpRep4 (x : Rep4) : zp  = inzp (valRep4 x) axiomatized by inzpRep4E.
 op inzpRep4List (x: W64.t list) : zp = inzp (valRep4List x) axiomatized by inzpRep4ListE.
+
 abbrev zpcgrRep4 (x : Rep4) (z : int) : bool = zpcgr (valRep4 x) z.
 
 op valRep32  (x : Rep32) : int = val_limbs8 (Array32.to_list x).
@@ -228,7 +229,7 @@ qed.
 
 (** init **)
 
-equiv eq_init_point4 :
+equiv eq_init_points4 :
     MHop2.init_points ~ M.__init_points4 : 
 init{1} = inzpRep4 initr{2}
 ==> 
@@ -243,7 +244,7 @@ split; auto => />. rewrite /H4 /H0 /H2 /H3 /Zp_25519.one /set0_64_ /inzpRep4 => 
 rewrite /valRep4 /to_list /mkseq -iotaredE => />.
 split; auto => />. rewrite /H5  /H0 /H3 /H2 /Zp_25519.zero /set0_64_ /inzpRep4 => />.
 rewrite /valRep4 /to_list /mkseq -iotaredE  => />.
-rewrite /H6  /H0 /H3 /H2 /Zp_25519.zero /set0_64_ /inzpRep4 //  /valRep4 /to_list /mkseq -iotaredE  => />.
+rewrite /H6  /H0 /H3 /H2 /Zp_25519.zero /set0_64_ /inzpRep4 // /valRep4 /to_list /mkseq -iotaredE  => />.
 qed. 
 
 (** step 1 : decode_scalar_25519 **)
@@ -383,7 +384,7 @@ call eq_h4_ith_bit. skip.
 move => &1 &2 [H0] [H1] [H2] [H3] [H4] [H5] [H6] H7. split.   
 auto => />. rewrite H0. 
 move => [H8 H9] H10 H11 H12 H13 H14. 
-split;  auto => />.  rewrite /H14 /H13. 
+split;  auto => />. rewrite /H14 /H13. 
 rewrite /b2i. 
 case: (swapped{1} ^^ H10).
 move => *. smt(@W64). 
@@ -399,34 +400,51 @@ equiv eq_h4_montgomery_ladder :
    res{1}.`1 = inzpRep4 res{2}.`1 /\
    res{1}.`2 =inzpRep4  res{2}.`2.
 proof.
-proc. sp.
-(*while((to_uint ctr = 0 \/ to_uint ctr = 1 \/ to_uint ctr = W64.max_int) /\
-      (to_uint ctr = 1 => valores à entrada) /\ (to_uint ctr = 0 => valores a meio) /\
-      (to_uint ctr = W64.max_int => valores à saida))
-*)
- admit.
+proc. sp. wp. swap 1 2. sp. 
+while(-1 <= ctr{1} /\ -1 <= to_uint ctr{2} /\ x2{1} = inzpRep4 x2{2} /\ z2{1} = inzpRep4 z2r{2}).
+wp. sp. admit. admit.
 
 qed.
 
  (** step 8 : iterated square, may be error in variable names, ened to chec  **)
+(** step 8 : iterated square **)
 equiv eq_h4_it_sqr :
  MHop2.it_sqr ~ M._it_sqr4_p:
    f{1}            =    inzpRep4 x{2} /\
-   i{1}            =    W32.to_uint i{2}  
-   ==>
+   i{1}            =    to_uint i{2}  /\
+   2               <=   to_uint i{2}  /\
+   i{1}            <=   W32.modulus   /\
+   0              <=   i{1}   ==>
    res{1} = inzpRep4 res{2}.
 proof.
-proc. sp. wp. progress. admit.
+proc. simplify. wp. sp.
+  while (h{1}            =    inzpRep4 x{2}            /\ 
+         ii{1}            =    to_uint i{2}             /\
+         ii{1}            <=   W32.modulus              /\
+         0                <=   ii{1}                     
+).
+   wp. call eq_h4_sqr_p. conseq(_: _ ==> h{1} = inzpRep4 x{2}).
+   progress. rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=.
+   smt(@W32). smt().  smt(@W32). 
+   rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=. smt(@W32).
+   rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=. smt(@W32).
+   skip. progress. wp. 
+   call eq_h4_sqr_p.  
+   skip. progress.
+   rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=. smt(@W32). smt(). smt(@W32).
+   rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=. smt(@W32). smt().
 qed.
 
 equiv eq_h4_it_sqr_s :
  MHop2.it_sqr ~ M._it_sqr4_s_:
    f{1}            =    inzpRep4 x{2} /\
-   i{1}            =    W32.to_uint i{2}
-   ==>
+   i{1}            =    to_uint i{2}  /\
+   2               <=   to_uint i{2}  /\
+   i{1}            <=   W32.modulus   /\
+    2              <=   i{1}   ==>
    res{1} = inzpRep4 res{2}.
 proof.
-  proc. wp. sp. inline M._it_sqr4_p.  sp. wp.
+ proc. simplify. wp. sp.
 admit.
 qed.
 

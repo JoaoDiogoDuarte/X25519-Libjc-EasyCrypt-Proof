@@ -1110,7 +1110,7 @@ module M = {
     
     x <@ _sqr4_p (x);
     ( _0,  _1,  _2, zf, i) <- DEC_32 i;
-    while (0 < to_uint i) {
+    while (!zf) {
       x <@ _sqr4_p (x);
       ( _0,  _1,  _2, zf, i) <- DEC_32 i;
     }

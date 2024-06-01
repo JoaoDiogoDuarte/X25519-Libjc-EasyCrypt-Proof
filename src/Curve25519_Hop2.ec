@@ -1,8 +1,8 @@
-require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr.
+require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr StdOrder.
 from Jasmin require import JModel JWord JModel_x86.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
-import Zp_25519 ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID.
+import Zp_25519 ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID StdOrder.IntOrder.
 import SLH64.
 
 require import Array4 Array5 Array8 Array32.
@@ -49,24 +49,25 @@ module MHop2 = {
   }
 
   (* iterated sqr *)
-  proc it_sqr (f : zp, i: int) : zp =
+  proc it_sqr (f : zp, i : int) : zp =
   {
-   var h : zp;
-    h <- witness;
+    var h: zp;
+    var j: zp;
+    var ii: int;
 
-    h <@ sqr(f);
-    i <- i - 1;
-    f <@ sqr(h);
-    i <- i - 1;
+    j <- f;
+    h <- f;
+    ii <- i;
 
-    while (0 < i) {
-      h <@ sqr(f);
-      i <- i - 1;
-      f <@ sqr(h);
-      i <- i - 1;
+    h <@ sqr(f); 
+    ii <- ii - 1;
+ 
+    while (0 < ii) {
+      h <@ sqr(h);
+      ii <- ii - 1;
     }
-
-    return f;
+    j <- h;
+    return j;
   }
 
   (* f ** 2**255-19-2 *)
@@ -216,6 +217,7 @@ module MHop2 = {
     return (x2, z2, x3, z3, swapped);
   }
 
+
   proc montgomery_ladder (init' : zp, k' : W256.t) : zp * zp * zp * zp = 
   {
     var x2 : zp;
@@ -229,8 +231,8 @@ module MHop2 = {
     z2 <- witness;
     z3 <- witness;
     (x2, z2, x3, z3) <@ init_points (init');
-    swapped <- false;
     ctr <- 254;
+    swapped <- false;
     while (0 <= ctr)
     { (x2, z2, x3, z3, swapped) <@
         montgomery_ladder_step (k', init', x2, z2, x3, z3, swapped, ctr);
@@ -238,6 +240,7 @@ module MHop2 = {
     }
     return (x2, z2, x3, z3);
   }
+
 
   proc encode_point (x2 z2 : zp) : W256.t =
   {
@@ -396,6 +399,8 @@ move => ctrge0.
 rewrite 2!foldl_rev iotaSr //= -cats1 foldr_cat => /#.
 qed.
 
+
+
 lemma eq_h2_montgomery_ladder (init : zp)
                               (k : W256.t) :
   hoare [MHop2.montgomery_ladder : init' = init /\
@@ -419,10 +424,10 @@ proc.
   wp.
   ecall (eq_h2_montgomery_ladder_step k' init' ((x2,z2),(x3,z3),swapped) ctr).
   skip. simplify.
-  move => &hr [hk] H H0 H1. smt(unroll_ml3s).
-  skip. move => &hr [H1] [H2] [H3] [H4] [H5] [H6] [H7] [H8] [H9] [H10] [H11] [H12] [H13] H14. subst.
+  move => &hr [?] ? ? ?. smt(unroll_ml3s).
+  skip. move => &hr [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] ?. subst.
   split; first by done.
-  move => ctr0 swapped x2 x3 z2 z3 ctrle0.
+  progress.
   have _ : rev (iota_ 0 (ctr0 + 1)) = []; smt(iota0).
 qed.
 
@@ -449,37 +454,28 @@ proof.
   rewrite -exprD_nneg //.
 qed.
 
-lemma eq_h2_it_sqr (e : int) (z : zp) : 
+lemma it_sqr1_m2_exp1 (e : int) (z : zp) :
+  0 <= e - 1 => it_sqr1 e z = it_sqr1 (e-1) (exp z  2).
+proof.
+  have ->: exp z 2 = exp (exp z 1) 2. rewrite expE. smt(). trivial.
+  rewrite expE // /= => ?.
+  rewrite !eq_it_sqr1. smt(). smt(). 
+  rewrite /it_sqr (*expE*). rewrite expE. split. smt(). 
+  rewrite expr_ge0 //. congr. have ->: 2 * 2^(e-1) = 2^1 * 2^(e-1). rewrite expr1 //. 
+  rewrite -exprD_nneg //.
+qed.
+
+ lemma eq_h2_it_sqr (e : int) (z : zp) : 
   hoare[MHop2.it_sqr :
-         i = e && 2 <= i && i %% 2 = 0 && f =  z 
+         i = e && 1 <= i  && f =  z 
          ==>
         res = it_sqr1 e z].
 proof.
-  proc. inline MHop2.sqr. simplify.
-  while ( 0 <= i && i %% 2 = 0 && it_sqr1 e z = it_sqr1 i f).
-  wp. skip.
-
-  (** alternative version with progress **)
-  (*
-            progress. smt(). smt(). smt(it_sqr1_m2_exp4).
-  wp. skip. progress. smt(). smt(). smt(it_sqr1_m2_exp4).
-  smt(it_sqr1_0).
-  *)
-  simplify.
-  move => &hr [[H [H0 hin]]] H1. simplify.
-  split; first by smt(). move => H3.
-  split; first by smt(). move => H4.
-  rewrite hin. move : H3. apply it_sqr1_m2_exp4.
-  wp. skip. simplify.
-  move => &hr [H] [H0] [H1] H2. simplify.
-  split.
-  split; first by smt(). move => H3.
-  split; first by smt(). move => H4.
-  subst. move : H3.  apply it_sqr1_m2_exp4.
-  move => H3 H4 H5 [H6] [H7]  ->. subst.
-  have ieq0 : H4 = 0. smt().
-  rewrite it_sqr1_0 /#.
+  proc. inline MHop2.sqr. sp. wp.  simplify. 
+  while (0 <= i && it_sqr1 e z = it_sqr1 i j).
+  wp. skip. progress. skip. progress. smt(). admit. (* help *)
 qed.
+
 
 (** step 9 : invert **)
 lemma eq_h2_invert (z : zp) : 

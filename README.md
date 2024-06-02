@@ -5,8 +5,6 @@ Below are files that run without errors as of latest commit date and time and do
 
 - [X] EClib.ec 
 - [X] W64limbs.ec 
-    - Requires some pruning for unused lemmas that do not prove anything relevant for this scenario.
-    - Contains one lemma that currently results in false but it is probably not be necessary and can be removed.
 - [X] Zp_25519.ec
 - [X] Curve25519_auto.ec
     - Everything that is to be proven in Cryptoline, hence all lemmas are admitted for now.

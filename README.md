@@ -1,20 +1,19 @@
 # X25519-Libjc-EasyCrypt-Proof
 Bringing some libjc X25519 Jasmin-Easycrypt proofs up-to-date (WIP).
 
-Below are files that run without errors as of writing and do not include `admit.` or `smt.`. 
+Below are files that run without errors as of latest commit date and time and do not include any `admit.` or `smt.`. 
 
 - [X] EClib.ec 
 - [X] W64limbs.ec 
     - Requires some pruning for unused lemmas that do not prove anything relevant for this scenario.
-    - Contains  one lemma that currently results in false but it is probably not be necessary and can be removed.
+    - Contains one lemma that currently results in false but it is probably not be necessary and can be removed.
 - [X] Zp_25519.ec
 - [X] Curve25519_auto.ec
     - Everything that is to be proven in Cryptoline, hence all lemmas are admitted for now.
 - [X] Curve25519_spec.ec
 - [X] Curve25519_Hop1.ec
-- [ ] Curve25519_Hop2.ec 
-    - Includes one lemma that ends in `admit` because Easycrypt is a bit weird with assigning variables "to themselves" (e.g. `h <@ sqr(h)`) 
-- [ ] Curve25519_Hop3.ec
+- [X] Curve25519_Hop2.ec 
+- [X] Curve25519_Hop3.ec
 - [ ] Curve25519_Hop4.ec
     - All lemmas with names `*_ptr`, `*itr_sqr_s*`, `*jade*` (in total, 6) are admitted as I need to learn about dealing with pointers in Easycrypt. However, the bulk of the work has already been done as their non-pointer versions have been proved. 
     

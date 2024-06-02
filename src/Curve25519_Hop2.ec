@@ -52,10 +52,8 @@ module MHop2 = {
   proc it_sqr (f : zp, i : int) : zp =
   {
     var h: zp;
-    var j: zp;
     var ii: int;
 
-    j <- f;
     h <- f;
     ii <- i;
 
@@ -66,8 +64,8 @@ module MHop2 = {
       h <@ sqr(h);
       ii <- ii - 1;
     }
-    j <- h;
-    return j;
+    
+    return h;
   }
 
   (* f ** 2**255-19-2 *)
@@ -470,19 +468,20 @@ qed.
 
  lemma eq_h2_it_sqr (e : int) (z : zp) : 
   hoare[MHop2.it_sqr :
-         i = e && 1 <= i  && f =  z 
+         i = e && 1 <= i  && f =  z
          ==>
         res = it_sqr1 e z].
 proof.
   proc. inline MHop2.sqr. sp. wp.  simplify. 
-  while (0 <= i && it_sqr1 e z = it_sqr1 i j).
-  wp. skip. progress. skip. progress. smt(). admit. (* help *)
+  while (0 <= i && 0 <= ii && it_sqr1 e z = it_sqr1 ii h).
+  wp. skip. progress. smt(). smt(it_sqr1_m2_exp1). skip.
+  progress. smt(). smt(). smt(it_sqr1_m2_exp1). smt(it_sqr1_0).
 qed.
 
 
 (** step 9 : invert **)
 lemma eq_h2_invert (z : zp) : 
-  hoare[MHop2.invert : fs =  z ==> res = invert2 z].
+  hoare[MHop2.invert : fs = z ==> res = invert2 z].
 proof.
   proc.
   inline MHop2.sqr MHop2.mul.  wp.
@@ -494,8 +493,8 @@ proof.
   ecall (eq_h2_it_sqr 20  t2s). wp.
   ecall (eq_h2_it_sqr 10  t1s). wp.
   ecall (eq_h2_it_sqr 4   t2s). wp.
-  skip. simplify.
-  move => &hr H. 
+  skip. simplify. 
+  move => &hr H.  
   move=> ? ->. move=> ? ->. 
   move=> ? ->. move=> ? ->.
   move=> ? ->. move=> ? ->.

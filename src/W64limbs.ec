@@ -393,33 +393,27 @@ rewrite to_uint_shr.
 have ->: (to_uint ((of_int k))%W8 %% 64) = k
  by rewrite of_uintK; smt(modz_small).
 move: H4. rewrite -(ltr_pmul2r (2^k)); first by apply gt0_pow2.
-rewrite -exprD_nneg; trivial.
+rewrite -exprD_nneg; trivial. progress.
 smt(ltr_trans ltr_le_trans W64.to_uint_cmp gt0_pow2).
-  qed.
+qed.
 
 lemma bW64_shrw n k x:
  0 <= k < 64 => 0 <= n => bW64 (n+k) x => bW64 n (x `>>>` k).
     proof. by move=> *; rewrite -W64.shr_shrw //; apply bW64_shr. qed.
   
 lemma bW64_shl n k x:
-    0 <= k < 64 => 0 <= n => bW64 (n-k) x => bW64 (n) (x `<<` W8.of_int (k)).
+    0 <= k < 64 => 64 < n => k < n => bW64 (n-k) x => bW64 (n) (x `<<` W8.of_int (k)).
     proof.
- move=> /> H H0 H1.
- case: (n < 64); last first.
- move=> H2 H3; apply (bW64W 64); first by smt().
- by apply bW64T.
-  rewrite !bW64E => /> H4 H5 H6 H7.
- rewrite to_uint_shl.
+ rewrite !bW64E. progress. smt().
+ rewrite  to_uint_shl. smt(@W64). 
+ have ->: (to_uint ((of_int k))%W8  %% 64) = k
  by rewrite of_uintK; smt(modz_small).
- have ->: (to_uint ((of_int k))%W8 %% 64) = k
- by rewrite of_uintK; smt(modz_small).
-  apply (ltr_trans (W64.modulus) (to_uint x * 2^k %% W64.modulus) (2^(n))).
-  by apply ltz_mod.
- admit. (* this is wrong, need to change *)
+ apply (ltr_trans (W64.modulus) (to_uint x * 2^k %% W64.modulus) (2^(n))).
+ by apply ltz_mod. simplify. smt(@JUtils @IntOrder).
 qed.
 
 lemma bW64_shlw n k x:
- 0 <= k < 64 => 0 <= n => bW64 (n-k) x => bW64 n (x `<<<` k).
+ 0 <= k < 64 => 64 < n => k < n => bW64 (n-k) x => bW64 n (x `<<<` k).
 proof. by move=> *; rewrite -W64.shl_shlw //; apply bW64_shl. qed.
 
 end BW64.

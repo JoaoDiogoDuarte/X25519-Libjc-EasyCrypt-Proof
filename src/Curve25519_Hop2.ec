@@ -217,7 +217,7 @@ module MHop2 = {
     return (x2, z2, x3, z3, swapped);
   }
 
-
+  
   proc montgomery_ladder (init' : zp, k' : W256.t) : zp * zp * zp * zp = 
   {
     var x2 : zp;
@@ -236,7 +236,7 @@ module MHop2 = {
     (x2, z2, x3, z3) <@ init_points (init');
     ctr <- 255;
     swapped <- false;    
-        
+
     while (0 < ctr)
     {
      ctr <- ctr - 1; 
@@ -404,8 +404,6 @@ move => ctrge0.
 rewrite 2!foldl_rev iotaSr //= -cats1 foldr_cat => /#.
 qed.
 
-
-
 lemma eq_h2_montgomery_ladder (init : zp)
                               (k : W256.t) :
   hoare [MHop2.montgomery_ladder : init' = init /\
@@ -415,7 +413,25 @@ lemma eq_h2_montgomery_ladder (init : zp)
              select_tuple_12 (montgomery_ladder3 init k)].
 proof.
 proc.
-admit. (* help *)
+  inline MHop2.init_points. sp. simplify.
+  rewrite /montgomery_ladder3.
+
+  while (foldl (montgomery_ladder3_step k' init')
+               ((Zp_25519.one, Zp_25519.zero), (init, Zp_25519.one), false)
+               (rev (iota_ 0 255))
+         =
+         foldl (montgomery_ladder3_step k' init')
+               ((x2,z2), (x3,z3), swapped)
+               (rev (iota_ 0 (ctr)))
+         ).
+  wp. sp.
+  ecall (eq_h2_montgomery_ladder_step k' init' ((x2,z2),(x3,z3),swapped) ctr).
+  skip. simplify.
+  move => &hr [?] ? ? ?. smt(unroll_ml3s).
+  skip. move => &hr [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] ?. subst.
+  split; first by done.
+  progress.
+  have _ : rev (iota_ 0 (ctr0)) = []; smt(iota0).
 qed.
 
     (** step 8 : iterated square **)

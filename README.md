@@ -13,8 +13,8 @@ Below are files that run without errors as of writing and do not include `admit.
 - [X] Curve25519_spec.ec
 - [X] Curve25519_Hop1.ec
 - [ ] Curve25519_Hop2.ec 
-    - Includes two lemmas that end in `admit` because Easycrypt is a bit weird with assigning variables "to themselves" (e.g. `h <@ sqr(h)`) and I am still figuring out how to approach the montgomery ladder proof considering the spec's updated code.
-- [X] Curve25519_Hop3.ec
+    - Includes one lemma that ends in `admit` because Easycrypt is a bit weird with assigning variables "to themselves" (e.g. `h <@ sqr(h)`) 
+- [ ] Curve25519_Hop3.ec
 - [ ] Curve25519_Hop4.ec
     - All lemmas with names `*_ptr`, `*itr_sqr_s*`, `*jade*` (in total, 6) are admitted as I need to learn about dealing with pointers in Easycrypt. However, the bulk of the work has already been done as their non-pointer versions have been proved. 
     

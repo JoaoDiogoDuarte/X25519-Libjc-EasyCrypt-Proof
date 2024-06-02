@@ -1,7 +1,9 @@
-require import List Int IntDiv CoreMap Real Ring Zp_25519.
-import Zp_25519 Ring.IntID.
+require import AllCore Bool List Int IntDiv Zp_25519 Ring.
+from Jasmin require import JModel JWord_array.
+require import W64limbs.
+require import Curve25519_ref4.
+import Zp_25519 Array4 Array32 Ring.IntID.
 
-from Jasmin require import JModel.
 
 op decodeScalar25519 (k:W256.t) =
   let k = k.[0   <- false] in

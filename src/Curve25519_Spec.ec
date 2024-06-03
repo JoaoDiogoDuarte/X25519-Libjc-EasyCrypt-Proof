@@ -1,65 +1,62 @@
-require import AllCore Bool List Int IntDiv Zp_25519 Ring.
-from Jasmin require import JModel JWord_array.
-require import W64limbs.
-require import Curve25519_ref4.
-import Zp_25519 Array4 Array32 Ring.IntID.
-
+require import List Int Int IntDiv CoreMap Real.
+from Jasmin require import JModel.
+require import Zp_25519.
+import Zp_25519.
 
 op decodeScalar25519 (k:W256.t) =
-  let k = k.[0   <- false] in
-  let k = k.[1   <- false] in
-  let k = k.[2   <- false] in
-  let k = k.[255 <- false] in
-  let k = k.[254 <- true ] in
-      k.
+    let k = k.[0   <- false] in
+    let k = k.[1   <- false] in
+    let k = k.[2   <- false] in
+    let k = k.[255 <- false] in
+    let k = k.[254 <- true ] in
+        k.
 
 op decodeUCoordinate (u:W256.t) = inzp (to_uint u).
 
 op add_and_double (qx : zp) (nqs : (zp * zp) * (zp * zp)) =
-  let x_1 = qx in
-  let (x_2, z_2) = nqs.`1 in
-  let (x_3, z_3) = nqs.`2 in
-  let a  = x_2 + z_2 in
-  let aa = a * a in
-  let b  = x_2 + (- z_2) in
-  let bb = b*b in
-  let e = aa + (- bb) in
-  let c = x_3 + z_3 in
-  let d = x_3 + (- z_3) in
-  let da = d * a in
-  let cb = c * b in
-  let x_3 = (da + cb)*(da + cb) in
-  let z_3 = x_1 * ((da + (- cb))*(da + (- cb))) in
-  let x_2 = aa * bb in
-  let z_2 = e * (aa + (inzp 121665 * e)) in
-      ((x_2,z_2), (x_3,z_3)).
+    let x_1 = qx                                      in
+    let (x_2, z_2) = nqs.`1                           in
+    let (x_3, z_3) = nqs.`2                           in
+    let a          = x_2  +  z_2                      in
+    let aa         = a    *  a                        in
+    let b          = x_2  -  z_2                      in
+    let bb         = b    *  b                        in
+    let e          = aa   -  bb                       in
+    let c          = x_3  +  z_3                      in
+    let d          = x_3  -  z_3                      in
+    let da         = d    *  a                        in
+    let cb         = c    *  b                        in
+    let x_3        = (da  +  cb)  *  (da + cb)        in
+    let z_3        = x_1  *  ((da - cb) * (da - cb))  in
+    let x_2        = aa   *  bb                       in
+    let z_2        = e    *  (aa + (inzp 121665 * e)) in
+        ((x_2, z_2), (x_3, z_3)).
 
-op swap_tuple( t : ('a * 'a) * ('a * 'a) ) = (t.`2, t.`1).
+op swap_tuple (t : ('a * 'a) * ('a * 'a)) = (t.`2, t.`1).
 
-op ith_bit(k : W256.t, i : int) = k.[i].
+op ith_bit    (k : W256.t, i : int)       = k.[i].
 
-op montgomery_ladder(init : zp, k : W256.t) =
-  let nqs0 = ((Zp_25519.one,Zp_25519.zero),(init,Zp_25519.one)) in
-  foldl (fun (nqs : (zp * zp) * (zp * zp)) ctr => 
-         if ith_bit k ctr
-         then swap_tuple (add_and_double init (swap_tuple(nqs)))
-         else add_and_double init nqs) nqs0 (rev (iota_ 0 255)).
+op montgomery_ladder (init: zp, k: W256.t)         =
+    let nqs0 = ((Zp_25519.one, Zp_25519.zero), (init, Zp_25519.one)) in
+        foldl (fun (nqs : (zp * zp) * (zp * zp)) ctr => 
+             if ith_bit k ctr
+                 then swap_tuple (add_and_double init (swap_tuple(nqs)))
+             else add_and_double init nqs) nqs0 (rev (iota_ 0 255)).
 
-op encodePoint (q: zp * zp) : W256.t =
-  let q = q.`1 * (ZModpRing.exp q.`2 (p - 2)) in
-      W256.of_int (asint q) axiomatized by encodePointE.
+op encodePoint (q: zp * zp) : W256.t  =
+    let q = q.`1 * (ZModpRing.exp q.`2 (p - 2)) in
+        W256.of_int (asint q)                   axiomatized by encodePointE.
 
-op scalarmult_internal(k: zp) (u: W256.t) : W256.t =
-   let r = montgomery_ladder k u in
-   encodePoint (r.`1) axiomatized by scalarmult_internalE. 
+op scalarmult_internal (k: zp) (u: W256.t) : W256.t =
+   let r = montgomery_ladder k u                in
+       encodePoint (r.`1)                       axiomatized by scalarmult_internalE. 
 
-op scalarmult (k:W256.t) (u:W256.t) : W256.t =
-  let k = decodeScalar25519 k in
-  let u = decodeUCoordinate u in
-  scalarmult_internal u k  axiomatized by scalarmultE. 
+op scalarmult (k: W256.t) (u: W256.t) : W256.t =
+    let k = decodeScalar25519 k                 in
+    let u = decodeUCoordinate u                 in
+        scalarmult_internal u k                 axiomatized by scalarmultE. 
 
 hint simplify scalarmultE.
 
 op scalarmult_base (k:W256.t) : W256.t =
-   scalarmult (k) (W256.of_int(9%Int)).
-
+    scalarmult (k) (W256.of_int(9%Int)).

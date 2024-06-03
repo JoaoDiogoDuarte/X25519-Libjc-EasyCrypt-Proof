@@ -1,5 +1,5 @@
 require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Distr.
-from Jasmin require import JModel.
+from Jasmin require import JModel JMemory.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
 require import Curve25519_Hop2.
@@ -10,6 +10,12 @@ import Zp_25519.
 import Curve25519_Spec Curve25519_auto Curve25519_Hop1 Curve25519_Hop2 Curve25519_ref4 Array4 Array32 StdOrder.IntOrder.
 
 
+(* Should be moved elsewhere *)
+
+op valid_ptr(p : int, o : int) = 0 <= o => 0 <= p /\ p + o < W64.modulus.
+
+op load_array4(m : global_mem_t, p : address) : W64.t list = 
+    [loadW64 m p; loadW64 m (p + 8); loadW64 m (p + 16); loadW64 m (p + 24)].
 
 (** init **)
 
@@ -184,7 +190,7 @@ equiv eq_h4_it_sqr :
         i{1}            =    to_uint i{2}  /\
         2               <=   to_uint i{2}  /\
         i{1}            <=   W32.modulus   /\
-        0               <=   i{1}   
+        2               <=   i{1}   
         ==>
         res{1} = inzpRep4 res{2}.
 proof.
@@ -215,18 +221,24 @@ equiv eq_h4_it_sqr_s :
         2              <=   i{1}   ==>
         res{1} = inzpRep4 res{2}.
 proof.
-    proc. simplify. wp. sp.
-    admit.
+    proc *. inline M._it_sqr4_s_. wp. sp. 
+    call eq_h4_it_sqr. skip. progress. 
 qed.
 
 equiv eq_h4_it_sqr_ss :
-        MHop2.it_sqr ~ M._it_sqr4_ss_:
-    f{1}            =    inzpRep4 x{2} /\
-    i{1}            =    W32.to_uint i{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
+        MHop2.it_sqr ~ M._it_sqr4_ss_: 
+        f{1}            =    inzpRep4 x{2} /\
+        i{1}            =    to_uint i{2}  /\
+        2               <=   to_uint i{2}  /\
+        i{1}            <=   W32.modulus   /\
+        2               <=   i{1}   
+        ==>
+        res{1} = inzpRep4 res{2}.
 proof.
-    proc. wp. sp. inline M._it_sqr4_p. sp. wp. admit.
+    proc *. inline M._it_sqr4_ss_. 
+    unroll for{2} ^while. wp. sp.
+    call eq_h4_it_sqr. skip. progress. congr. rewrite !setE.
+    auto => />. apply  Array4.ext_eq. progress. smt(@Array4).
 qed.
 
 (** step 9 : invert **)
@@ -297,18 +309,34 @@ proof.
 qed.
 
 
+(* to change *)
+(* inzp(W256.to_uint res{1}) = inzpRep4 (load_array4 (Glob.mem{2}) (W64.to_uint _rp{2})) *)
+
+
+
 equiv eq_h4_scalarmult_ptr : (* how to get address *)
     MHop2.scalarmult ~ M.__curve25519_ref4_ptr:
-        true
-        ==> 
+        inzp(W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint kp{2})) /\  
+        inzp (to_uint u'{1})     = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint up{2})) /\
+        valid_ptr (W64.to_uint up{2}) 32                                                    /\ 
+        valid_ptr (W64.to_uint kp{2}) 32
+        ==>
         true.
 proof.
     proc *.
-    inline M.__curve25519_ref4_ptr. 
-    sp. wp. inline M.__load4 M.__store4. do 3! unroll for{2} ^while.
+    inline M.__curve25519_ref4_ptr. wp. sp.
+    inline M.__load4 M.__store4. do 3! unroll for{2} ^while.
     sp. wp. 
-    call eq_h4_scalarmult. skip. progress.
-    admit. admit.
+    call eq_h4_scalarmult. skip. progress. 
+    rewrite H. 
+    rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
+    congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />. 
+    smt(@W64). 
+    rewrite H0. 
+    rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
+    congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />. 
+    smt(@W64). 
+    
 qed.
 
 
@@ -327,28 +355,41 @@ qed.
 
 equiv eq_h4_scalarmult_base_ptr :
     MHop2.scalarmult_base ~ M.__curve25519_ref4_base_ptr:
-        true 
-        ==> 
+        inzp(W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint kp{2})) /\  
+        valid_ptr (W64.to_uint kp{2}) 32
+        ==>
         true.
 proof.
-    admit.
+    proc *. inline M.__curve25519_ref4_base_ptr M.__load4 M.__store4. 
+    do 2! unroll for{2} ^while. wp. sp. call eq_h4_scalarmult_base.
+    skip. progress.
+    rewrite H. 
+    rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
+    congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />. 
+    smt(@W64).
 qed.
 
 
 equiv eq_h4_scalarmult_jade :
     MHop2.scalarmult ~ M.jade_scalarmult_curve25519_amd64_ref4:
-        true
+        inzp(W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2})) /\  
+        inzp (to_uint u'{1})     = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint pp{2})) /\
+        valid_ptr (W64.to_uint np{2}) 32                                                    /\ 
+        valid_ptr (W64.to_uint pp{2}) 32
         ==>
-        true.
+        res{2} = W64.zero.
 proof.
-    admit.
+    proc *. inline M.jade_scalarmult_curve25519_amd64_ref4. wp. sp.
+    call eq_h4_scalarmult_ptr. skip. done.
 qed.
 
 equiv eq_h4_scalarmult_jade_base :
     MHop2.scalarmult_base ~ M.jade_scalarmult_curve25519_amd64_ref4_base:
-        true 
-        ==> 
-        true.
+         inzp(W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2})) /\  
+         valid_ptr (W64.to_uint np{2}) 32                                                     
+        ==>
+        res{2} = W64.zero. 
 proof.
-    admit.
+    proc *. inline M.jade_scalarmult_curve25519_amd64_ref4_base. wp. sp.
+    call eq_h4_scalarmult_base_ptr. skip. done.
 qed.

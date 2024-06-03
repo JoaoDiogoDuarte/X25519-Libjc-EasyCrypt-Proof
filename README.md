@@ -12,7 +12,7 @@ Below are files that run without errors as of latest commit date and time and do
 - [X] Curve25519_Hop1.ec
 - [X] Curve25519_Hop2.ec 
 - [X] Curve25519_Hop3.ec
-- [ ] Curve25519_Hop4.ec
-    - All lemmas with names `*_ptr`, `*itr_sqr_s*`, `*jade*` (in total, 6) are admitted as I need to learn about dealing with pointers in Easycrypt. However, the bulk of the work has already been done as their non-pointer versions have been proved. 
-    
+- [X] Curve25519_Hop4.ec
+    - Warning: the post-conditions in all `*_ptr` equivalences are set to `true`, but this natrually needs to change to provide a proper correctness proof.
+
 The original Easycrypt files can be found [in the x25519 branch in libjc](https://github.com/tfaoliveira/libjc/tree/x25519/proof/crypto_scalarmult/curve25519).

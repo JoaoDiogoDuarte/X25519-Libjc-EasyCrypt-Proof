@@ -22,9 +22,10 @@ op inzpRep4List  (x: W64.t list)      : zp    = inzp (valRep4List x) axiomatized
 
 abbrev zpcgrRep4 (x : Rep4) (z : int) : bool  = zpcgr (valRep4 x) z.
 
+op valRep32List  (x : W8.t list)      : int    = val_limbs8 x.
 op valRep32      (x : Rep32)          : int    = val_limbs8 (Array32.to_list x).
 op inzpRep32     (x : Rep32)          : zp     = inzp (valRep32 x) axiomatized by inzpRep32E.
-
+op inzpRep32List (x : W8.t list)      : zp     = inzp (valRep32List x) axiomatized by inzpRep32ListE.
 
 (** step 0 : add sub mul sqr - all done by auto **)
 

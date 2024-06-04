@@ -1,23 +1,3 @@
-require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Distr.
-from Jasmin require import JModel JMemory JWord.
-require import Curve25519_Spec.
-require import Curve25519_Hop1.
-require import Curve25519_Hop2.
-require import Curve25519_Hop3.
-require import Curve25519_ref4.
-require import Curve25519_auto.
-require import W64limbs.
-import Zp_25519.
-import Curve25519_Spec Curve25519_auto Curve25519_Hop1 Curve25519_Hop2 Curve25519_ref4 Array4 Array8 Array32 StdOrder.IntOrder.
-
-
-(* Should be moved elsewhere *)
-
-op valid_ptr(p : int, o : int) = 0 <= o => 0 <= p /\ p + o < W64.modulus.
-
-op load_array4 (m : global_mem_t, p : address) : W64.t list =
-    [loadW64 m p; loadW64 m (p+8); loadW64 m (p+16); loadW64 m (p+24)].
-
 
 op load_array32(m : global_mem_t, p : address) : W8.t Array32.t = 
       Array32.init (fun i => m.[p + i]).
@@ -304,18 +284,18 @@ equiv eq_h4_scalarmult :
         inzp(W256.to_uint k'{1}) = inzpRep4 _k{2} /\  
         inzp (to_uint u'{1}) = inzpRep4 _u{2}
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4 res{2} /\
-        inzpRep32List (W32u8.to_list res{1}) = inzpRep4 (res{2}).
+        inzp(W256.to_uint res{1}) = inzpRep4 res{2}. 
 proof.
     proc.
-    call eq_h4_scalarmult_internal => />. progress. 
-    apply H2. apply H1. apply H4.  
+    call eq_h4_scalarmult_internal => />.
     call eq_h4_decode_u_coordinate => />.
     call eq_h4_decode_scalar_25519.
-    wp. skip. progress. rewrite -H5.
-    rewrite /inzpRep32List. congr. rewrite /valRep32List. 
-    rewrite to_uint_unpack32u8. congr. congr. smt().
+    wp. skip. progress.
 qed.
+
+
+(* to change *)
+(* inzp(W256.to_uint res{1}) = inzpRep4 (load_array4 (Glob.mem{2}) (W64.to_uint _rp{2})) *)
 
 
 lemma eq_h4_scalarmult_ptr mem _rp _kp _up :
@@ -327,10 +307,9 @@ lemma eq_h4_scalarmult_ptr mem _rp _kp _up :
         rp{2} = _rp                                                                              /\ 
         kp{2} = _kp                                                                              /\
         up{2} = _up                                                                              /\ 
-        inzp (W256.to_uint u'{1}) = inzpRep4List (load_array4 (mem) (W64.to_uint _up))           /\
-        inzp (W256.to_uint k'{1}) = inzpRep4List (load_array4 (mem) (W64.to_uint _kp))             
+        inzp (W256.to_uint u'{1}) = inzpRep4 (load_array4 (mem) (W64.to_uint _up))
         ==>
-        inzpRep32List(W32u8.to_list res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp))    /\
+        inzpRep32List(W32u8.to_list res{1}) = inzpRep32 (load_array32 Glob.mem{2} (W64.to_uint _rp))    /\
         res{2} = tt
     ].
 proof.
@@ -339,15 +318,15 @@ proof.
     inline M.__load4 M.__store4. do 3! unroll for{2} ^while.
     sp. wp. 
     call eq_h4_scalarmult. skip. progress. 
-    rewrite H3.
+    rewrite /inzpRep4. congr. 
     rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
     congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />. 
     smt(@W64). 
-    rewrite H2. 
+    rewrite H3. 
     rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
     congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />. 
-    smt(@W64). 
-     admit.
+    smt(@W64).   
+    rewrite /storeW64 /= /stores /=.  !get_set_neqE_s.
 qed.
 
 
@@ -374,6 +353,7 @@ lemma eq_h4_scalarmult_base_ptr mem _rp _kp :
         kp{2} = _kp /\
         inzp(W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint _kp))
         ==>
+        touches mem Glob.mem{1} _p 128 /\
         inzp(W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp)) /\ res{2} = tt].
 proof.
     proc *. inline M.__curve25519_ref4_base_ptr M.__load4 M.__store4. 
@@ -382,7 +362,8 @@ proof.
     rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
     congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />. smt(@W64). 
     rewrite H3.
-    admit.
+    rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List.
+    congr. congr. congr. apply load_store. apply H.
 qed.    
 
 
@@ -402,9 +383,7 @@ lemma eq_h4_scalarmult_jade mem _qp _np _pp:
         res{2} = W64.zero].
 proof.
     proc *. inline M.jade_scalarmult_curve25519_amd64_ref4. wp. sp.
-    call (eq_h4_scalarmult_ptr mem _qp _np _pp). skip. progress. 
-    rewrite -H9. rewrite to_uint_unpack32u8. rewrite /inzpRep32List /valRep32List.
-    congr. congr. congr. smt(@W32u8).
+    call (eq_h4_scalarmult_ptr mem _qp _np _pp). skip. done.
 qed.
 
 

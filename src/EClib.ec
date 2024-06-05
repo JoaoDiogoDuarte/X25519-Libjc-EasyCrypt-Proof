@@ -2,6 +2,7 @@ require import List Int IntDiv CoreMap Ring StdOrder W64limbs.
 from Jasmin require import JModel JWord JWord_array.
 import Ring.IntID IntOrder.
 
+
 lemma ltr_pmul2 x1 x2 y1 y2:
     0 <= x1 => 0 <= x2 => x1 < y1 => x2 < y2 => x1 * x2 < y1 * y2 by smt().
 
@@ -160,6 +161,20 @@ proof.
     ring; smt().
 qed.
 
+lemma to_uint_unpack4u64 w:
+    W256.to_uint w = val_digits W64.modulus (map W64.to_uint (W4u64.to_list w)).
+proof.
+    have [? /= ?]:= W256.to_uint_cmp w.
+    rewrite /val_digits /=.
+    do 4! (rewrite bits64_div 1:// /=).
+    rewrite !of_uintK /=.
+    have P: forall x, x = x %% 18446744073709551616 + 18446744073709551616 * (x %/ 18446744073709551616).
+        by move=> x; rewrite {1}(divz_eq x 18446744073709551616) /=; ring.
+    rewrite {1}(P (to_uint w)) {1}(P (to_uint w %/ 18446744073709551616)) divz_div 1..2:/# /=
+            {1}(P (to_uint w)) {1}(P (to_uint w %/  340282366920938463463374607431768211456)) divz_div 1..2:/# /=
+            {1}(P (to_uint w)) {1}(P (to_uint w %/ 6277101735386680763835789423207666416102355444464034512896)) divz_div 1..2:/# /=.
+     by ring; smt().
+qed.
 
 lemma pack8u8_init_mkseq f:
     pack8_t (init f)%W8u8.Pack = pack8 (mkseq f 8).

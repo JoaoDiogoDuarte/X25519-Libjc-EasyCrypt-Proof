@@ -448,8 +448,8 @@ proof.
           move => &hr [?] ? ? ?. smt(unroll_ml3s).
       skip. move => &hr [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] [?] ?. subst.
       split; first by done.
-      progress.
-      have _ : rev (iota_ 0 (ctr0)) = []; smt(iota0).
+      move => H H0 H1 H2 H3 H4 H5 H6.
+      have _ : rev (iota_ 0 (H)) = []; smt(iota0).
 qed.
 
 (** step 8 : iterated square **)
@@ -495,8 +495,13 @@ lemma eq_h2_it_sqr (e : int) (z : zp) :
 proof.
     proc. inline MHop2.sqr. sp. wp.  simplify. 
     while (0 <= i && 0 <= ii && it_sqr1 e z = it_sqr1 ii h).
-    wp. skip. progress. smt(). smt(it_sqr1_m2_exp1). skip.
-    progress. smt(). smt(). smt(it_sqr1_m2_exp1). smt(it_sqr1_0).
+    wp. skip. 
+    move => &hr [[H [H0 H1 H2 H3]]]. split.
+    apply H. move => H4. split. rewrite /H3.
+    smt(). move => H5. rewrite /H3. 
+    smt(it_sqr1_m2_exp1). skip.
+    move => &hr [H [H0 [H1 [H2 [H3]]]]] H4. split. split. smt(). move => H5. split. smt(). move => H6.
+    smt(it_sqr1_m2_exp1). move => H5 H6 H7 [H8 [H9 H10]]. smt(it_sqr1_0).
 qed.
 
 
@@ -536,7 +541,8 @@ proof.
     ecall (eq_h2_invert z2).
     skip. simplify.
     move => &hr [H] [H0] H1 H2 H3.  
-    rewrite encodePoint1E. progress. 
+    rewrite encodePoint1E. 
+    auto => />.
     congr; congr; congr. rewrite -H1. apply H3.
 qed.
 
@@ -576,7 +582,7 @@ proof.
     ecall (eq_h2_decode_scalar k').   simplify. sp.
     skip.
     move => &hr [H] [H0] H1 H2 H3 H4 H5. split. rewrite H3 H0. apply kb0f.
-    move=> H6 H7 ->. rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
+    move=> H6 H7 ->. rewrite !encodePoint1E. auto => />. congr; congr; congr; congr. congr. congr. 
     rewrite H5 H1 => />. rewrite H3 H0 => />. congr. congr. congr. rewrite H5 H1 => />. rewrite H3 H0 => />.  
 qed.
 
@@ -598,7 +604,7 @@ proof.
     ecall (eq_h2_decode_scalar k').   simplify. sp.
     skip.
     move => &hr [H] [H0] [H1] [H2] [H3] H4 H5 H6 H7 H8. split. rewrite H6 H4. apply kb0f.
-    move=> H9 H10 ->. rewrite /scalarmult_base1  /scalarmult1.
-    progress. rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
+    move=> H9 H10 ->. rewrite /scalarmult_base1  /scalarmult1. auto => />.
+    rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
     rewrite H6 H4 => />. congr. congr. congr. rewrite H6 H4 => />. 
 qed.

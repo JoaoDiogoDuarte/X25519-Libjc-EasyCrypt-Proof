@@ -2,6 +2,7 @@ require import List Int IntDiv StdOrder Ring.
 from Jasmin require import JUtils JWord.
 import IntOrder Ring.IntID.
 
+
 abbrev MAX x y = if (x < y)%Int then y else x.
 
 (**********************************************************************************************
@@ -418,7 +419,7 @@ proof.
     have ->: (to_uint ((of_int k))%W8 %% 64) = k
     by rewrite of_uintK; smt(modz_small).
     move: H4. rewrite -(ltr_pmul2r (2^k)); first by apply gt0_pow2.
-    rewrite -exprD_nneg; trivial. progress.
+    rewrite -exprD_nneg; trivial. move => H7.
     smt(ltr_trans ltr_le_trans W64.to_uint_cmp gt0_pow2).
 qed.
 
@@ -431,11 +432,11 @@ qed.
 lemma bW64_shl n k x:
     0 <= k < 64 => 64 < n => k < n => bW64 (n-k) x => bW64 (n) (x `<<` W8.of_int (k)).
 proof.
-    rewrite !bW64E. progress. smt().
+    rewrite !bW64E. move => [H] H0 H1 H2 [H3] H4. split.  smt().
     rewrite  to_uint_shl. 
         smt(@W64). 
     have ->: (to_uint ((of_int k))%W8  %% 64) = k
-    by rewrite of_uintK; smt(modz_small).
+    by rewrite of_uintK; smt(modz_small). move => H5.
     apply (ltr_trans (W64.modulus) (to_uint x * 2^k %% W64.modulus) (2^(n))).
         by apply ltz_mod. 
     simplify. smt(@JUtils @IntOrder).
@@ -510,9 +511,9 @@ lemma add_limbs_nill y: add_limbs [] y = y by case y.
 lemma add_limbs_nilr x: add_limbs x [] = x by case x.
 lemma add_limbs_cons x xs y ys: add_limbs (x::xs) (y::ys) = (x+y)::add_limbs xs ys by done.
 
-lemma nosmt max_ler a b : a <= b => max a b = b by smt().
+lemma nosmt max_ler a b : Int.(<=) a b => max a b = b by smt().
 
-lemma nosmt max_lel a b : a <= b => max b a = b by smt().
+lemma nosmt max_lel a b : Int.(<=) a b => max b a = b by smt().
     
 lemma size_add_limbs x y:
     size (add_limbs x y) = max (size x) (size y).
@@ -854,3 +855,4 @@ proof.
     rewrite -IH; congr.
     by rewrite mul1_digitsP. smt().
 qed.
+

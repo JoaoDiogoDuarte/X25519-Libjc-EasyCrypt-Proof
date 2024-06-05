@@ -117,12 +117,12 @@ proof.
     by conseq ill_montgomery_ladder (eq_h2_montgomery_ladder init k). 
 qed.
 
-(** step 8 : iterated square **)
+(** step 8 iterated square **)
 lemma ill_it_sqr : islossless MHop2.it_sqr.
 proof.
     islossless.  
     while true ii. move => ?. wp.
-    inline MHop2.sqr. wp. skip. progress. smt().
+    inline MHop2.sqr. wp. skip. move => &hr [H] H1. smt().
     skip. smt().
 qed.
 

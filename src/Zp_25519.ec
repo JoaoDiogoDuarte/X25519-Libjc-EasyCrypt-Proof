@@ -1,15 +1,25 @@
 require import List Int IntDiv Ring CoreMap.
-require import EClib W64limbs.
+require import EClib W64limbs Array4 Array32.
 
 from Jasmin require import JModel.
 
-import Ring.IntID.
+import Ring.IntID Array4 Array32.
+
 require ZModP.
 
 (* modular operations modulo P *)
 op p = 2^255 - 19 axiomatized by pE.
 
 lemma two_pow255E: 2^255 = 57896044618658097711785492504343953926634992332820282019728792003956564819968 by done.
+
+op valid_ptr(p : int, o : int) = 0 <= o => 0 <= p /\ p + o < W64.modulus.
+
+op load_array4 (m : global_mem_t, p : address) : W64.t list =
+    [loadW64 m p; loadW64 m (p+8); loadW64 m (p+16); loadW64 m (p+24)].
+
+
+op load_array32(m : global_mem_t, p : address) : W8.t Array32.t = 
+      Array32.init (fun i => m.[p + i]).
 
 (* Embedding into ring theory *)
 clone import ZModP.ZModRing as Zp_25519 with
@@ -72,3 +82,114 @@ proof.
 qed.
 
 
+
+type Rep4 = W64.t Array4.t.
+type Rep32 = W8.t Array32.t.
+
+op valRep4       (x : Rep4)           : int   = val_limbs64 (Array4.to_list x).
+op valRep4List   (x : W64.t list)     : int   = val_limbs64 x.
+op inzpRep4      (x : Rep4)           : zp    = inzp (valRep4 x)     axiomatized by inzpRep4E.
+op inzpRep4List  (x: W64.t list)      : zp    = inzp (valRep4List x) axiomatized by inzpRep4ListE.
+
+abbrev zpcgrRep4 (x : Rep4) (z : int) : bool  = zpcgr (valRep4 x) z.
+
+op valRep32List  (x : W8.t list)      : int    = val_limbs8 x.
+op valRep32      (x : Rep32)          : int    = val_limbs8 (Array32.to_list x).
+op inzpRep32     (x : Rep32)          : zp     = inzp (valRep32 x) axiomatized by inzpRep32E.
+op inzpRep32List (x : W8.t list)      : zp     = inzp (valRep32List x) axiomatized by inzpRep32ListE.
+
+
+lemma load_store_pos (mem: global_mem_t, p: W64.t, w: Rep4, i: int) :
+    valid_ptr (to_uint p) 32 => (i = 0 \/ i = 8 \/ i = 16 \/ i = 24) => 
+    w.[i %/ 8] =
+        loadW64
+            (storeW64
+                (storeW64
+                    (storeW64 
+                        (storeW64 mem (W64.to_uint p) w.[0])
+                        (W64.to_uint (p + (W64.of_int 8)%W64)) w.[1])
+                    (W64.to_uint (p + (W64.of_int 16)%W64)) w.[2])
+                (W64.to_uint (p + (W64.of_int 24)%W64)) w.[3]) 
+            (W64.to_uint p + i).
+proof.
+    move => V0 I.
+    rewrite /load_array4 !/storeW64 !/stores /= load8u8' /mkseq -iotaredE => />.   
+    rewrite wordP => V1 V2. rewrite !to_uintD_small !to_uint_small => />.
+    move: V0. rewrite /valid_ptr. smt().
+    move: V0. rewrite /valid_ptr. smt().
+    move: V0. rewrite /valid_ptr. smt().
+    rewrite pack8wE => />. rewrite get_of_list. smt().
+    rewrite !bits8E !get_setE. auto => />. 
+    case: (i = 0). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 31! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 30! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 29! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 28! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 27! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 26! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 25! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 24! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8). 
+    case: (i = 8). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 23! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 22! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 21! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 20! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 19! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 18! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 17! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 16! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8). 
+    case: (i = 16). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 15! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 14! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 13! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 12! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 11! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 10! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 9! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 8! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8).
+    case: (i = 24). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 7! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 6! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 5! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 4! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 3! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 2! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 1! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 0! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8).  
+qed.

@@ -11,22 +11,6 @@ import Zp_25519 Curve25519_Spec Curve25519_Hop2 Curve25519_ref4 Array4 Array32.
 
 (* Probably needs to be moved elsewhere, such as W64limbs *)
 
-type Rep4 = W64.t Array4.t.
-type Rep32 = W8.t Array32.t.
-
-
-op valRep4       (x : Rep4)           : int   = val_limbs64 (Array4.to_list x).
-op valRep4List   (x : W64.t list)     : int   = val_limbs64 x.
-op inzpRep4      (x : Rep4)           : zp    = inzp (valRep4 x)     axiomatized by inzpRep4E.
-op inzpRep4List  (x: W64.t list)      : zp    = inzp (valRep4List x) axiomatized by inzpRep4ListE.
-
-abbrev zpcgrRep4 (x : Rep4) (z : int) : bool  = zpcgr (valRep4 x) z.
-
-op valRep32List  (x : W8.t list)      : int    = val_limbs8 x.
-op valRep32      (x : Rep32)          : int    = val_limbs8 (Array32.to_list x).
-op inzpRep32     (x : Rep32)          : zp     = inzp (valRep32 x) axiomatized by inzpRep32E.
-op inzpRep32List (x : W8.t list)      : zp     = inzp (valRep32List x) axiomatized by inzpRep32ListE.
-
 (** step 0 : add sub mul sqr - all done by auto **)
 
 equiv eq_h4_add : MHop2.add ~ M.__add4_rrs:

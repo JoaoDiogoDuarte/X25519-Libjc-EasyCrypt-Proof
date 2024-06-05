@@ -208,3 +208,123 @@ proof.
     smt(@W8).
 qed.
 
+
+lemma load_store_pos5 (mem: global_mem_t, p: W64.t, w: Rep5, i: int) :
+    valid_ptr (to_uint p) 32 => (i = 0 \/ i = 8 \/ i = 16 \/ i = 24 \/ i = 32) => 
+    w.[i %/ 8] =
+        loadW64
+            (storeW64
+                (storeW64
+                    (storeW64 
+                        (storeW64 
+                             (storeW64
+                            mem (W64.to_uint p) w.[0])
+                        (W64.to_uint (p + (W64.of_int 8)%W64)) w.[1])
+                    (W64.to_uint (p + (W64.of_int 16)%W64)) w.[2])
+                (W64.to_uint (p + (W64.of_int 24)%W64)) w.[3])
+            (W64.to_uint (p + (W64.of_int 32)%W64)) w.[4])
+            (W64.to_uint p + i).
+proof.
+    move => V0 I.
+    rewrite /load_array4 !/storeW64 !/stores /= load8u8' /mkseq -iotaredE => />.   
+    rewrite wordP => V1 V2. rewrite !to_uintD_small !to_uint_small => />.
+    move: V0. rewrite /valid_ptr. smt().
+    move: V0. rewrite /valid_ptr. smt().
+    move: V0. rewrite /valid_ptr. smt().
+    move: V0. rewrite /valid_ptr. smt().
+    rewrite pack8wE => />. rewrite get_of_list. smt().
+    rewrite !bits8E !get_setE. auto => />. 
+    case: (i = 0). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 39! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 38! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 37! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 36! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 35! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 34! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 33! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 32! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8). 
+    case: (i = 8). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 31! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 30! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 29! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 28! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 27! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 26! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 25! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 24! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8). 
+    case: (i = 16). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 23! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 22! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 21! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 20! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 19! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 18! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 17! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 16! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8).
+    case: (i = 24). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 15! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 14! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 13! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 12! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 11! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 10! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 9! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 8! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8). 
+     case: (i = 32). auto => />.
+    case: (V1 %/ 8 = 0). move => V3. 
+    do 7! (rewrite ifF 1:/#). smt(@W8). 
+    case: (V1 %/ 8 - 1 = 0). move => *. 
+    do 6! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 2 = 0). move => *. 
+    do 5! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 3 = 0). move => *. 
+    do 4! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 4 = 0). move => *.
+    do 3! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 5 = 0). move => *.
+    do 2! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 6 = 0). move => *.
+    do 1! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    case: (V1 %/ 8 - 7 = 0). move => *.
+    do 0! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
+    move => *. smt(@W8).       
+    move => *.
+    smt(@W8).
+qed.
+

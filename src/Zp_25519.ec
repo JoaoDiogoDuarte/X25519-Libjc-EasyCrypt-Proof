@@ -1,9 +1,9 @@
 require import List Int IntDiv Ring CoreMap.
-require import EClib W64limbs Array4 Array32.
+require import EClib W64limbs Array4 Array5 Array32 Array40.
 
 from Jasmin require import JModel.
 
-import Ring.IntID Array4 Array32.
+import Ring.IntID Array4 Array5 Array32 Array40.
 
 require ZModP.
 
@@ -17,6 +17,8 @@ op valid_ptr(p : int, o : int) = 0 <= o => 0 <= p /\ p + o < W64.modulus.
 op load_array4 (m : global_mem_t, p : address) : W64.t list =
     [loadW64 m p; loadW64 m (p+8); loadW64 m (p+16); loadW64 m (p+24)].
 
+op load_array5 (m : global_mem_t, p : address) : W64.t list =
+    [loadW64 m p; loadW64 m (p+8); loadW64 m (p+16); loadW64 m (p+24); loadW64 m (p+32)].
 
 op load_array32(m : global_mem_t, p : address) : W8.t Array32.t = 
       Array32.init (fun i => m.[p + i]).
@@ -84,19 +86,30 @@ qed.
 
 
 type Rep4 = W64.t Array4.t.
+type Rep5 = W64.t Array5.t.
 type Rep32 = W8.t Array32.t.
+type Rep40 = W8.t Array40.t.
 
-op valRep4       (x : Rep4)           : int   = val_limbs64 (Array4.to_list x).
-op valRep4List   (x : W64.t list)     : int   = val_limbs64 x.
+op valRep4       (x : Rep4)           : int   = val_limbs64 (Array4.to_list x) axiomatized by valRep4E.
+op valRep4List   (x : W64.t list)     : int   = val_limbs64 x       axiomatized by valRep4ListE.
 op inzpRep4      (x : Rep4)           : zp    = inzp (valRep4 x)     axiomatized by inzpRep4E.
 op inzpRep4List  (x: W64.t list)      : zp    = inzp (valRep4List x) axiomatized by inzpRep4ListE.
+op valRep5       (x : Rep5)           : int   = val_limbs64 (Array5.to_list x) axiomatized by valRep5E.
+op valRep5List   (x : W64.t list)     : int   = val_limbs64 x       axiomatized by valRep5ListE.
+op inzpRep5      (x : Rep5)           : zp    = inzp (valRep5 x)     axiomatized by inzpRep5E.
+op inzpRep5List  (x: W64.t list)      : zp    = inzp (valRep5List x) axiomatized by inzpRep5ListE.
+
 
 abbrev zpcgrRep4 (x : Rep4) (z : int) : bool  = zpcgr (valRep4 x) z.
 
-op valRep32List  (x : W8.t list)      : int    = val_limbs8 x.
-op valRep32      (x : Rep32)          : int    = val_limbs8 (Array32.to_list x).
+op valRep32List  (x : W8.t list)      : int    = val_limbs8 x axiomatized by valRep32ListE.
+op valRep32      (x : Rep32)          : int    = val_limbs8 (Array32.to_list x) axiomatized by valRep32E.
 op inzpRep32     (x : Rep32)          : zp     = inzp (valRep32 x) axiomatized by inzpRep32E.
 op inzpRep32List (x : W8.t list)      : zp     = inzp (valRep32List x) axiomatized by inzpRep32ListE.
+op valRep40List  (x : W8.t list)      : int    = val_limbs8 x axiomatized by valRep40ListE.
+op valRep40      (x : Rep40)          : int    = val_limbs8 (Array40.to_list x) axiomatized by valRep40E.
+op inzpRep40     (x : Rep40)          : zp     = inzp (valRep40 x) axiomatized by inzpRep40E.
+op inzpRep40List (x : W8.t list)      : zp     = inzp (valRep40List x) axiomatized by inzpRep40ListE.
 
 
 lemma load_store_pos (mem: global_mem_t, p: W64.t, w: Rep4, i: int) :
@@ -191,5 +204,7 @@ proof.
     do 1! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
     case: (V1 %/ 8 - 7 = 0). move => *.
     do 0! (rewrite ifF 1:/#). rewrite initE => />. smt(@W8).
-    move => *. smt(@W8).  
+    move => *. smt(@W8).  move => *.
+    smt(@W8).
 qed.
+

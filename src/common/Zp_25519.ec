@@ -23,6 +23,10 @@ op load_array5 (m : global_mem_t, p : address) : W64.t list =
 op load_array32(m : global_mem_t, p : address) : W8.t Array32.t = 
       Array32.init (fun i => m.[p + i]).
 
+op load_array40(m : global_mem_t, p : address) : W8.t Array40.t = 
+      Array40.init (fun i => m.[p + i]).
+
+
 (* Embedding into ring theory *)
 clone import ZModP.ZModRing as Zp_25519 with
     op p <- p 

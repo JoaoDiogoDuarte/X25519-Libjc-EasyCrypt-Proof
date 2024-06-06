@@ -8,7 +8,7 @@ require import WArray32 WArray64.
 
 
 
-module M = {
+module M_mulx = {
   proc __load4 (p:W64.t) : W64.t Array4.t = {
     var aux: int;
     

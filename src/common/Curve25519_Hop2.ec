@@ -66,6 +66,29 @@ module MHop2 = {
     
     return h;
   }
+  
+    (* iterated sqr *)
+  proc it_sqr_x2 (f : zp, i : int) : zp =
+  {
+    var h: zp;
+    var ii: int;
+
+    h <- f;
+    ii <- i;
+
+    h <@ sqr(f);
+    f <@ sqr(h) ;
+    ii <- ii - 1;
+ 
+    while (0 < ii) {
+      h <@ sqr(f);
+      f <@ sqr(h);
+      ii <- ii - 1;
+    }
+    
+    return f;
+  }
+ 
 
   (* f ** 2**255-19-2 *)
   proc invert (fs : zp) : zp =

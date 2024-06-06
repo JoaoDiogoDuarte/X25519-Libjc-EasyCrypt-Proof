@@ -6,7 +6,7 @@ import SLH64.
 require import Array4 Array5 Array8 Array32.
 require import WArray32 WArray40 WArray64.
 
-module M = {
+module M_ref4 = {
   proc __load4 (p:W64.t) : W64.t Array4.t = {
     var aux: int;
     

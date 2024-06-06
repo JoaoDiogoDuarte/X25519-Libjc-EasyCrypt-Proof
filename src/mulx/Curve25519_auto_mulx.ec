@@ -29,18 +29,19 @@ equiv eq_h4_add_sss_mulx : MHop2.add ~ M_mulx.__add4_sss:
     ==>
     res{1} = inzpRep4 res{2}.
 proof. 
-    proc.  
-    admit.
+    proc *. inline M_mulx.__add4_sss. wp. sp.  
+    call eq_h4_add_rrs_mulx. skip. done.
 qed.
 
 equiv eq_h4_add_ssr_mulx : MHop2.add ~ M_mulx.__add4_ssr:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 g{2}
+    g{1}   = inzpRep4 fs{2} /\
+    f{1}   = inzpRep4 g{2}
     ==>
     res{1} = inzpRep4 res{2}.
 proof. 
-    proc.  
-    admit.
+    proc *. inline M_mulx.__add4_ssr. wp. sp.  
+    simplify. rewrite /copy_64.
+    call eq_h4_add_rrs_mulx. skip. auto => />.
 qed.
 
 
@@ -61,8 +62,8 @@ equiv eq_h4_sub_sss_mulx : MHop2.sub ~ M_mulx.__sub4_sss:
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
-    proc.
-    admit.
+    proc *.  inline M_mulx.__sub4_sss. wp. sp.  
+    call eq_h4_sub_rrs_mulx. skip. auto => />.
 qed.
 
 equiv eq_h4_sub_rsr_mulx : MHop2.sub ~ M_mulx.__sub4_rsr:

@@ -11,10 +11,108 @@ import Zp_25519.
 import Curve25519_Spec Curve25519_auto4 Curve25519_Hop1 Curve25519_Hop2 Curve25519_Ref4 Array4 Array8 Array32 StdOrder.IntOrder.
 
 
-(* Should be moved elsewhere *)
 
-(** init **)
+(* additions, substractions and powers *)
+equiv eq_h4_add_ssr_ref4 : MHop2.add ~ M_ref4.__add4_ssr:
+    f{1}   = inzpRep4 g{2} /\
+    g{1}   = inzpRep4 fs{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call (eq_h4_add_rrs_ref4). skip. auto => />. 
+qed.
 
+
+equiv eq_h4_add_sss_ref4 : MHop2.add ~ M_ref4.__add4_sss:
+    f{1}   = inzpRep4 fs{2} /\
+    g{1}   = inzpRep4 gs{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_add_rrs_ref4. skip. auto => />.  
+qed.
+
+
+equiv eq_h4_sub_ssr_ref4 : MHop2.sub ~ M_ref4.__sub4_ssr:
+    f{1} = inzpRep4 fs{2} /\
+    g{1} = inzpRep4 g{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_sub_rsr_ref4. skip. auto => />.
+qed.
+
+
+equiv eq_h4_sub_sss_ref4 : MHop2.sub ~ M_ref4.__sub4_sss:
+    f{1}   = inzpRep4 fs{2} /\
+    g{1}   = inzpRep4 gs{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_sub_rrs_ref4. skip. auto => />.
+qed.
+
+equiv eq_h4_mul_a24_ss_ref4 : MHop2.mul_a24 ~ M_ref4.__mul4_a24_ss:
+    f{1}   = inzpRep4 xa{2} /\
+    a24{1} = to_uint a24{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_mul_a24_rs_ref4. skip. auto => />.
+qed.
+
+equiv eq_h4_mul_sss_ref4 : MHop2.mul ~ M_ref4.__mul4_sss:
+    f{1}   = inzpRep4 xa{2} /\
+    g{1}   = inzpRep4 ya{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_mul_rss_ref4. skip. auto => />.
+qed.
+
+
+equiv eq_h4_mul_ss_ref4 : MHop2.mul ~ M_ref4._mul4_ss_:
+    f{1}   = inzpRep4 xa{2} /\
+    g{1}   = inzpRep4 ya{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_mul_pp_ref4. skip. auto => />.
+qed.
+
+
+equiv eq_h4_sqr_ss_ref4 : MHop2.sqr ~ M_ref4._sqr4_ss_:
+    f{1} = inzpRep4 xa{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). 
+    unroll for{2} ^while.
+    wp. sp. simplify.
+    call eq_h4_sqr_p_ref4. skip. auto => />. 
+    move => &2.
+    congr. apply Array4.ext_eq. move => H [H1] H2. 
+    smt(@Array4).
+qed.
+
+equiv eq_h4_sqr_s__ref4 : MHop2.sqr ~ M_ref4._sqr4_s_:
+    f{1}   = inzpRep4 x{2}
+    ==>
+    res{1} = inzpRep4 res{2}.
+proof.
+    proc *. inline{2} (1). wp. sp.
+    call eq_h4_sqr_p_ref4. skip. auto => />.
+qed.
+
+
+(** step 1: init points and decoding u-coordinates **)
 equiv eq_h4_init_points_ref4 :
     MHop2.init_points ~ M_ref4.__init_points4 : 
         init{1} = inzpRep4 initr{2}

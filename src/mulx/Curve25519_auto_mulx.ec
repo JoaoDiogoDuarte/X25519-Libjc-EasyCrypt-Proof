@@ -19,31 +19,9 @@ equiv eq_h4_add_rrs_mulx : MHop2.add ~ M_mulx.__add4_rrs:
     ==>
     res{1} = inzpRep4 res{2}.
 proof. 
-    proc.  
+    proc *.  
     admit.
 qed.
-
-equiv eq_h4_add_sss_mulx : MHop2.add ~ M_mulx.__add4_sss:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 gs{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof. 
-    proc *. inline M_mulx.__add4_sss. wp. sp.  
-    call eq_h4_add_rrs_mulx. skip. done.
-qed.
-
-equiv eq_h4_add_ssr_mulx : MHop2.add ~ M_mulx.__add4_ssr:
-    g{1}   = inzpRep4 fs{2} /\
-    f{1}   = inzpRep4 g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof. 
-    proc *. inline M_mulx.__add4_ssr. wp. sp.  
-    simplify. rewrite /copy_64.
-    call eq_h4_add_rrs_mulx. skip. auto => />.
-qed.
-
 
 equiv eq_h4_sub_rrs_mulx : MHop2.sub ~ M_mulx.__sub4_rrs:
    f{1}   = inzpRep4 f{2} /\
@@ -56,49 +34,19 @@ proof.
 qed.
 
 
-equiv eq_h4_sub_sss_mulx : MHop2.sub ~ M_mulx.__sub4_sss:
-   f{1}   = inzpRep4 fs{2} /\
-   g{1}   = inzpRep4 gs{2}
-   ==>
-   res{1} = inzpRep4 res{2}.
-proof.
-    proc *.  inline M_mulx.__sub4_sss. wp. sp.  
-    call eq_h4_sub_rrs_mulx. skip. auto => />.
-qed.
-
 equiv eq_h4_sub_rsr_mulx : MHop2.sub ~ M_mulx.__sub4_rsr:
    f{1}   = inzpRep4 fs{2} /\
    g{1}   = inzpRep4 g{2}
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_sub_ssr_mulx : MHop2.sub ~ M_mulx.__sub4_ssr:
-   f{1}   = inzpRep4 fs{2} /\
-   g{1}   = inzpRep4 g{2}
-   ==>
-   res{1} = inzpRep4 res{2}.
-proof.
-    proc.
+    proc *. 
     admit.
 qed.
 
 (* inline mul4_c0 mul4_c1 mul4_c2 mul4_c3 *)
 
 equiv eq_h4_mul_a24_mulx : MHop2.mul_a24 ~ M_mulx.__mul4_a24_rs:
-    f{1}   = inzpRep4 fs{2} /\
-    a24{1} = to_uint a24{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_mul_a24_ss_mulx : MHop2.mul_a24 ~ M_mulx.__mul4_a24_ss:
     f{1}   = inzpRep4 fs{2} /\
     a24{1} = to_uint a24{2}
     ==>
@@ -124,94 +72,13 @@ equiv eq_h4_mul__rpr_mulx : MHop2.mul ~ M_mulx.__mul4_rpr:
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *.  
     admit.
 qed.
 
 
-equiv eq_h4_mul_rpr_mulx : MHop2.mul ~ M_mulx.__mul4_rpr:
-    f{1}   = inzpRep4 fp{2} /\
-    g{1}   = inzpRep4 g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-
-equiv eq_h4_mul_rsr__mulx : MHop2.mul ~ M_mulx._mul4_rsr_:
-    f{1}   = inzpRep4 _fs{2} /\
-    g{1}   = inzpRep4 _g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_mul__ssr_mulx : MHop2.mul ~ M_mulx.__mul4_ssr:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-
-equiv eq_h4_mul_sss_mulx : MHop2.mul ~ M_mulx.__mul4_sss:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 gs{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_mul_rss_mulx : MHop2.mul ~ M_mulx.__mul4_rss:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 gs{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-
-equiv eq_h4_sqr__rr_mulx : MHop2.sqr ~ M_mulx.__sqr4_rr:
+equiv eq_h4__sqr_rr_mulx : MHop2.sqr ~ M_mulx.__sqr4_rr:
     f{1}   = inzpRep4 f{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_sqr_rr_mulx : MHop2.sqr ~ M_mulx._sqr4_rr_:
-    f{1}   = inzpRep4 _f{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_sqr_ss_mulx : MHop2.sqr ~ M_mulx.__sqr4_ss:
-    f{1}   = inzpRep4 fs{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-
-equiv eq_h4_sqr_rs_mulx : MHop2.sqr ~ M_mulx.__sqr4_rs:
-    f{1}   = inzpRep4 fs{2}
     ==>
     res{1} = inzpRep4 res{2}.
 proof.

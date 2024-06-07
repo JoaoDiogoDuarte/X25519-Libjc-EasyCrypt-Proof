@@ -13,7 +13,7 @@ import Zp_25519 Curve25519_Spec Curve25519_Hop2 Curve25519_Ref4 Array4 Array32.
 
 (** step 0 : add sub mul sqr - all done by auto **)
 
-equiv eq_h4_add : MHop2.add ~ M_ref4.__add4_rrs:
+equiv eq_h4_add_rrs_ref4 : MHop2.add ~ M_ref4.__add4_rrs:
     f{1}   = inzpRep4 f{2} /\
     g{1}   = inzpRep4 g{2}
     ==>
@@ -23,23 +23,23 @@ proof.
     admit.
 qed.
 
-equiv eq_h4_sub_ref4 : MHop2.sub ~ M_ref4.__sub4_rrs:
+equiv eq_h4_sub_rrs_ref4 : MHop2.sub ~ M_ref4.__sub4_rrs:
    f{1}   = inzpRep4 f{2} /\
    g{1}   = inzpRep4 gs{2}
    ==>
    res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *. 
     admit.
 qed.
 
-equiv eq_h4_mul_a24_ref4 : MHop2.mul_a24 ~ M_ref4.__mul4_a24_rs:
+equiv eq_h4_mul_a24_rs_ref4 : MHop2.mul_a24 ~ M_ref4.__mul4_a24_rs:
     f{1}   = inzpRep4 xa{2} /\
     a24{1} = to_uint a24{2}
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *. 
     admit.
 qed.
 
@@ -49,7 +49,7 @@ equiv eq_h4_mul_rss_ref4 : MHop2.mul ~ M_ref4.__mul4_rss:
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *. 
     admit.
 qed.
 
@@ -58,52 +58,10 @@ equiv eq_h4_sqr_ref4 : MHop2.sqr ~ M_ref4.__sqr4_rs:
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *. 
     admit.
 qed.
 
-(** step 0.5 : transitivity stuff **)
-equiv eq_h4_add_ssr_ref4 : MHop2.add ~ M_ref4.__add4_ssr:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-
-equiv eq_h4_add_sss_ref4 : MHop2.add ~ M_ref4.__add4_sss:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 gs{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_add_rrs_ref4 : MHop2.add ~ M_ref4.__add4_rrs:
-    f{1}   = inzpRep4 f{2} /\
-    g{1}   = inzpRep4 g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-
-equiv eq_h4_sub_ssr_ref4 : MHop2.sub ~ M_ref4.__sub4_ssr:
-    f{1} = inzpRep4 fs{2} /\
-    g{1} = inzpRep4 g{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
 
 equiv eq_h4_sub_rsr_ref4 : MHop2.sub ~ M_ref4.__sub4_rsr:
     f{1}   = inzpRep4 fs{2} /\
@@ -115,35 +73,6 @@ proof.
     admit.
 qed.
 
-equiv eq_h4_sub_sss_ref4 : MHop2.sub ~ M_ref4.__sub4_sss:
-    f{1}   = inzpRep4 fs{2} /\
-    g{1}   = inzpRep4 gs{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_mul_a24_ss_ref4 : MHop2.mul_a24 ~ M_ref4.__mul4_a24_ss:
-    f{1}   = inzpRep4 xa{2} /\
-    a24{1} = to_uint a24{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_mul_sss_ref4 : MHop2.mul ~ M_ref4.__mul4_sss:
-    f{1}   = inzpRep4 xa{2} /\
-    g{1}   = inzpRep4 ya{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
 
 equiv eq_h4_mul_pp_ref4 : MHop2.mul ~ M_ref4._mul4_pp:
     f{1}   = inzpRep4 xa{2} /\
@@ -156,13 +85,13 @@ proof.
 qed.
 
 
-equiv eq_h4_mul_ss_ref4 : MHop2.mul ~ M_ref4._mul4_ss_:
-    f{1}   = inzpRep4 xa{2} /\
-    g{1}   = inzpRep4 ya{2}
+equiv eq_h4_sqr_ss__ref4 : MHop2.sqr ~ M_ref4.__sqr4_ss:
+    f{1}   = inzpRep4 xa{2}
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *. 
+    
     admit.
 qed.
 
@@ -176,32 +105,6 @@ proof.
     admit.
 qed.
 
-equiv eq_h4_sqr_ss_ref4 : MHop2.sqr ~ M_ref4._sqr4_ss_:
-    f{1} = inzpRep4 xa{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_sqr_ss__ref4 : MHop2.sqr ~ M_ref4.__sqr4_ss:
-    f{1}   = inzpRep4 xa{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
-
-equiv eq_h4_sqr_s__ref4 : MHop2.sqr ~ M_ref4._sqr4_s_:
-    f{1}   = inzpRep4 x{2}
-    ==>
-    res{1} = inzpRep4 res{2}.
-proof.
-    proc.
-    admit.
-qed.
 
 equiv eq_h4_sqr_p_ref4 : MHop2.sqr ~ M_ref4._sqr4_p:
     f{1}   = inzpRep4 xa{2}
@@ -211,6 +114,7 @@ proof.
     proc.
     admit.
 qed.
+
 
 
 (** step 1 : decode_scalar_25519 **)

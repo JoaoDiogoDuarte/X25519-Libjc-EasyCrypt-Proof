@@ -201,7 +201,7 @@ module MHop2 = {
     t1 <- witness;
     t2 <- witness;
     t0 <@ sub (x2, z2);
-    x2 <@ add (x2, z2);
+    x2 <@ add (z2, x2);
     t1 <@ sub (x3, z3);
     z2 <@ add (x3, z3);
     z3 <@ mul (x2, t1);

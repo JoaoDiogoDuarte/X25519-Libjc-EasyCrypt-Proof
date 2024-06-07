@@ -6,3 +6,4 @@ idirs = src/ref4
 idirs = src/ref5
 idirs = src/mulx
 idirs = src/common
+idirs = src/common/arrays

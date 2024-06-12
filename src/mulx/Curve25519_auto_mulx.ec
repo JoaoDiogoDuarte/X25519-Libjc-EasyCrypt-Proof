@@ -76,16 +76,14 @@ proof.
     admit.
 qed.
 
-
 equiv eq_h4__sqr_rr_mulx : MHop2.sqr ~ M_mulx.__sqr4_rr:
     f{1}   = inzpRep4 f{2}
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc.
+    proc *.  
     admit.
 qed.
-
 
 (** step 1 : decode_scalar_25519 **)
 equiv eq_h4_decode_scalar_25519_mulx : MHop2.decode_scalar ~ M_mulx.__decode_scalar:

@@ -66,28 +66,6 @@ module MHop2 = {
     
     return h;
   }
-  
-    (* iterated sqr *)
-  proc it_sqr_x2 (f : zp, i : int) : zp =
-  {
-    var h: zp;
-    var ii: int;
-
-    h <- f;
-    ii <- i;
-
-    h <@ sqr(f);
-    f <@ sqr(h) ;
-    ii <- ii - 1;
- 
-    while (0 < ii) {
-      h <@ sqr(f);
-      f <@ sqr(h);
-      ii <- ii - 1;
-    }
-    
-    return f;
-  }
  
 
   (* f ** 2**255-19-2 *)
@@ -486,6 +464,15 @@ proof.
     rewrite expr1 //.
 qed.
 
+lemma it_sqr1_x2_0 (e : int) (z : zp) :
+     0 = e => it_sqr1_x2 e z = z.
+proof.
+    move => ?.
+    rewrite eq_it_sqr1_x2. smt().
+    rewrite /it_sqr_x2. subst. simplify.
+    rewrite expr1 //.
+qed.
+
 lemma it_sqr1_m2_exp4 (e : int) (z : zp) :
      0 <= e - 2 => it_sqr1 e z = it_sqr1 (e-2) (exp (exp z 2) 2).
 proof.
@@ -498,6 +485,19 @@ proof.
     rewrite -exprD_nneg //.
 qed.
 
+lemma it_sqr1_m2_exp4_x2 (e : int) (z : zp) :
+     0 <= e - 2 => it_sqr1_x2 e z = it_sqr1_x2 (e-2) (exp (exp z 4) 4).
+proof.
+    have E: 4^(e-2) = 2^(2*(e-2)) by rewrite exprM => />.
+    rewrite expE // /= => H.
+    rewrite !eq_it_sqr1_x2. smt(). trivial.
+    rewrite /it_sqr_x2. 
+    rewrite expE. rewrite E. smt(gt0_pow2). 
+    congr => />.  have ->: 16 = 4^2 by rewrite expr2. 
+    rewrite -exprD_nneg //.
+qed.
+
+
 lemma it_sqr1_m2_exp1 (e : int) (z : zp) :
      0 <= e - 1 => it_sqr1 e z = it_sqr1 (e-1) (exp z  2).
 proof.
@@ -506,6 +506,17 @@ proof.
     rewrite !eq_it_sqr1. smt(). smt(). 
     rewrite /it_sqr (*expE*). rewrite expE. split. smt(). 
     rewrite expr_ge0 //. congr. have ->: 2 * 2^(e-1) = 2^1 * 2^(e-1). rewrite expr1 //. 
+    rewrite -exprD_nneg //.
+qed.
+
+lemma it_sqr1_m2_exp1_x2 (e : int) (z : zp) :
+     0 <= e - 1 => it_sqr1_x2 e z = it_sqr1_x2 (e-1) (exp z  4).
+proof.
+    have ->: exp z 4 = exp (exp z 1) 4. rewrite expE. smt(). trivial.
+    rewrite expE // /= => ?.
+    rewrite !eq_it_sqr1_x2. smt(). smt(). 
+    rewrite /it_sqr_x2 (*expE*). rewrite expE. split. smt(). 
+    rewrite expr_ge0 //. congr. have ->: 4 * 4^(e-1) = 4^1 * 4^(e-1). rewrite expr1 //. 
     rewrite -exprD_nneg //.
 qed.
 
@@ -525,6 +536,51 @@ proof.
     smt(it_sqr1_m2_exp1). skip.
     move => &hr [H [H0 [H1 [H2 [H3]]]]] H4. split. split. smt(). move => H5. split. smt(). move => H6.
     smt(it_sqr1_m2_exp1). move => H5 H6 H7 [H8 [H9 H10]]. smt(it_sqr1_0).
+qed.
+
+
+
+lemma eq_h2_it_sqr_x2 (e : int) (z : zp) : 
+    hoare[MHop2.it_sqr :
+        i%/2 = e && 2 <= i && i %% 2 = 0 && f = z
+        ==>
+        res = it_sqr1_x2 e z
+    ].
+proof.
+    proc. inline MHop2.sqr. sp. wp. simplify. 
+    while (0 <= i && 0 <= ii && 2*e = i && it_sqr1_x2 e z = it_sqr1 i f && it_sqr1 (2*e) z = it_sqr1 ii h).
+    wp. skip. 
+    move => &hr [[H]] [H0] [H1] [H2] H3 H4 H5.  
+    split. 
+    + assumption. move => H6. 
+    split. 
+    + smt(). move => H7. 
+    split. 
+    + assumption. move => H8. 
+    split.
+    + assumption. move => H9. 
+    rewrite H3 /H5 => />. smt(it_sqr1_m2_exp1). skip.
+    
+     move => &hr [H] [H0] [H1] [H2] [H3] [H4] H5.
+    do! split. 
+    + smt(). move => H6. 
+    split. 
+    + rewrite H1; first smt(). move => H7.
+    split.
+    + rewrite -H2. auto => />. move: H3 H2 H4. smt(). move => H9. 
+    split.
+    
+    rewrite eq_it_sqr1_x2. rewrite -H2. move: H4 H3. smt().
+    rewrite eq_it_sqr1. smt(). 
+    rewrite /it_sqr_x2 /it_sqr H5 -H9. congr.
+    rewrite exprM => />. move => H10.
+    rewrite !eq_it_sqr1; first smt(). smt(). 
+    rewrite !/it_sqr. rewrite H0 H H5 H1 -H9. rewrite -exprM => />.
+    congr. have ->: 2 * 2^(2*e-1) = 2^1 * 2^(2*e-1). rewrite expr1 //.
+    rewrite -exprD_nneg //. smt().
+    
+    move => h II H6 [H7] [H8] [H9] [H10] H11. rewrite H10 -H9 H5 H11.
+    smt(it_sqr1_0).
 qed.
 
 

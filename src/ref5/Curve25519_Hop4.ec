@@ -215,9 +215,11 @@ equiv eq_h4_add_and_double_ref5 :
         res{1}.`3 = inzpRep5 res{2}.`3 /\
         res{1}.`4 = inzpRep5 res{2}.`4.
 proof.
-    proc => /=.
+    proc => /=. sp.
+    swap{1} 16 -1.
     call eq_h4_mul_rss_ref5.
     call eq_h4_mul_sss_ref5.
+    call eq_h4_sqr_ss_ref5.
     inline {2} 18. 
     inline {2} 23. 
     inline {2} 62.

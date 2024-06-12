@@ -1,4 +1,4 @@
-require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Distr.
+require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring EClib Distr Real.
 from Jasmin require import JModel JMemory JWord.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
@@ -85,7 +85,7 @@ proof.
     call eq_h4_mul_rpr_mulx. skip. auto => />.    
 qed.
 
-equiv eq_h4_mul__ssr_mulx : MHop2.mul ~ M_mulx.__mul4_ssr:
+equiv eq_h4_mul_ssr_mulx : MHop2.mul ~ M_mulx.__mul4_ssr:
     f{1}   = inzpRep4 fs{2} /\
     g{1}   = inzpRep4 g{2}
     ==>
@@ -123,7 +123,7 @@ equiv eq_h4_sqr_rr_mulx : MHop2.sqr ~ M_mulx._sqr4_rr:
     res{1} = inzpRep4 res{2}.
 proof.
     proc *.  inline M_mulx._sqr4_rr. wp. sp.
-    call eq_h4__sqr_rr_mulx. skip. auto => />.
+    call (eq_h4__sqr_rr_mulx) . skip. auto => />.
 qed.
 
 
@@ -132,7 +132,7 @@ equiv eq_h4_sqr_rr__mulx : MHop2.sqr ~ M_mulx._sqr4_rr_:
     ==>
     res{1} = inzpRep4 res{2}.
 proof.
-    proc *. inline M_mulx._sqr4_rr_. wp. sp.
+    proc *. inline M_mulx._sqr4_rr_. wp. sp. rewrite /copy_64 => />.
     call eq_h4_sqr_rr_mulx. skip. auto => />.
 qed.
 
@@ -238,14 +238,27 @@ equiv eq_h4_add_and_double_mulx :
         res{1}.`3 = inzpRep4 res{2}.`3 /\
         res{1}.`4 = inzpRep4 res{2}.`4.
 proof.
-    proc => /=.
+    proc => /=. sp.
     call eq_h4_mul_rss_mulx.
     call eq_h4_mul_sss_mulx.
     call eq_h4_add_sss_mulx.
     call eq_h4_sqr_ss_mulx.
     call eq_h4_mul_a24_ss_mulx.
     call eq_h4_sqr_ss_mulx.
-    admit.
+    swap{1} 11 1.
+    call eq_h4_mul_ssr_mulx.
+    call eq_h4_sub_ssr_mulx.
+    call eq_h4_sub_sss_mulx.
+    call eq_h4_add_sss_mulx.
+    call eq_h4_sqr_rs_mulx.
+    call eq_h4_sqr_ss_mulx.
+    call eq_h4_mul_sss_mulx.
+    call eq_h4_mul_sss_mulx.
+    call eq_h4_add_sss_mulx.
+    call eq_h4_sub_sss_mulx.
+    call eq_h4_add_ssr_mulx.
+    call eq_h4_sub_ssr_mulx.
+    skip. by done.
 qed.
 
 (** step 6 : montgomery_ladder_step **)
@@ -311,71 +324,79 @@ proof.
     call eq_h4_montgomery_ladder_step_mulx. wp. call eq_h4_init_points_mulx. skip. done.
 qed.
 
-(** step 8 : iterated square **)
-equiv eq_h4__it_sqr_x2_mulx :
-    MHop2.it_sqr_x2 ~ M_mulx.__it_sqr4_x2:
-         f{1}            =    inzpRep4 f{2} /\
-        i{1}            =    to_uint i{2}  /\
-        2               <=   to_uint i{2}  /\
+(** step 9 : invert **)
+
+equiv eq_h4_it_sqr_mulx :
+    MHop2.it_sqr ~ M_mulx.__it_sqr4_x2:
+        f{1}            =    inzpRep4 f{2} /\
+        i{1}%/2         =    to_uint i{2}  /\
+        i{1} %% 2       =    0             /\
+        0               <=   to_uint i{2}  /\
         i{1}            <=   W32.modulus   /\
-        2               <=   i{1}   
+        4               <=   i{1}   
         ==>
         res{1} = inzpRep4 res{2}.
 proof.
     proc. simplify. wp. sp.
-    while (h{1}            =    inzpRep4 h{2}            /\ 
-         f{1}             = inzpRep4 f{2} /\
-         ii{1}            =    to_uint i{2}              /\
-         ii{1}            <=   W32.modulus               /\
-         0                <=   ii{1}                     
+    unroll {1} ^while.
+    rcondt{1} 3. 
+    + auto  => />. inline 1. wp. skip.
+    + move => &1 [H] [H0] [H1] [H2] [H3] [H4] [H5] [H6] [H7] H8.
+    + smt(). 
+    swap{1} 2 -1. swap{1} 4 -2. swap {2} 3 -2. swap{2} 4 -2.
+    sp. auto => />.  
+    elim * => i0 i1. 
+    while(
+    h{1} = inzpRep4 f{2} /\
+    zf{2} = (i{2} = W32.zero) /\
+    i{1} %% 2 = 0 
     ).
-    wp. sp. call eq_h4__sqr_rr_mulx.  call eq_h4__sqr_rr_mulx. 
-    conseq(_: _ ==> f{1} = inzpRep4 f{2} /\  h{1} = inzpRep4 h{2}).
-    rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=.
-    move=> &1 &2 [H1 [[H2]] [H3] [H4] [H5] H6 [H7] H8 [H9] H10]. split. apply H9.
-    move => H11 H12 H13 H14. split. apply H14. move => H15 H16 H17 H18.
-    split. split. rewrite H14. trivial. split. apply H18. split.
-    rewrite H1. rewrite to_uintB. rewrite  uleE => />. smt(). rewrite to_uint1 H4 //.
-    split. move: H5. smt(). move: H7. smt(). split. move => H19.
-    rewrite H1. smt(@W32). rewrite H1. smt(@W32).  
-    skip. auto => />. 
-    wp. call eq_h4__sqr_rr_mulx.  call eq_h4__sqr_rr_mulx. 
-    rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=. 
-    auto => />. move => &2 H H0. split. split. 
-    rewrite to_uintB. rewrite uleE => />. move: H. smt().
-    rewrite to_uint1 //. split. move: H0. smt(). move: H. smt().
-    split. move => H3. smt(@W32). move => H4. move: H. smt().    
+    wp. sp.
+    call eq_h4__sqr_rr_mulx. auto => />. admit.
+    call eq_h4__sqr_rr_mulx.
+    call eq_h4__sqr_rr_mulx.
+    
+    auto => />. rewrite /ZF_of. move => H H0 H1 H2 H3.
+    do split.
+    move => H4. smt(@W32).
+    move => H4. smt().
 qed.
 
 equiv eq_h4_it_sqr_x2_mulx :
-    MHop2.it_sqr_x2 ~ M_mulx._it_sqr4_x2:
+    MHop2.it_sqr ~ M_mulx._it_sqr4_x2:
         f{1}            =    inzpRep4 f{2} /\
-        i{1}            =    to_uint i{2}  /\
-        2               <=   to_uint i{2}  /\
+        i{1}%/2         =    to_uint i{2}  /\
+        i{1} %% 2       =    0             /\
+        0               <=   to_uint i{2}  /\
         i{1}            <=   W32.modulus   /\
-        2              <=   i{1}   ==>
-        res{1} = inzpRep4 res{2}.
-proof.
-    proc *. inline M_mulx._it_sqr4_x2. wp. sp. 
-    call eq_h4__it_sqr_x2_mulx. skip. auto => />.
-qed.
-
-equiv eq_h4_it_sqr_x2__mulx :
-        MHop2.it_sqr_x2 ~ M_mulx._it_sqr4_x2_: 
-        f{1}            =    inzpRep4 _f{2} /\
-        i{1}            =    to_uint i{2}  /\
-        2               <=   to_uint i{2}  /\
-        i{1}            <=   W32.modulus   /\
-        2               <=   i{1}   
+        4               <=   i{1}   
         ==>
         res{1} = inzpRep4 res{2}.
 proof.
-    proc *. inline M_mulx._it_sqr4_x2_. 
-    wp. sp. call eq_h4_it_sqr_x2_mulx. skip.
-    auto => />.
+   proc *. simplify. inline {2} 1.
+   wp. sp. call eq_h4_it_sqr_mulx.
+   skip. done.
 qed.
 
-(** step 9 : invert **)
+
+equiv eq_h4_it_sqr_x2__mulx :
+    MHop2.it_sqr ~ M_mulx._it_sqr4_x2_:
+        f{1}            =    inzpRep4 _f{2} /\
+        i{1}%/2         =    to_uint i{2}  /\
+        i{1} %% 2       =    0             /\
+        0               <=   to_uint i{2}  /\
+        i{1}            <=   W32.modulus   /\
+        4               <=   i{1}   
+        ==>
+        res{1} = inzpRep4 res{2}.
+proof.
+    proc *. simplify. 
+    inline{2} 1. wp. sp. 
+    call eq_h4_it_sqr_x2_mulx.
+    skip. done.
+qed.
+
+
 equiv eq_h4_invert_mulx :
     MHop2.invert ~ M_mulx.__invert4 : 
         fs{1} = inzpRep4 f{2}
@@ -383,10 +404,46 @@ equiv eq_h4_invert_mulx :
         res{1} = inzpRep4 res{2}.
 proof.
     proc.
-    sp.
+    sp. auto => />.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_sqr_rr__mulx. 
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_mul_rsr__mulx.  wp.
+    call eq_h4_it_sqr_x2__mulx. wp.
+    call eq_h4_sqr_rr__mulx. wp.
+    call eq_h4_mul_rsr__mulx.
+    call eq_h4_sqr_rr__mulx. wp.
+    call eq_h4_mul_rsr__mulx. wp.
     call eq_h4_mul_rsr__mulx.
     call eq_h4_sqr_rr__mulx.
-    admit.
+    call eq_h4_sqr_rr__mulx. wp.
+    call eq_h4_sqr_rr__mulx. skip.
+    rewrite !/copy_64.
+    move => &1 &2 [H] [H0] [H1] [H2] [H3] [H4] [H5] [H6] [H7] [H8] [H9] [H10] H11. 
+    split. assumption.
+    move => H12 [H13] H14 H15 H16. 
+    split. assumption.
+    move => H17 H18 H19 H20. 
+    split. assumption.
+    move => H21 [H22] H23 H24. 
+    do split.
+    auto => />.  
+    rewrite !/copy_64.
+    auto => />. 
+    move => &2 H. do split.
+    
 qed.
 
 

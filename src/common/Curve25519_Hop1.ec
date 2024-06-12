@@ -272,6 +272,12 @@ op it_sqr(e : int, z : zp) : zp =
 op it_sqr1(e : int, z : zp) : zp =
     foldl (fun (z' : zp) _ => exp z' 2) z (iota_ 0 e).
 
+op it_sqr_x2(e : int, z : zp) : zp =
+    ZModpRing.exp z (4^e).
+
+op it_sqr1_x2(e : int, z : zp) : zp =
+    foldl (fun (z' : zp) _ => exp z' 4) z (iota_ 0 e).
+
 lemma eq_it_sqr1 (e : int, z : zp) :
     0 <= e  =>
     it_sqr1 e z = it_sqr e z.
@@ -282,6 +288,40 @@ proof.
     rewrite iotaSr // -cats1 foldl_cat hin /= expE /=.  smt(gt0_pow2).
     congr. clear hin.
     rewrite exprS // mulzC //.
+qed.
+
+lemma eq_it_sqr1_x2 (e : int, z : zp) :
+    0 <= e  =>
+    it_sqr1_x2 e z = it_sqr_x2 e z.
+proof.
+    move : e.
+    rewrite /it_sqr1_x2 /it_sqr_x2. elim. simplify. rewrite -iotaredE expr1 //. 
+    move => i ige0 hin.
+    rewrite iotaSr // -cats1 foldl_cat hin /= expE /=.  
+    have ->: 4^i = 2^2^i. rewrite expr2 //.
+    rewrite -exprM. smt(gt0_pow2).
+    congr. clear hin.
+    rewrite exprS // mulzC //.
+qed.
+
+lemma eq_it_sqr_x2_4 (e : int, z : zp) :
+    0 <= e  => e %% 2 = 0 => 
+    it_sqr e z = it_sqr_x2 (e%/2) z.
+proof.
+    move => e1 e2.
+    rewrite /it_sqr /it_sqr_x2.
+    congr. 
+    have ->: 4 ^ (e %/ 2) = 2 ^ 2 ^ (e %/ 2). rewrite expr2 => />.
+    rewrite -exprM => />. smt().
+qed.
+
+lemma eq_it_sqr1_x2_4 (e : int, z : zp) :
+    0 <= e  => e %% 2 = 0 => 
+    it_sqr1 e z = it_sqr1_x2 (e%/2) z.
+proof.
+    move => H H0.
+    rewrite eq_it_sqr1 // eq_it_sqr1_x2. smt().
+    apply eq_it_sqr_x2_4; trivial.
 qed.
 
 op invert1(z1 : zp) : zp =

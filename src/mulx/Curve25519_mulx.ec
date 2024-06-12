@@ -1150,7 +1150,7 @@ module M_mulx = {
     i <- (W32.of_int (4 %/ 2));
     t1 <@ _it_sqr4_x2_ (t1, i);
     t1 <@ _sqr4_rr_ (t1);
-    t1 <@ _mul4_rsr_ (t0s, t1);
+    t1 <@ _mul4_rsr_ (t1s, t0s);
     return (t1);
   }
   

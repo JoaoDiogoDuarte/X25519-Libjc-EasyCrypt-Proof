@@ -1113,7 +1113,7 @@ module M_mulx = {
     t0s <- copy_64 t0;
     t1 <@ _sqr4_rr_ (t0);
     t1 <@ _sqr4_rr_ (t1);
-    t1 <@ _mul4_rsr_ (fs, t1);
+    t1 <@ _mul4_rsr_ (t1, fs);
     t1s <- copy_64 t1;
     t0 <@ _mul4_rsr_ (t0s, t1);
     t0s <- copy_64 t0;
@@ -1128,7 +1128,7 @@ module M_mulx = {
     t1s <- copy_64 t1;
     i <- (W32.of_int (10 %/ 2));
     t2 <@ _it_sqr4_x2_ (t1, i);
-    t2 <@ _mul4_rsr_ (t1s, t2);
+    t2 <@ _mul4_rsr_ (t2, t1s);
     t2s <- copy_64 t2;
     i <- (W32.of_int (20 %/ 2));
     t3 <@ _it_sqr4_x2_ (t2, i);
@@ -1139,14 +1139,14 @@ module M_mulx = {
     t1s <- copy_64 t1;
     i <- (W32.of_int (50 %/ 2));
     t2 <@ _it_sqr4_x2_ (t1, i);
-    t2 <@ _mul4_rsr_ (t1s, t2);
+    t2 <@ _mul4_rsr_ (t2, t1s);
     t2s <- copy_64 t2;
     i <- (W32.of_int (100 %/ 2));
     t3 <@ _it_sqr4_x2_ (t2, i);
     t2 <@ _mul4_rsr_ (t2s, t3);
     i <- (W32.of_int (50 %/ 2));
     t2 <@ _it_sqr4_x2_ (t2, i);
-    t1 <@ _mul4_rsr_ (t1s, t2);
+    t1 <@ _mul4_rsr_ (t1, t2s);
     i <- (W32.of_int (4 %/ 2));
     t1 <@ _it_sqr4_x2_ (t1, i);
     t1 <@ _sqr4_rr_ (t1);

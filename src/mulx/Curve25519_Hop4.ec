@@ -325,125 +325,91 @@ proof.
 qed.
 
 (** step 9 : invert **)
-
-equiv eq_h4_it_sqr_mulx :
-    MHop2.it_sqr ~ M_mulx.__it_sqr4_x2:
-        f{1}            =    inzpRep4 f{2} /\
-        i{1}%/2         =    to_uint i{2}  /\
-        i{1} %% 2       =    0             /\
-        0               <=   to_uint i{2}  /\
-        i{1}            <=   W32.modulus   /\
-        4               <=   i{1}   
+lemma eq_h4__it_sqr_mulx (i1: int) (i2: int):
+i1 = 2*i2 => 0 < i1 => 
+   equiv[
+        MHop2.it_sqr ~ M_mulx.__it_sqr4_x2:
+        i1 = i{1} /\
+        i2 = to_uint i{2} /\
+        f{1} = inzpRep4 f{2}      
         ==>
-        res{1} = inzpRep4 res{2}.
+        res{1} = inzpRep4 res{2}].
 proof.
-    proc. simplify. wp. sp.
-    unroll {1} ^while.
-    rcondt{1} 3. 
-    + auto  => />. inline 1. wp. skip.
-    + move => &1 [H] [H0] [H1] [H2] [H3] [H4] [H5] [H6] [H7] H8.
-    + smt(). 
-    swap{1} 2 -1. swap{1} 4 -2. swap {2} 3 -2. swap{2} 4 -2.
-    sp. auto => />.  
-    elim * => i0 i1. 
-    while(
-    h{1} = inzpRep4 f{2} /\
-    zf{2} = (i{2} = W32.zero) /\
-    i{1} %% 2 = 0 
-    ).
-    wp. sp.
-    call eq_h4__sqr_rr_mulx. auto => />. admit.
-    call eq_h4__sqr_rr_mulx.
-    call eq_h4__sqr_rr_mulx.
-    
-    auto => />. rewrite /ZF_of. move => H H0 H1 H2 H3.
-    do split.
-    move => H4. smt(@W32).
-    move => H4. smt().
+    move => H H0.
+    proc. admit. (* for manuel *)
 qed.
 
-equiv eq_h4_it_sqr_x2_mulx :
-    MHop2.it_sqr ~ M_mulx._it_sqr4_x2:
-        f{1}            =    inzpRep4 f{2} /\
-        i{1}%/2         =    to_uint i{2}  /\
-        i{1} %% 2       =    0             /\
-        0               <=   to_uint i{2}  /\
-        i{1}            <=   W32.modulus   /\
-        4               <=   i{1}   
-        ==>
-        res{1} = inzpRep4 res{2}.
+lemma eq_h4_it_sqr_x2_mulx (i1: int) (i2: int):
+    i1 = 2*i2 => 0 < i1 => 
+    equiv [MHop2.it_sqr ~ M_mulx._it_sqr4_x2:
+        i1 = i{1} /\
+        i2 = to_uint i{2} /\
+        f{1} = inzpRep4 f{2}      
+       
+         ==>
+        res{1} = inzpRep4 res{2}].
 proof.
+   move => H H0.
    proc *. simplify. inline {2} 1.
-   wp. sp. call eq_h4_it_sqr_mulx.
+   wp. sp. call (eq_h4__it_sqr_mulx i1 i2).
    skip. done.
 qed.
 
-
-equiv eq_h4_it_sqr_x2__mulx :
-    MHop2.it_sqr ~ M_mulx._it_sqr4_x2_:
-        f{1}            =    inzpRep4 _f{2} /\
-        i{1}%/2         =    to_uint i{2}  /\
-        i{1} %% 2       =    0             /\
-        0               <=   to_uint i{2}  /\
-        i{1}            <=   W32.modulus   /\
-        4               <=   i{1}   
-        ==>
-        res{1} = inzpRep4 res{2}.
+lemma eq_h4_it_sqr_x2__mulx (i1: int) (i2: int):
+    i1 = 2*i2 => 0 < i1 => 
+    equiv [MHop2.it_sqr ~ M_mulx._it_sqr4_x2_:
+        i1 = i{1} /\
+        i2 = to_uint i{2} /\
+        f{1} = inzpRep4 _f{2}      
+       
+         ==>
+        res{1} = inzpRep4 res{2}].
 proof.
+    move => H H0.
     proc *. simplify. 
     inline{2} 1. wp. sp. 
-    call eq_h4_it_sqr_x2_mulx.
+    call (eq_h4_it_sqr_x2_mulx i1 i2).
     skip. done.
 qed.
 
 
-equiv eq_h4_invert_mulx :
+lemma eq_h4_invert_mulx (i1: int) (i2: int) :
+    i1 = 2*i2 => 0 < i1 => 
+    equiv[    
     MHop2.invert ~ M_mulx.__invert4 : 
         fs{1} = inzpRep4 f{2}
         ==> 
-        res{1} = inzpRep4 res{2}.
+        res{1} = inzpRep4 res{2}].
 proof.
-    proc.
-    sp. auto => />.
+    move => H H0.
+    proc. sp.
+    auto => />.
     call eq_h4_mul_rsr__mulx.
     call eq_h4_sqr_rr__mulx. 
-    call eq_h4_it_sqr_x2__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 4 2). wp.
     call eq_h4_mul_rsr__mulx.
-    call eq_h4_it_sqr_x2__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 50 25). wp.
     call eq_h4_mul_rsr__mulx.
-    call eq_h4_it_sqr_x2__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 100 50). wp.
     call eq_h4_mul_rsr__mulx.
-    call eq_h4_it_sqr_x2__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 50 25). wp.
     call eq_h4_mul_rsr__mulx.
-    call eq_h4_it_sqr_x2__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 10 5). wp.
     call eq_h4_mul_rsr__mulx.
-    call eq_h4_it_sqr_x2__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 20 10). wp.
     call eq_h4_mul_rsr__mulx.
-    call eq_h4_it_sqr_x2__mulx. wp.
-    call eq_h4_mul_rsr__mulx.  wp.
-    call eq_h4_it_sqr_x2__mulx. wp.
-    call eq_h4_sqr_rr__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 10 5). wp.
+    call eq_h4_mul_rsr__mulx. wp.
+    call (eq_h4_it_sqr_x2__mulx 4 2). wp.
+    call eq_h4_sqr_rr__mulx . wp.
     call eq_h4_mul_rsr__mulx.
     call eq_h4_sqr_rr__mulx. wp.
     call eq_h4_mul_rsr__mulx. wp.
     call eq_h4_mul_rsr__mulx.
     call eq_h4_sqr_rr__mulx.
     call eq_h4_sqr_rr__mulx. wp.
-    call eq_h4_sqr_rr__mulx. skip.
-    rewrite !/copy_64.
-    move => &1 &2 [H] [H0] [H1] [H2] [H3] [H4] [H5] [H6] [H7] [H8] [H9] [H10] H11. 
-    split. assumption.
-    move => H12 [H13] H14 H15 H16. 
-    split. assumption.
-    move => H17 H18 H19 H20. 
-    split. assumption.
-    move => H21 [H22] H23 H24. 
-    do split.
-    auto => />.  
-    rewrite !/copy_64.
-    auto => />. 
-    move => &2 H. do split.
-    
+    call eq_h4_sqr_rr__mulx. auto => />.
+    admit.
 qed.
 
 

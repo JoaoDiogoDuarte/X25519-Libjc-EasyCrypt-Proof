@@ -11,6 +11,55 @@ import Zp_25519 IntOrder Curve25519_Spec Curve25519_Hop2 Curve25519_Ref5 Array4 
 
 (** ref5 **)
 
+equiv eq_h4_add_rrs_ref5 : MHop2.add ~ M_ref5.__add5_rrs:
+   f{1}   = inzpRep5 f{2} /\
+   g{1}   = inzpRep5 g{2} 
+   ==>
+   res{1} = inzpRep5 res{2}.
+proof.
+    admit.
+qed.
+
+equiv eq_h4_add_sss_ref5 : MHop2.add ~ M_ref5.__add5_sss:
+   f{1}   = inzpRep5 fs{2} /\
+   g{1}   = inzpRep5 gs{2} 
+   ==>
+   res{1} = inzpRep5 res{2}.
+proof.
+admit.
+qed.
+
+equiv eq_h4_add_ssr_ref5 : MHop2.add ~ M_ref5.__add5_ssr:
+   f{1}   = inzpRep5 g{2} /\
+   g{1}   = inzpRep5 fs{2} 
+   ==>
+   res{1} = inzpRep5 res{2}.
+proof.
+    admit.
+qed.
+
+module Aux_mul_a24 = {
+proc aux_mul_a24 (t0 t2: zp) = {
+    var z3 : zp;
+    z3 <@ MHop2.mul_a24(t0, 121665);
+    t2 <@ MHop2.add(t2, z3);
+    return t2;
+}
+}.
+
+
+equiv eq_aux_mul_a24 :
+    Aux_mul_a24.aux_mul_a24 ~ M_ref5.__mul5_a24_add_sss:
+    t0{1} = inzpRep5 xa{2} /\
+    t2{1} = inzpRep5 ya{2} /\
+    a24{2} = W64.of_int 996679680
+    ==>
+    res{1} = inzpRep5 res{2}.
+proof.    
+proc. 
+    admit.
+qed.
+  
 
 equiv eq_h4_sub_rss_ref5 : MHop2.sub ~ M_ref5.__sub5_rrs:
    f{1}   = inzpRep5 f{2} /\

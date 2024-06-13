@@ -510,7 +510,7 @@ proof.
 qed.
 
 lemma it_sqr1_m2_exp1_x2 (e : int) (z : zp) :
-     0 <= e - 1 => it_sqr1_x2 e z = it_sqr1_x2 (e-1) (exp z  4).
+     0 <= e - 1 => it_sqr1_x2 e z = it_sqr1_x2 (e-1) (exp z 4).
 proof.
     have ->: exp z 4 = exp (exp z 1) 4. rewrite expE. smt(). trivial.
     rewrite expE // /= => ?.

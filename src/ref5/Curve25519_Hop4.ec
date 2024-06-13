@@ -12,48 +12,6 @@ import Curve25519_Spec Curve25519_auto5 Curve25519_Hop1 Curve25519_Hop2 Curve255
 
 
 (* additions, substractions and powers *)
-equiv eq_h4_add_rrs_ref5 : MHop2.add ~ M_ref5.__add5_rrs:
-   f{1}   = inzpRep5 f{2} /\
-   g{1}   = inzpRep5 g{2} /\
-   forall i, 0 <= i < 5 => to_uint(f{2}.[i]) + to_uint(g{2}.[i]) <  W64.modulus
-   ==>
-   res{1} = inzpRep5 res{2}.
-proof.
-    proc. unroll for{2} ^while.
-    wp. skip. move => &1 &2 [H] [H1] H2 H3 H4 H5 H6 H7 H8 H9 H10.
-    rewrite H H1 => />. 
-    rewrite /inzpRep5 /valRep5 /val_digits /to_list /mkseq -iotaredE => />.
-    rewrite /H10 /H9 /H8 /H7 /H6 /H5 /H4 /H3 /H2 /copy_64 -!inzpD => />. congr.
-    rewrite !to_uintD_small. 
-    move: H2. smt(). move: H2. smt(). move: H2. smt(). move: H2. smt(). move: H2. smt().
-    by ring.
-qed.
-
-equiv eq_h4_add_sss_ref5 : MHop2.add ~ M_ref5.__add5_sss:
-   f{1}   = inzpRep5 fs{2} /\
-   g{1}   = inzpRep5 gs{2} /\
-   forall i, 0 <= i < 5 => to_uint(fs{2}.[i]) + to_uint(gs{2}.[i]) <  W64.modulus
-   ==>
-   res{1} = inzpRep5 res{2}.
-proof.
-    proc *. inline {2} (1). wp. sp.
-    call eq_h4_add_rrs_ref5. skip. auto => />.
-    move => &1 H H0 H1 H2. rewrite /copy_64.
-    move: H2. smt().
-qed.
-
-equiv eq_h4_add_ssr_ref5 : MHop2.add ~ M_ref5.__add5_ssr:
-   f{1}   = inzpRep5 g{2} /\
-   g{1}   = inzpRep5 fs{2} /\
-    forall i, 0 <= i < 5 => to_uint(fs{2}.[i]) + to_uint(g{2}.[i]) <  W64.modulus
-   ==>
-   res{1} = inzpRep5 res{2}.
-proof.
-    proc *. inline {2} (1). wp. sp.
-    call eq_h4_add_rrs_ref5. skip. auto => />.
-    move => &2. smt().
-qed.
-
 
 equiv eq_h4_sqr_ss__ref5 : MHop2.sqr ~ M_ref5._sqr5_ss_:
     f{1}   = inzpRep5 xa{2}
@@ -74,8 +32,6 @@ proof.
     proc *.  inline {2 }(1). wp. sp.
     call eq_h4_sqr_p_ref5. skip. auto => />. 
 qed.
-
-
 
 equiv eq_h4_mul_ss_ref5 : MHop2.mul ~ M_ref5._mul5_ss_:
     f{1}   = inzpRep5 xa{2} /\
@@ -220,16 +176,10 @@ proof.
     call eq_h4_mul_rss_ref5.
     call eq_h4_mul_sss_ref5.
     call eq_h4_sqr_ss_ref5.
-    inline {2} 18. 
-    inline {2} 23. 
-    inline {2} 62.
-    inline {2} 65.
-    sp. wp. 
-    inline {1} 16. 
-    inline {1} 15. 
-    inline {1} 14. 
-    sp. 
-    wp. 
+    auto => />.
+    seq 13 13 : (t0{1} = inzpRep5 t0{2} /\ t2{1} = inzpRep5 t2{2} /\  x3{1} = inzpRep5 x3{2} /\ z2{1} = inzpRep5 z2{2}   /\ x2{1} = inzpRep5 x2{2}).
+    
+    
     call eq_h4_sqr_ss_ref5.
     call eq_h4_sub_sss_ref5.
     call eq_h4_mul_sss_ref5.
@@ -242,8 +192,12 @@ proof.
     call eq_h4_add_sss_ref5.
     call eq_h4_sub_sss_ref5.
     call eq_h4_add_ssr_ref5.
-    call eq_h4_sub_ssr_ref5. skip.
-    admit.
+    call eq_h4_sub_ssr_ref5. skip. done.
+    conseq />.
+    transitivity {1} {t2 <@ Aux_mul_a24.aux_mul_a24(t0, t2);}
+    (t0{1} = t0{2} /\ t2{1} = t2{2} ==> t2{1} = t2{2})
+    (t0{1} = inzpRep5 t0{2} /\ t2{1} = inzpRep5 t2{2} ==> t2{1} = inzpRep5 t2{2}). 
+    smt(). smt(). inline {2} 1. sim. call eq_aux_mul_a24. auto => />. 
 qed.
 
 (** step 6 : montgomery_ladder_step **)

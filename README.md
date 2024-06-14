@@ -17,13 +17,15 @@ Below are files that run without errors as of latest commit date and time and do
 - [X] Curve25519_Hop4.ec
 - [X] Curve25519_auto4.ec
 
-### Ref5
+### Ref5*
+*Note that this currently assumes that all values, even when summed, are below 2^32, which may be false.
+Can be fixed by tracking the value of variables throughout the proofs.
 - [X] Curve25519_Hop4.ec
 - [X] Curve25519_auto5.ec
 
 ### Mulx
 - [ ] Curve25519_Hop4.ec 
-    - Invert and add_double not done.
+    - Invert and it_sqr not done.
 - [X] Curve25519_auto_mulx.ec
 
 Everything that is to be proven in Cryptoline are in the Curve25519_auto* files, Due to this, all lemmas are admitted for now.

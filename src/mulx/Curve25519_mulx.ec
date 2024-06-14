@@ -1146,11 +1146,11 @@ module M_mulx = {
     t2 <@ _mul4_rsr_ (t2s, t3);
     i <- (W32.of_int (50 %/ 2));
     t2 <@ _it_sqr4_x2_ (t2, i);
-    t1 <@ _mul4_rsr_ (t1, t2s);
+    t1 <@ _mul4_rsr_ (t1s, t2);
     i <- (W32.of_int (4 %/ 2));
     t1 <@ _it_sqr4_x2_ (t1, i);
     t1 <@ _sqr4_rr_ (t1);
-    t1 <@ _mul4_rsr_ (t1s, t0s);
+    t1 <@ _mul4_rsr_ (t1, t0s);
     return (t1);
   }
   

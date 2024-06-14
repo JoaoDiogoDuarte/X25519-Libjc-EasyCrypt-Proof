@@ -25,7 +25,7 @@ Can be fixed by tracking the value of variables throughout the proofs.
 
 ### Mulx
 - [ ] Curve25519_Hop4.ec 
-    - Invert and it_sqr not done.
+    - it_sqr not done.
 - [X] Curve25519_auto_mulx.ec
 
 Everything that is to be proven in Cryptoline are in the Curve25519_auto* files, Due to this, all lemmas are admitted for now.

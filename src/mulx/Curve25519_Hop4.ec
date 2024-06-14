@@ -401,15 +401,15 @@ proof.
     call (eq_h4_it_sqr_x2__mulx 10 5). wp.
     call eq_h4_mul_rsr__mulx. wp.
     call (eq_h4_it_sqr_x2__mulx 4 2). wp.
-    call eq_h4_sqr_rr__mulx . wp.
+    call eq_h4_sqr_rr__mulx. wp.
     call eq_h4_mul_rsr__mulx.
     call eq_h4_sqr_rr__mulx. wp.
     call eq_h4_mul_rsr__mulx. wp.
     call eq_h4_mul_rsr__mulx.
     call eq_h4_sqr_rr__mulx.
     call eq_h4_sqr_rr__mulx. wp.
-    call eq_h4_sqr_rr__mulx. auto => />.
-    admit.
+    call eq_h4_sqr_rr__mulx. 
+    skip.  done. 
 qed.
 
 

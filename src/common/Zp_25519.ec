@@ -12,6 +12,8 @@ op p = 2^255 - 19 axiomatized by pE.
 
 lemma two_pow255E: 2^255 = 57896044618658097711785492504343953926634992332820282019728792003956564819968 by done.
 
+lemma pVal: p = 57896044618658097711785492504343953926634992332820282019728792003956564819949 by smt(pE two_pow255E).
+
 op valid_ptr(p : int, o : int) = 0 <= o => 0 <= p /\ p + o < W64.modulus.
 
 op load_array4 (m : global_mem_t, p : address) : W64.t list =

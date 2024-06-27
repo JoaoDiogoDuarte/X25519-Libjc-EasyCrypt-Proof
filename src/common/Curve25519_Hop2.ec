@@ -2,7 +2,8 @@ require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr StdOrder.
 from Jasmin require import JModel JWord JModel_x86.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
-import Zp_25519 Zp_25519.ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID StdOrder.IntOrder.
+require import W64limbs.
+import Zp_25519 Zp_25519.ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID StdOrder.IntOrder W64limbs.
 
 require import Array4 Array5 Array8 Array32.
 require import WArray32 WArray40 WArray64.
@@ -304,7 +305,24 @@ module MHop2 = {
     r   <@ scalarmult_internal(u'', k');
     return r;
   }
+  
+   proc array2x (x:W64.t Array4.t) : W64.t * W64.t * W64.t * W64.t = {
+    
+    var r0:W64.t;
+    var r1:W64.t;
+    var r2:W64.t;
+    var r3:W64.t;
+    
+    r0 <- x.[0];
+    r1 <- x.[1];
+    r2 <- x.[2];
+    r3 <- x.[3];
+    return (r0, r1, r2, r3);
+  }
 }.
+
+    
+     
 
 (** step 1 : decode_scalar_25519 **)
 lemma eq_h2_decode_scalar k:
@@ -686,4 +704,18 @@ proof.
     move=> H9 H10 ->. rewrite /scalarmult_base1  /scalarmult1. auto => />.
     rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
     rewrite H6 H4 => />. congr. congr. congr. rewrite H6 H4 => />. 
+qed.
+
+
+
+lemma array_to_individual_elements_4 x':
+     hoare [ MHop2.array2x : x=x' ==> res = (x'.[0], x'.[1], x'.[2], x'.[3]) ].
+proof. by proc; simplify; wp; skip => />.
+qed.
+
+lemma array_to_individual_elements_4_ll: islossless MHop2.array2x by proc; islossless.
+
+lemma array_to_individual_elements_4_ph x':
+ phoare [ MHop2.array2x : x=x' ==> res = (x'.[0], x'.[1], x'.[2], x'.[3]) ] = 1%r.
+proof. by conseq array_to_individual_elements_4_ll (array_to_individual_elements_4 x'). 
 qed.

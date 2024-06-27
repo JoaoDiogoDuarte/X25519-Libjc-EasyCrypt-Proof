@@ -23,7 +23,7 @@ proof.
     proc *. inline{2} (1). wp. sp.
     call (eq_h4_add_rrs_ref4). skip. auto => />. 
 qed.
-
+rca
 
 equiv eq_h4_add_sss_ref4 : MHop2.add ~ M_ref4.__add4_sss:
     f{1}   = inzpRep4 fs{2} /\

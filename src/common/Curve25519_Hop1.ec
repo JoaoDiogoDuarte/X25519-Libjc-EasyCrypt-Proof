@@ -467,4 +467,4 @@ proof.
     apply eq_scalarmult1.
 qed.
 
-
+ 

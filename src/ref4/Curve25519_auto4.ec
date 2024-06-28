@@ -17,7 +17,7 @@ type limb = W64.t.
 
 
 module GenericOperations = {
-    proc addn(a : int, b : int) : bool * int = {
+    proc addn (a : int, b : int) : bool * int = {
         var c : bool;
         var r : int;
 
@@ -27,13 +27,13 @@ module GenericOperations = {
         return (c, r);
     }
     
-    proc maskOnCarry(m: int, r: W64.t, cf: bool): W64.t = {
+    proc maskOnCarry (m: int, r: W64.t, cf: bool): W64.t = {
         (cf, r) <- subc r r cf;
         r <- r `&` W64.of_int m;
         return r;
     }
     
-    proc addcR( a b: Rep4, c: bool): bool * Rep4 =     {
+    proc addcR (a b: Rep4, c: bool): bool * Rep4 = {
         var r: Rep4;
         var i, x;
         r <- witness;
@@ -45,11 +45,8 @@ module GenericOperations = {
         }
         return (c,r);
       }
-    
-    
-   proc addcR2( a b: Rep4): bool * Rep4 =     {
-    
-        
+      
+    proc addcR2 (a b: Rep4): bool * Rep4 =     {
         var i, x, c;
         c <- false;
         i <- 0;
@@ -62,6 +59,33 @@ module GenericOperations = {
         return (c,a);
     }
     
+    proc addcR3 (a: Rep4, z: limb, c: bool): bool * Rep4 =     {
+        var i : int;
+        var x : limb; 
+        
+        i <- 0;
+
+        (c, x) <- addc a.[i] z c;
+        a.[0] <- x;
+        i <- 1;
+        while (i < 4) {
+            (c, x) <- addc a.[i] W64.zero  c;
+            a.[i] <- x;
+            i <- i + 1;
+        }
+        return (c,a);
+    }
+    
+    proc reduce_after_sum(h: Rep4, c : bool) : Rep4 = {
+        var z : limb;
+        var z0 : Rep4;
+        z <- W64.zero;
+        z <@ maskOnCarry(38, z, c);
+        (c, h) <@ addcR3(h, z, false);
+        z <@ maskOnCarry(38, z, c);
+        h.[0] <- h.[0] + z;  
+        return h;
+    }
     
     
     proc addl (a b: Rep4) : Rep4 = {
@@ -73,18 +97,9 @@ module GenericOperations = {
         z <- W64.zero;
         
         (c, h) <@ addcR2(h, b);
-         z <@ maskOnCarry(38, z, c);
-         
-        z0.[0] <- z;
-        z0.[1] <- W64.zero;
-        z0.[2] <- W64.zero;
-        z0.[3] <- W64.zero;
-        
-        (c, h) <@ addcR2(h, z0);
-        z <@ maskOnCarry(38, z, c);
-        h.[0] <- h.[0] + z;  
-
-    return h;
+        h <@ reduce_after_sum(h, c);
+  
+        return h;
     }
 
 }.
@@ -104,42 +119,42 @@ qed.
 (** step 0 : add sub mul sqr - all done by auto **)
 
 lemma lex_lt x1 x2 m y1 y2:
- 0 < m => 0 <= x1 < m => 0 <= x2 < m => 0 <= y1 => 0 <= y2 =>
- (y1*m + x1 < y2*m + x2) = (y1 < y2 \/ y1=y2 /\ x1 < x2)
+    0 < m => 0 <= x1 < m => 0 <= x2 < m => 0 <= y1 => 0 <= y2 =>
+    (y1*m + x1 < y2*m + x2) = (y1 < y2 \/ y1=y2 /\ x1 < x2)
 by smt().
 (*proof. by move=> /> *; rewrite (divzU (y1 * m + x1) m y1 x1) /#. qed.*)
 
 lemma lex_le x1 x2 m y1 y2:
- 0 < m => 0 <= x1 < m => 0 <= x2 < m => 0 <= y1 => 0 <= y2 =>
- (y1*m + x1 <= y2*m + x2) = (y1 < y2 \/ y1=y2 /\ x1 <= x2)
+    0 < m => 0 <= x1 < m => 0 <= x2 < m => 0 <= y1 => 0 <= y2 =>
+    (y1*m + x1 <= y2*m + x2) = (y1 < y2 \/ y1=y2 /\ x1 <= x2)
 by smt().
 (*proof. by move=> /> *; rewrite (divzU (y1 * m + x1) m y1 x1) /#. qed.*)
 
 lemma lex_eq x1 x2 m y1 y2:
- 0 < m => 0 <= x1 < m => 0 <= x2 < m => 0 <= y1 => 0 <= y2 =>
- (y1*m + x1 = y2*m + x2) = (y1 = y2 /\ x1 = x2)
+    0 < m => 0 <= x1 < m => 0 <= x2 < m => 0 <= y1 => 0 <= y2 =>
+    (y1*m + x1 = y2*m + x2) = (y1 = y2 /\ x1 = x2)
 by smt().
 
 lemma modz_pow (a b d: int):
  0 <= b => a ^ b %% d = (a %% d) ^ b %% d.
 proof.
-elim/natind: b.
- by move => n *; rewrite (_:n=0) 1:/# !expr0.
-move=> n Hn IH H.
-rewrite !exprS 1..2://.
-by rewrite eq_sym -modzMmr -IH 1:// modzMmr modzMml.
+    elim/natind: b.
+    by move => n *; rewrite (_:n=0) 1:/# !expr0.
+    move=> n Hn IH H.
+    rewrite !exprS 1..2://.
+    by rewrite eq_sym -modzMmr -IH 1:// modzMmr modzMml.
 qed.
 
 
 lemma addcP' (x y: limb, c :  bool):
     to_uint (W64.addc x y c).`2 = to_uint x + to_uint y + b2i c - b2i (carry_add x y c) * W64.modulus.
 proof.
-rewrite addcE /= /carry_add.
-case: (W64.modulus <= to_uint x + to_uint y + b2i c) => E.
- rewrite to_uintD of_uintK b2i1 /= (modz_small (b2i c)); first smt(ge2_modulus).
- rewrite to_uintD modzDml -(modzMDr (-1)) modz_small //=.
- case: c E; rewrite /b2i /=; move: W64.to_uint_cmp; smt(). rewrite !b2i0 => />.  
-smt(W64.to_uintD_small W64.of_uintK modz_small W64.to_uint_cmp ge2_modulus bound_abs).
+    rewrite addcE /= /carry_add.
+    case: (W64.modulus <= to_uint x + to_uint y + b2i c) => E.
+    rewrite to_uintD of_uintK b2i1 /= (modz_small (b2i c)); first smt(ge2_modulus).
+    rewrite to_uintD modzDml -(modzMDr (-1)) modz_small //=.
+    case: c E; rewrite /b2i /=; move: W64.to_uint_cmp; smt(). rewrite !b2i0 => />.  
+    smt(W64.to_uintD_small W64.of_uintK modz_small W64.to_uint_cmp ge2_modulus bound_abs).
 qed.
 
 lemma addcPP (a b: limb, c: bool):
@@ -360,10 +375,10 @@ equiv addc_spec:
   ==> res{1}.`1=res{2}.`1 /\ valRep4_full res{1}.`2 =  res{2}.`2.
 proof.
     transitivity 
-     GenericOperations.addcR
-     ( ={a,b} /\ !c{2} ==> ={res} )
-     ( valRep4_full a{1} =  a{2} /\ valRep4_full b{1} =  b{2} /\ !c{1}
-       ==> res{1}.`1 = res{2}.`1 /\ valRep4_full res{1}.`2 = res{2}.`2 ).
+    GenericOperations.addcR
+    ( ={a,b} /\ !c{2} ==> ={res} )
+    ( valRep4_full a{1} =  a{2} /\ valRep4_full b{1} =  b{2} /\ !c{1}
+    ==> res{1}.`1 = res{2}.`1 /\ valRep4_full res{1}.`2 = res{2}.`2 ).
     + by move=> /> &1 &2 H1 H2; exists (a{1},b{1},false).
     + by move=> /> *.
     + proc. simplify.
@@ -371,13 +386,7 @@ proof.
     unroll {1} 3; rcondt {1} 3; first by auto.
     exlim a{1}, b{1} => aa bb.
     while (={i,b} /\ 1 <= i{2} <= 4 /\
-         (c,aa){1}=(c,a){2} /\rewrite !b2i0 => />. move => T T0 T1. split.
-  rewrite T0 /modulus /=. 
-  rewrite !eq_valRep4_full. 
-  have E: valRep4 a{1} = a{2}. smt.
-  smt.
-    by rewrite carry_add_on_kE 1:/# b2i0 /modulus /=.
-
+         (c,aa){1}=(c,a){2} /\
          (forall k, 0 <= k < i{2} => a{1}.[k] = r{2}.[k]) /\
          (forall k, i{2} <= k < 4 => a{1}.[k] = aa.[k])).
     wp; skip => /> &1 &2 Hi1 Hi2 H1 H2 Hi.
@@ -388,28 +397,73 @@ proof.
     pose X := (addc _ _ _)%W64.
     pose Y := (addc _ _ _)%W64.
     have ->: X=Y by smt().
-    case: (k = i{2}) => ?.
-     by rewrite !set_eqiE /#.
-    by rewrite !set_neqiE /#.
-   move=> k Hk1 Hk2.
-   by rewrite set_neqiE /#.
-   wp. skip => /> &1. 
-   move=> Hc; split => *. 
-   split => k *.
+    case: (k = i{2}) => ?. by rewrite !set_eqiE /#. by rewrite !set_neqiE /#.
+    move=> k Hk1 Hk2. by rewrite set_neqiE /#.
+    wp. skip => /> &1. 
+    move=> Hc; split => *. 
+    split => k *.
     by rewrite (_:k=0) 1:/# !set_eqiE /#.
-   by rewrite set_neqiE /#.
-  by apply ext_eq; smt().
-+ proc. simplify.
-  transitivity {1}
-   { (c,r) <@ GenericOperations.addcR(a,b,c); }
-   ( ={a,b,c} ==> ={c,r} )
-   (  valRep4_full a{1} = a{2} /\ valRep4_full b{1}=  b{2} /\ !c{1} ==> ={c} /\ valRep4_full r{1} =  r{2} ).
-   by move=> /> &1 &2; exists a{1} b{1} false.
+    by rewrite set_neqiE /#.
+    by apply ext_eq; smt().
+    + proc. simplify.
+    transitivity {1}
+        { (c,r) <@ GenericOperations.addcR(a,b,c); }
+        ( ={a,b,c} ==> ={c,r} )
+        (  valRep4_full a{1} = a{2} /\ valRep4_full b{1}=  b{2} /\ !c{1} ==> ={c} /\ valRep4_full r{1} =  r{2} ).
+    by move=> /> &1 &2; exists a{1} b{1} false.
   + by auto.
   + by inline *; sim.
   + ecall {1} (addcR_ph a{1} b{1} c{1}); wp; skip => /> &1 &2 &m H0 Hc  /=.
 qed.
 
+lemma maskOnCarry_h mask _r _cf:
+ hoare [ GenericOperations.maskOnCarry :
+         _cf=cf /\ mask=m /\ _r=r ==> res = if _cf then W64.of_int mask else W64.zero ].
+proof.
+    proc; simplify.
+    wp; skip => />.
+    have ->: (subc _r _r _cf).`2 = if _cf then W64.onew else W64.zero.
+    rewrite /subc /=.
+    have ->: _r - (_r + W64.of_int (b2i _cf)) = -W64.of_int (b2i _cf) by ring.
+    case: _cf => E.
+    by rewrite b2i1 minus_one.
+    by rewrite b2i0; ring.
+    case: _cf => Ecf.
+    by rewrite W64.and1w.
+    by rewrite W64.and0w.
+qed.
+
+lemma maskOnCarry_ll: islossless GenericOperations.maskOnCarry.
+proof. by islossless. qed.
+
+lemma valRep4mod (x: Rep4) :
+    valRep4_full x %% modulus^4 = valRep4_full x.
+    rewrite modz_small !/valRep4_full !/valRep4_partial /range -iotaredE => />.
+    split. smt(@JUtils).
+    rewrite modulusE => />.  
+    smt(@W64 @JUtils).
+qed.
+
+lemma maskOnCarry_ph (mask: int, _r: limb,  _cf: bool):
+ phoare [ GenericOperations.maskOnCarry :
+         mask=m /\ _cf=cf /\ r = _r ==> res = if _cf then W64.of_int mask else W64.zero ] = 1%r.
+proof. by conseq maskOnCarry_ll (maskOnCarry_h mask _r _cf). qed.
+
+lemma reduce_addition (f : Rep4, cf : bool) : 
+    hoare [GenericOperations.reduce_after_sum : 
+           f = h  /\ cf = c /\ c = false ==>  valRep4_full res = if (addc_carry f.[3] W64.zero (addc_carry f.[2] W64.zero (addc_carry f.[1] W64.zero (addc_carry f.[0] W64.zero false)))) then reduce (valRep4_full f) else valRep4_full f]. 
+proof.
+    proc. simplify. wp.
+    ecall (maskOnCarry_h 38 z c).
+    inline 3.
+    unroll for ^while. wp. simplify.
+    ecall (maskOnCarry_h 38 z c).
+    wp. skip => />.
+    case (addc_carry f.[3] W64.zero (addc_carry f.[2] W64.zero (addc_carry f.[1] W64.zero (addc_carry f.[0] W64.zero false)))) => C.
+    smt(@W64). 
+    smt(@W64 @Array4).
+qed.
+    
 equiv eq_h4_add_rrs_ref4 : MHop2.add ~ M_ref4.__add4_rrs:
    f{1}   = inzpRep4 f{2} /\
    g{1}   = inzpRep4 g{2}

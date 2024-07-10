@@ -2,7 +2,8 @@ require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr StdOrder.
 from Jasmin require import JModel JWord JModel_x86.
 require import Curve25519_Spec.
 require import Curve25519_Hop1.
-import Zp_25519 Zp_25519.ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID StdOrder.IntOrder.
+require import W64limbs.
+import Zp_25519 Zp_25519.ZModpRing Curve25519_Spec Curve25519_Hop1 Ring.IntID StdOrder.IntOrder W64limbs.
 
 require import Array4 Array5 Array8 Array32.
 require import WArray32 WArray40 WArray64.
@@ -10,7 +11,7 @@ require import WArray32 WArray40 WArray64.
 module MHop2 = {
 
   (* h = f + g *)
-  proc add(f g : zp) : zp = 
+  proc add(f g : zp) : zp =
   {
     var h: zp;
     h <- Zp_25519.( + ) f g;
@@ -25,7 +26,7 @@ module MHop2 = {
     return h;
   }
 
-  (* h = f * a24 *)  
+  (* h = f * a24 *)
   proc mul_a24 (f : zp, a24 : int) : zp =
   {
     var h: zp;
@@ -56,17 +57,17 @@ module MHop2 = {
     h <- f;
     ii <- i;
 
-    h <@ sqr(f); 
+    h <@ sqr(f);
     ii <- ii - 1;
- 
+
     while (0 < ii) {
       h <@ sqr(h);
       ii <- ii - 1;
     }
-    
+
     return h;
   }
- 
+
 
   (* f ** 2**255-19-2 *)
   proc invert (fs : zp) : zp =
@@ -80,7 +81,7 @@ module MHop2 = {
     t1s <- witness;
     t2s <- witness;
     t3s <- witness;
- 
+
     t0s <@ sqr (fs);
     t1s <@ sqr (t0s);
     t1s <@ sqr (t1s);
@@ -108,7 +109,8 @@ module MHop2 = {
     t1s <@ mul (t1s, t0s);
     return (t1s);
    }
-  
+
+
   proc cswap (x2 z2 x3 z3 : zp, toswap : bool) : zp * zp * zp * zp =
   {
     if (toswap){
@@ -149,7 +151,7 @@ module MHop2 = {
     return u'';
   }
 
-  proc init_points (init : zp) : zp * zp * zp * zp = 
+  proc init_points (init : zp) : zp * zp * zp * zp =
   {
 
     var x2 : zp;
@@ -169,7 +171,7 @@ module MHop2 = {
 
     return (x2, z2, x3, z3);
   }
-  
+
   proc add_and_double (init x2 z2 x3 z3 : zp) : zp * zp * zp * zp =
   {
     var t0 : zp;
@@ -199,11 +201,8 @@ module MHop2 = {
     return (x2, z2, x3, z3);
   }
 
-  proc montgomery_ladder_step (k' : W256.t, 
-                               init' x2 z2 x3 z3 : zp,
-                               swapped : bool,
-                               ctr' : int) : zp * zp * zp * zp * bool =
-  { 
+  proc montgomery_ladder_step (k' : W256.t, init' x2 z2 x3 z3 : zp,  swapped : bool,  ctr' : int) : zp * zp * zp * zp * bool =
+  {
     var bit : bool;
     var toswap : bool;
     bit <@ ith_bit (k', ctr');
@@ -215,8 +214,8 @@ module MHop2 = {
     return (x2, z2, x3, z3, swapped);
   }
 
-  
-  proc montgomery_ladder (init' : zp, k' : W256.t) : zp * zp * zp * zp = 
+
+  proc montgomery_ladder (init' : zp, k' : W256.t) : zp * zp * zp * zp =
   {
     var x2 : zp;
     var z2 : zp;
@@ -225,21 +224,21 @@ module MHop2 = {
     var ctr : int;
     var c : int;
     var swapped : bool;
-    
-    
+
+
     x2 <- witness;
     x3 <- witness;
     z2 <- witness;
     z3 <- witness;
     (x2, z2, x3, z3) <@ init_points (init');
     ctr <- 255;
-    swapped <- false;    
+    swapped <- false;
 
     while (0 < ctr)
     {
-     ctr <- ctr - 1; 
+     ctr <- ctr - 1;
      (x2, z2, x3, z3, swapped) <@ montgomery_ladder_step (k', init', x2, z2, x3, z3, swapped, ctr);
-    
+
     }
     return (x2, z2, x3, z3);
   }
@@ -256,13 +255,13 @@ module MHop2 = {
   }
 
    proc scalarmult_internal(u'': zp,  k': W256.t ) : W256.t = {
-    
+
     var x2 : zp;
     var z2 : zp;
     var x3 : zp;
     var z3 : zp;
     var r : W256.t;
-    r <- witness;  
+    r <- witness;
     x2 <- witness;
     x3 <- witness;
     z2 <- witness;
@@ -279,7 +278,7 @@ module MHop2 = {
     var x3 : zp;
     var z3 : zp;
     var r : W256.t;
-   
+
     r <- witness;
     x2 <- witness;
     x3 <- witness;
@@ -296,7 +295,7 @@ module MHop2 = {
   {
     var u'' : zp;
     var r : W256.t;
-   
+
     r <- witness;
 
     k'  <@ decode_scalar (k');
@@ -304,13 +303,28 @@ module MHop2 = {
     r   <@ scalarmult_internal(u'', k');
     return r;
   }
+
+   proc array2x (x:W64.t Array4.t) : W64.t * W64.t * W64.t * W64.t = {
+
+    var r0:W64.t;
+    var r1:W64.t;
+    var r2:W64.t;
+    var r3:W64.t;
+
+    r0 <- x.[0];
+    r1 <- x.[1];
+    r2 <- x.[2];
+    r3 <- x.[3];
+    return (r0, r1, r2, r3);
+  }
 }.
+
 
 (** step 1 : decode_scalar_25519 **)
 lemma eq_h2_decode_scalar k:
     hoare [ MHop2.decode_scalar :
         k' = k
-        ==> 
+        ==>
         res = decodeScalar25519 k
     ].
 proof.
@@ -320,9 +334,9 @@ qed.
 
 (** step 2 : decode_u_coordinate **)
 lemma eq_h2_decode_u_coordinate u:
-    hoare [ MHop2.decode_u_coordinate : 
+    hoare [ MHop2.decode_u_coordinate :
         u' = u
-        ==> 
+        ==>
         res = decodeUCoordinate u
     ].
 proof.
@@ -331,22 +345,22 @@ proof.
 qed.
 
 lemma eq_h2_decode_u_coordinate_base:
-    hoare[ MHop2.decode_u_coordinate_base: 
-        true 
+    hoare[ MHop2.decode_u_coordinate_base:
+        true
         ==>
         res = decodeUCoordinate(W256.of_int(9%Int))
     ].
 proof.
     proc; wp; rewrite /decode_u_coordinate_base /=; skip. auto => />.
 qed.
-    
+
 (** step 3 : ith_bit **)
 lemma eq_h2_ith_bit (k : W256.t) i:
-    hoare [MHop2.ith_bit : 
-        k' = k 
-        /\ 
-        ctr = i 
-        ==> 
+    hoare [MHop2.ith_bit :
+        k' = k
+        /\
+        ctr = i
+        ==>
         res = ith_bit k i
     ].
 proof.
@@ -355,13 +369,13 @@ qed.
 
 (** step 4 : cswap **)
 lemma eq_h2_cswap (t : (zp * zp) * (zp * zp) )  b:
-    hoare [MHop2.cswap : 
+    hoare [MHop2.cswap :
        x2 = (t.`1).`1 /\
        z2 = (t.`1).`2 /\
        x3 = (t.`2).`1 /\
        z3 = (t.`2).`2 /\
-       toswap = b 
-       ==> 
+       toswap = b
+       ==>
        ((res.`1, res.`2),(res.`3, res.`4)) = cswap t b
    ].
 proof.
@@ -370,13 +384,13 @@ qed.
 
 (** step 5 : add_and_double **)
 lemma eq_h2_add_and_double (qx : zp) (nqs : (zp * zp) * (zp * zp)):
-    hoare [MHop2.add_and_double : 
-        init = qx      /\ 
+    hoare [MHop2.add_and_double :
+        init = qx      /\
         x2 = nqs.`1.`1 /\
         z2 = nqs.`1.`2 /\
         x3 = nqs.`2.`1 /\
         z3 = nqs.`2.`2
-        ==> 
+        ==>
         ((res.`1, res.`2),(res.`3, res.`4)) = add_and_double1 qx nqs
     ].
 proof.
@@ -387,7 +401,7 @@ qed.
 (** step 6 : montgomery_ladder_step **)
 lemma eq_h2_montgomery_ladder_step (k : W256.t) (init : zp)  (nqs : (zp * zp) * (zp * zp) * bool) (ctr : int):
     hoare [MHop2.montgomery_ladder_step :
-        k' = k           /\ 
+        k' = k           /\
         init' = init     /\
         x2 = nqs.`1.`1   /\
         z2 = nqs.`1.`2   /\
@@ -395,7 +409,7 @@ lemma eq_h2_montgomery_ladder_step (k : W256.t) (init : zp)  (nqs : (zp * zp) * 
         z3 = nqs.`2.`2   /\
         swapped = nqs.`3 /\
         ctr' = ctr
-        ==> 
+        ==>
         ((res.`1, res.`2),(res.`3, res.`4),res.`5) = montgomery_ladder3_step k init nqs ctr
     ].
 proof.
@@ -424,11 +438,11 @@ proof.
 qed.
 
 lemma eq_h2_montgomery_ladder (init : zp) (k : W256.t) :
-    hoare [MHop2.montgomery_ladder : 
+    hoare [MHop2.montgomery_ladder :
         init' = init  /\
         k.[0] = false /\
         k' = k
-        ==> 
+        ==>
         ((res.`1, res.`2),(res.`3,res.`4)) = select_tuple_12 (montgomery_ladder3 init k)
     ].
 proof.
@@ -491,9 +505,9 @@ proof.
     have E: 4^(e-2) = 2^(2*(e-2)) by rewrite exprM => />.
     rewrite expE // /= => H.
     rewrite !eq_it_sqr1_x2. smt(). trivial.
-    rewrite /it_sqr_x2. 
-    rewrite expE. rewrite E. smt(gt0_pow2). 
-    congr => />.  have ->: 16 = 4^2 by rewrite expr2. 
+    rewrite /it_sqr_x2.
+    rewrite expE. rewrite E. smt(gt0_pow2).
+    congr => />.  have ->: 16 = 4^2 by rewrite expr2.
     rewrite -exprD_nneg //.
 qed.
 
@@ -503,9 +517,9 @@ lemma it_sqr1_m2_exp1 (e : int) (z : zp) :
 proof.
     have ->: exp z 2 = exp (exp z 1) 2. rewrite expE. smt(). trivial.
     rewrite expE // /= => ?.
-    rewrite !eq_it_sqr1. smt(). smt(). 
-    rewrite /it_sqr (*expE*). rewrite expE. split. smt(). 
-    rewrite expr_ge0 //. congr. have ->: 2 * 2^(e-1) = 2^1 * 2^(e-1). rewrite expr1 //. 
+    rewrite !eq_it_sqr1. smt(). smt().
+    rewrite /it_sqr (*expE*). rewrite expE. split. smt().
+    rewrite expr_ge0 //. congr. have ->: 2 * 2^(e-1) = 2^1 * 2^(e-1). rewrite expr1 //.
     rewrite -exprD_nneg //.
 qed.
 
@@ -514,25 +528,25 @@ lemma it_sqr1_m2_exp1_x2 (e : int) (z : zp) :
 proof.
     have ->: exp z 4 = exp (exp z 1) 4. rewrite expE. smt(). trivial.
     rewrite expE // /= => ?.
-    rewrite !eq_it_sqr1_x2. smt(). smt(). 
-    rewrite /it_sqr_x2 (*expE*). rewrite expE. split. smt(). 
-    rewrite expr_ge0 //. congr. have ->: 4 * 4^(e-1) = 4^1 * 4^(e-1). rewrite expr1 //. 
+    rewrite !eq_it_sqr1_x2. smt(). smt().
+    rewrite /it_sqr_x2 (*expE*). rewrite expE. split. smt().
+    rewrite expr_ge0 //. congr. have ->: 4 * 4^(e-1) = 4^1 * 4^(e-1). rewrite expr1 //.
     rewrite -exprD_nneg //.
 qed.
 
-lemma eq_h2_it_sqr (e : int) (z : zp) : 
+lemma eq_h2_it_sqr (e : int) (z : zp) :
     hoare[MHop2.it_sqr :
         i = e && 1 <= i  && f =  z
         ==>
         res = it_sqr1 e z
     ].
 proof.
-    proc. inline MHop2.sqr. sp. wp.  simplify. 
+    proc. inline MHop2.sqr. sp. wp.  simplify.
     while (0 <= i && 0 <= ii && it_sqr1 e z = it_sqr1 ii h).
-    wp. skip. 
+    wp. skip.
     move => &hr [[H [H0 H1 H2 H3]]]. split.
     apply H. move => H4. split. rewrite /H3.
-    smt(). move => H5. rewrite /H3. 
+    smt(). move => H5. rewrite /H3.
     smt(it_sqr1_m2_exp1). skip.
     move => &hr [H [H0 [H1 [H2 [H3]]]]] H4. split. split. smt(). move => H5. split. smt(). move => H6.
     smt(it_sqr1_m2_exp1). move => H5 H6 H7 [H8 [H9 H10]]. smt(it_sqr1_0).
@@ -540,52 +554,52 @@ qed.
 
 
 
-lemma eq_h2_it_sqr_x2 (e : int) (z : zp) : 
+lemma eq_h2_it_sqr_x2 (e : int) (z : zp) :
     hoare[MHop2.it_sqr :
         i%/2 = e && 2 <= i && i %% 2 = 0 && f = z
         ==>
         res = it_sqr1_x2 e z
     ].
 proof.
-    proc. inline MHop2.sqr. sp. wp. simplify. 
+    proc. inline MHop2.sqr. sp. wp. simplify.
     while (0 <= i && 0 <= ii && 2*e = i && it_sqr1_x2 e z = it_sqr1 i f && it_sqr1 (2*e) z = it_sqr1 ii h).
-    wp. skip. 
-    move => &hr [[H]] [H0] [H1] [H2] H3 H4 H5.  
-    split. 
-    + assumption. move => H6. 
-    split. 
-    + smt(). move => H7. 
-    split. 
-    + assumption. move => H8. 
+    wp. skip.
+    move => &hr [[H]] [H0] [H1] [H2] H3 H4 H5.
     split.
-    + assumption. move => H9. 
+    + assumption. move => H6.
+    split.
+    + smt(). move => H7.
+    split.
+    + assumption. move => H8.
+    split.
+    + assumption. move => H9.
     rewrite H3 /H5 => />. smt(it_sqr1_m2_exp1). skip.
-    
+
      move => &hr [H] [H0] [H1] [H2] [H3] [H4] H5.
-    do! split. 
-    + smt(). move => H6. 
-    split. 
+    do! split.
+    + smt(). move => H6.
+    split.
     + rewrite H1; first smt(). move => H7.
     split.
-    + rewrite -H2. auto => />. move: H3 H2 H4. smt(). move => H9. 
+    + rewrite -H2. auto => />. move: H3 H2 H4. smt(). move => H9.
     split.
-    
+
     rewrite eq_it_sqr1_x2. rewrite -H2. move: H4 H3. smt().
-    rewrite eq_it_sqr1. smt(). 
+    rewrite eq_it_sqr1. smt().
     rewrite /it_sqr_x2 /it_sqr H5 -H9. congr.
     rewrite exprM => />. move => H10.
-    rewrite !eq_it_sqr1; first smt(). smt(). 
+    rewrite !eq_it_sqr1; first smt(). smt().
     rewrite !/it_sqr. rewrite H0 H H5 H1 -H9. rewrite -exprM => />.
     congr. have ->: 2 * 2^(2*e-1) = 2^1 * 2^(2*e-1). rewrite expr1 //.
     rewrite -exprD_nneg //. smt().
-    
+
     move => h II H6 [H7] [H8] [H9] [H10] H11. rewrite H10 -H9 H5 H11.
     smt(it_sqr1_0).
 qed.
 
 
 (** step 9 : invert **)
-lemma eq_h2_invert (z : zp) : 
+lemma eq_h2_invert (z : zp) :
     hoare[MHop2.invert : fs = z ==> res = invert2 z].
 proof.
     proc.
@@ -598,9 +612,9 @@ proof.
     ecall (eq_h2_it_sqr 20  t2s). wp.
     ecall (eq_h2_it_sqr 10  t1s). wp.
     ecall (eq_h2_it_sqr 4   t2s). wp.
-    skip. simplify. 
-    move => &hr H.  
-    move=> ? ->. move=> ? ->. 
+    skip. simplify.
+    move => &hr H.
+    move=> ? ->. move=> ? ->.
     move=> ? ->. move=> ? ->.
     move=> ? ->. move=> ? ->.
     move=> ? ->. move=> ? ->.
@@ -608,31 +622,31 @@ proof.
 qed.
 
 (** step 10 : encode point **)
-lemma eq_h2_encode_point (q : zp * zp) : 
-    hoare[MHop2.encode_point : 
-        x2 =  q.`1 /\     
-        z2 = q.`2 
-        ==> 
+lemma eq_h2_encode_point (q : zp * zp) :
+    hoare[MHop2.encode_point :
+        x2 =  q.`1 /\
+        z2 = q.`2
+        ==>
         res = encodePoint1 q
     ].
 proof.
-    proc. inline MHop2.mul. wp. sp. 
+    proc. inline MHop2.mul. wp. sp.
     ecall (eq_h2_invert z2).
     skip. simplify.
-    move => &hr [H] [H0] H1 H2 H3.  
-    rewrite encodePoint1E. 
+    move => &hr [H] [H0] H1 H2 H3.
+    rewrite encodePoint1E.
     auto => />.
     congr; congr; congr. rewrite -H1. apply H3.
 qed.
 
 (** step 11 : scalarmult **)
 
-lemma eq_h2_scalarmult_internal (u: zp,  k: W256.t) : 
-    hoare[MHop2.scalarmult_internal : 
-        k.[0] = false  /\ 
-    k' = k         /\ 
-    u'' = u 
-    ==> 
+lemma eq_h2_scalarmult_internal (u: zp,  k: W256.t) :
+    hoare[MHop2.scalarmult_internal :
+        k.[0] = false  /\
+    k' = k         /\
+    u'' = u
+    ==>
     res = scalarmult_internal1 u k].
 proof.
     proc. sp.
@@ -644,11 +658,11 @@ proof.
     smt().
 qed.
 
-lemma eq_h2_scalarmult (k u : W256.t) : 
-    hoare[MHop2.scalarmult : 
-        k' = k /\ 
+lemma eq_h2_scalarmult (k u : W256.t) :
+    hoare[MHop2.scalarmult :
+        k' = k /\
         u' = u
-        ==> 
+        ==>
         res = scalarmult k u].
 proof.
     rewrite -eq_scalarmult1.
@@ -656,20 +670,20 @@ proof.
     pose dk := decodeScalar25519 k.
     have kb0f  : (dk).[0] = false. (* k bit 0 false *)
         rewrite /dk /decodeScalar25519 //.
-    ecall (eq_h2_scalarmult_internal u'' k'). 
-    ecall (eq_h2_decode_u_coordinate u'). 
+    ecall (eq_h2_scalarmult_internal u'' k').
+    ecall (eq_h2_decode_u_coordinate u').
     ecall (eq_h2_decode_scalar k').   simplify. sp.
     skip.
     move => &hr [H] [H0] H1 H2 H3 H4 H5. split. rewrite H3 H0. apply kb0f.
-    move=> H6 H7 ->. rewrite !encodePoint1E. auto => />. congr; congr; congr; congr. congr. congr. 
-    rewrite H5 H1 => />. rewrite H3 H0 => />. congr. congr. congr. rewrite H5 H1 => />. rewrite H3 H0 => />.  
+    move=> H6 H7 ->. rewrite !encodePoint1E. auto => />. congr; congr; congr; congr. congr. congr.
+    rewrite H5 H1 => />. rewrite H3 H0 => />. congr. congr. congr. rewrite H5 H1 => />. rewrite H3 H0 => />.
 qed.
 
-lemma eq_h2_scalarmult_base (k : W256.t) : 
+lemma eq_h2_scalarmult_base (k : W256.t) :
     hoare[
-        MHop2.scalarmult_base : 
-        k' = k  
-        ==> 
+        MHop2.scalarmult_base :
+        k' = k
+        ==>
         res = scalarmult_base k
     ].
 proof.
@@ -678,12 +692,12 @@ proof.
     pose dk := decodeScalar25519 k.
     have kb0f  : (dk).[0] = false. (* k bit 0 false *)
         rewrite /dk /decodeScalar25519 //.
-    ecall (eq_h2_scalarmult_internal u'' k'). 
-    ecall (eq_h2_decode_u_coordinate_base). 
+    ecall (eq_h2_scalarmult_internal u'' k').
+    ecall (eq_h2_decode_u_coordinate_base).
     ecall (eq_h2_decode_scalar k').   simplify. sp.
     skip.
     move => &hr [H] [H0] [H1] [H2] [H3] H4 H5 H6 H7 H8. split. rewrite H6 H4. apply kb0f.
     move=> H9 H10 ->. rewrite /scalarmult_base1  /scalarmult1. auto => />.
-    rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr. 
-    rewrite H6 H4 => />. congr. congr. congr. rewrite H6 H4 => />. 
+    rewrite !encodePoint1E. progress. congr; congr; congr; congr. congr. congr.
+    rewrite H6 H4 => />. congr. congr. congr. rewrite H6 H4 => />.
 qed.

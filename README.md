@@ -1,30 +1,24 @@
-# X25519-Libjc-EasyCrypt-Proof
-Bringing some libjc X25519 Jasmin-Easycrypt proofs up-to-date (WIP).
+# Libjade scalarmult correctness proof
 
-Below are files that run without errors as of latest commit date and time and do not include any `admit.` or `smt.`. 
+Below are files that run without errors as of latest commit date and time and do not include any `admit.` or `smt.`.
 
 
 ### Common
-- [X] EClib.ec 
-- [X] W64limbs.ec 
+- [X] EClib.ec
+- [X] W64limbs.ec
+- [X] Zplimbs.ec
 - [X] Zp_25519.ec
-- [X] Curve25519_spec.ec
-- [X] Curve25519_Hop1.ec
-- [X] Curve25519_Hop2.ec 
-- [X] Curve25519_Hop3.ec
+- [X] Curve25519_Spec.ec
+- [X] Curve25519_Operations.ec
+- [X] Curve25519_Procedures.ec
+- [X] Curve25519_PHoare.ec
 
 ### Ref4
-- [X] Curve25519_Hop4.ec
+- [X] CorrectnessProof.ec
 - [X] Curve25519_auto4.ec
 
-### Ref5*
-*Note that this currently assumes that all values, even when summed, are below 2^32, which may be false.
-Can be fixed by tracking the value of variables throughout the proofs.
-- [X] Curve25519_Hop4.ec
-- [X] Curve25519_auto5.ec
-
 ### Mulx
-- [ ] Curve25519_Hop4.ec 
+- [ ] CorrectnessProof.ec
     - it_sqr not done.
 - [X] Curve25519_auto_mulx.ec
 

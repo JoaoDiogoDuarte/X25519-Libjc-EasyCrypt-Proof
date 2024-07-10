@@ -1,4 +1,4 @@
-require import AllCore StdRing IntDiv StdOrder List. 
+require import AllCore StdRing IntDiv StdOrder List.
 from Jasmin require import JModel.
 
 import IntOrder Ring.IntID.
@@ -25,7 +25,7 @@ lemma val_digits_cat base x y:
 proof.
 elim: x => //= x xs IH /=.
 rewrite !val_digits_cons IH (addrC (1)) exprSr.
- by apply size_ge0. 
+ by apply size_ge0.
 by ring.
 qed.
 
@@ -34,7 +34,7 @@ op add_digits (x y: int list) : int list =
  with x=(::) _ _, y="[]" => x
  with x="[]", y=(::) _ _ => y
  with x=(::) x xs, y=(::) y ys => (x+y)::add_digits xs ys.
- 
+
 lemma add_digits_nill y: add_digits [] y = y by case y.
 
 lemma add_digits_nilr x: add_digits x [] = x by case x.
@@ -46,7 +46,7 @@ lemma add_digitsP x y base:
  val_digits base (add_digits x y) = val_digits base x + val_digits base y.
 proof.
 elim: x y => /= [ys|x xs IH].
- by rewrite val_digits_nil add_digits_nill. 
+ by rewrite val_digits_nil add_digits_nill.
 elim => //= y ys IH2 /=.
 by rewrite !val_digits_cons IH; ring.
 qed.
@@ -86,7 +86,7 @@ qed.
 **********************************************************************************************)
 
 
-(** [ubW64 bound] is a predicate that bounds the content of a W64 register *)  
+(** [ubW64 bound] is a predicate that bounds the content of a W64 register *)
 op ubW64 (n:int) (x: W64.t) = to_uint x <= n.
 
 lemma ubW64T (x: W64.t):
@@ -102,7 +102,7 @@ proof. rewrite /ubW64; smt(W64.to_uint_cmp). qed.
 
 lemma ubW640 (x: W64.t):
  ubW64 0 x <=> x=W64.zero.
-proof. 
+proof.
 rewrite /ubW64; split => H.
  have <-: W64.of_int (to_uint x) = W64.of_int 0.
   congr; by smt(W64.to_uint_cmp).
@@ -144,7 +144,7 @@ rewrite /ubW64 /mulhi => *.
 rewrite of_uintK modz_small.
  have ?: to_uint x * to_uint y %/ W64.modulus < W64.modulus.
   have := (divz_cmp W64.modulus (to_uint x * to_uint y) W64.modulus _ _); first smt().
-   split; move=> *. 
+   split; move=> *.
     smt (mulr_ge0 W64.to_uint_cmp).
    by apply ltr_pmul; have := W64.to_uint_cmp; smt().
   by move=> [? ?].
@@ -239,7 +239,7 @@ apply (ler_lt_trans (n1*n2)) => //.
 apply ler_pmul => //; smt(W64.to_uint_cmp).
 qed.
 
-(** [bW64 nbits] is a predicate that bounds the "live bits" of a register *)  
+(** [bW64 nbits] is a predicate that bounds the "live bits" of a register *)
 op bW64 size (w: W64.t) : bool = 0 <= size && to_uint w < 2^size
  axiomatized by bW64E.
 
@@ -273,7 +273,7 @@ lemma bW64W n1 n2 (x: W64.t):
 proof.
 move=> ? /bW64P [? ?]; rewrite bW64ub 1:/#.
 apply (ubW64W (2 ^ n1 - 1)) => //.
-apply ler_sub => //. 
+apply ler_sub => //.
 apply ler_weexpn2l => //.
 qed.
 
@@ -288,7 +288,7 @@ apply (ubW64W _ _ _ _ T).
 apply (lez_trans (2^(max nx ny + 1)-1)).
  rewrite exprSr 1:/#.
  case: (nx <= ny) => ?.
-  apply (ler_trans (2 ^ ny - 1 + (2 ^ ny - 1))); 1: smt(ler_weexpn2l). 
+  apply (ler_trans (2 ^ ny - 1 + (2 ^ ny - 1))); 1: smt(ler_weexpn2l).
   smt(ler_weexpn2l).
  smt(ler_weexpn2l).
 smt(ler_weexpn2l).
@@ -325,7 +325,7 @@ proof.
 rewrite bW64E /mask => /> *.
 rewrite to_uint_and_mod 1:/#.
 have HH: 0 < 2^n by apply gt0_pow2.
-by move: (modz_cmp (to_uint x) (2^n) HH); smt(). 
+by move: (modz_cmp (to_uint x) (2^n) HH); smt().
 qed.
 
 lemma nosmt bW64andmaskE n w:
@@ -346,7 +346,7 @@ lemma bW64T' n (x: W64.t) : 64 <= n => bW64 n x.
 proof. by move => ?; apply (bW64W 64) => //; apply bW64T. qed.
 
 lemma bW64const n (c: int) : 0 <= n => 0 <= c < 2^n => bW64 n (W64.of_int c).
-proof. 
+proof.
 move=> H [??]; rewrite bW64E.
 rewrite of_uintK.
 case: (c < W64.modulus) => *.
@@ -373,7 +373,7 @@ lemma bW64MW nx (x y: W64.t) (n: int):
  bW64 nx x =>
  bW64 (n-nx) y =>
  bW64 n (x*y).
-proof. 
+proof.
 move=> *; apply (bW64W (nx + (n-nx))); first smt().
 by apply bW64M.
 qed.
@@ -413,14 +413,14 @@ rewrite to_uint_shl.
 have ->: (to_uint ((of_int k))%W8 %% 64) = k
  by rewrite of_uintK; smt(modz_small).
 move: H4; rewrite -(ltr_pmul2r (2^k)); first by apply gt0_pow2.
-rewrite ltr_pmul2r 1:gt0_pow2  => H3 ?. 
-rewrite exprD_subz 1,2: /# ltz_divRL; first by apply gt0_pow2. 
+rewrite ltr_pmul2r 1:gt0_pow2  => H3 ?.
+rewrite exprD_subz 1,2: /# ltz_divRL; first by apply gt0_pow2.
 + apply dvdz_exp2l; 1: by smt().
 move => H4.
 rewrite modz_small //.
 apply bound_abs; split => *; first smt(divr_ge0 W64.to_uint_cmp gt0_pow2).
-apply (ltr_le_trans (2 ^ n) _ _ H4). 
-apply ler_weexpn2l; smt().  
+apply (ltr_le_trans (2 ^ n) _ _ H4).
+apply ler_weexpn2l; smt().
 qed.
 
 lemma bW64_shlw n k x:
@@ -429,12 +429,12 @@ proof. by move=> *; rewrite -W64.shl_shlw //; apply bW64_shl. qed.
 
 end BW64.
 
-(* 
+(*
    variants of [to_uintX_small]
    ============================
 *)
 
-lemma bW64_to_uintD x y: 
+lemma bW64_to_uintD x y:
  bW64 63 x => bW64 63 y => to_uint (x+y) = to_uint x + to_uint y.
 proof.
 rewrite !bW64E => /> *.
@@ -448,7 +448,7 @@ rewrite !bW64E => /> *; apply W64.to_uintM_small.
 move: (W64.to_uint_cmp x) (W64.to_uint_cmp y) => *.
 apply (StdOrder.IntOrder.ltr_le_trans (2^nx * 2^ny)).
 apply ltr_pmul; smt(W64.to_uint_cmp).
-rewrite -exprD_nneg //; apply ler_weexpn2l => //. 
+rewrite -exprD_nneg //; apply ler_weexpn2l => //.
 smt().
 qed.
 
@@ -704,7 +704,7 @@ op add_limbs64 (x y: W64.t list) (c: bool) : bool * W64.t list =
  with x = "[]", y = (::) y' ys => carryprop_limbs64 y c
  with x = (::) x' xs, y = "[]" => carryprop_limbs64 x c
  with x = (::) x' xs, y = (::) y' ys =>
-  let z = W64.addc x' y' c in 
+  let z = W64.addc x' y' c in
   let r = add_limbs64 xs ys z.`1 in
   (r.`1, z.`2::r.`2).
 
@@ -747,7 +747,7 @@ elim => /=.
 move=> y ys IH2 c; rewrite !val_digits_cons !addcE /=.
 have ->: MAX (1 + size xs) (1 + size ys) = 1 + MAX (size xs) (size ys) by smt(size_ge0).
 rewrite mulzDr exprD_nneg /=; first 2 smt(size_ge0).
-move: (IH ys (carry_add x y c)); rewrite (Core.pairS (add_limbs64 _ _ _ )) //=. 
+move: (IH ys (carry_add x y c)); rewrite (Core.pairS (add_limbs64 _ _ _ )) //=.
 case: (add_limbs64 xs ys (carry_add x y c)) => /= ?? E.
 by move: (W64.addcP x y c); rewrite addcE /= => ?; smt().
 qed.
@@ -852,7 +852,7 @@ op mul_limbs64mulhi (x y: W64.t list) : int list =
   (add_digits (add_digits (digits64 (mul1_limbs x y))
                           (0::digits64 (mul1hi_limbs x y)))
               (0::mul_limbs64mulhi xs y)).
-              
+
 lemma mul_limbs64mulhiP x y:
     val_digits64 (mul_limbs64mulhi x y) = val_limbs64 x * val_limbs64 y.
 proof.

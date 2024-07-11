@@ -1,9 +1,9 @@
 require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr StdOrder.
-require import Curve25519_Spec Curve25519_Operations W64limbs.
+require import Zp_25519 Curve25519_Spec Curve25519_Operations W64limbs.
 
 from Jasmin require import JModel JWord JModel_x86.
 
-import Zp_25519.Zp Ring.IntID StdOrder.IntOrder.
+import Zp Ring.IntID StdOrder.IntOrder.
 
 
 module CurveProcedures = {

@@ -1,9 +1,9 @@
-require import Int StdOrder Ring IntDiv Bool List Real BitEncoding.
+require import Int StdOrder Ring IntDiv Bool List BitEncoding.
 require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Procedures Curve25519_Ref4.
 
 from Jasmin require import JWord JWord_array JModel JUtils.
 
-import Zp_25519.Zp Curve25519_Procedures Curve25519_Ref4 Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
+import Zp Curve25519_Procedures Curve25519_Ref4 Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
 
 equiv eq_spec_impl_add_rrs_ref4 : CurveProcedures.add  ~ M_ref4.__add4_rrs:
     f{1} = inzpRep4 f{2} /\

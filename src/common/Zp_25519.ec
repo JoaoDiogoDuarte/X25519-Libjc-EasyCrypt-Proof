@@ -23,14 +23,14 @@ clone import ZModP.ZModRing as Zp with
 (* congruence "mod p" *)
 
 lemma zpcgr_over a b:
-    zpcgr (a + 57896044618658097711785492504343953926634992332820282019728792003956564819968 * b) (a + 19 * b).
+    Zp.zpcgr (a + 57896044618658097711785492504343953926634992332820282019728792003956564819968 * b) (a + 19 * b).
 proof.
     have /= ->: (2^ 255) = 19 + p by rewrite pE.
     by rewrite (mulzC _ b) mulzDr addzA modzMDr mulzC.
 qed.
 
 lemma inzp_over x:
-    inzp (57896044618658097711785492504343953926634992332820282019728792003956564819968 * x) = inzp (19*x).
+    Zp.inzp (57896044618658097711785492504343953926634992332820282019728792003956564819968 * x) = Zp.inzp (19*x).
 proof.
     by have /= := zpcgr_over 0 x; rewrite -eq_inzp.
 qed.
@@ -112,7 +112,7 @@ op bezout_coef256 (x : int) : int * int = (x %/ W256.modulus, x %% W256.modulus)
 op red256 (x: int) : int =
     (bezout_coef256 x).`2 + 38 * (bezout_coef256 x).`1.
 
-lemma red256P x: zpcgr x (red256 x).
+lemma red256P x: Zp.zpcgr x (red256 x).
 proof.
     by rewrite {1}(divz_eq x (2^256)) -modzDml -modzMmr twop256_cgr
     modzDml /red256 /split256 /= addrC mulrC.
@@ -197,7 +197,7 @@ op reduce x = red256 (red256 (red256 x)).
 
 lemma reduceP x:
     0 <= x < W256.modulus * W256.modulus =>
-    zpcgr x (reduce x) /\ 0 <= reduce x < W256.modulus.
+    Zp.zpcgr x (reduce x) /\ 0 <= reduce x < W256.modulus.
 proof.
     rewrite /reduce => H; split; first smt(red256P).
     smt(@JUtils red256_thrice).

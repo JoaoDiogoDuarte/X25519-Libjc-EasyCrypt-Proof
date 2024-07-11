@@ -1,6 +1,6 @@
 require import Bool List Int IntDiv CoreMap Real Ring StdOrder.
 require import Zp_25519 Zplimbs Curve25519_Spec.
-import Zp_25519.Zp StdOrder.IntOrder Ring.IntID.
+import Zp StdOrder.IntOrder Ring.IntID.
 
 from Jasmin require import JModel.
 

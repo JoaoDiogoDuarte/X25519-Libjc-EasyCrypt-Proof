@@ -1,9 +1,9 @@
 require import Bool List Int IntDiv CoreMap Real Ring.
-require Curve25519_Spec Curve25519_Operations Curve25519_Procedures.
+require import Zp_25519 Curve25519_Spec Curve25519_Operations Curve25519_Procedures.
 
 from Jasmin require import JModel.
 
-import Zp_25519.Zp Ring.IntID Curve25519_Spec Curve25519_Procedures Curve25519_Operations.
+import Zp Ring.IntID Curve25519_Spec Curve25519_Procedures Curve25519_Operations.
 
 (** step 1 : decode_scalar_25519 **)
 lemma ill_decode_scalar_25519 : islossless CurveProcedures.decode_scalar by islossless.

@@ -3,7 +3,7 @@ require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Procedures C
 
 from Jasmin require import JWord JWord_array JModel JUtils.
 
-import Zp_25519.Zp Curve25519_Procedures Curve25519_mulx Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
+import Zp Curve25519_Procedures Curve25519_mulx Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
 
 (* Probably needs to be moved elsewhere, such as W64limbs *)
 

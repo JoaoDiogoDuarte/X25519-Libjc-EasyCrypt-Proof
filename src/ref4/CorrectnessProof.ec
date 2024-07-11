@@ -1,10 +1,10 @@
-require import AllCore Bool List Int IntDiv StdOrder CoreMap Real Zp_25519 Ring Distr.
+require import AllCore Bool List Int IntDiv StdOrder CoreMap Ring Distr.
 
 from Jasmin require import JModel JMemory JWord.
 
 require import Curve25519_Procedures Curve25519_auto4 Curve25519_Ref4 W64limbs Zp_25519 Zplimbs EClib.
 
-import Zp_25519.Zp Curve25519_auto4 Curve25519_Procedures Curve25519_Ref4 Array4 Array8 Array32 StdOrder.IntOrder EClib.
+import Zp Curve25519_auto4 Curve25519_Procedures Curve25519_Ref4 Array4 Array8 Array32 StdOrder.IntOrder EClib.
 
 
 

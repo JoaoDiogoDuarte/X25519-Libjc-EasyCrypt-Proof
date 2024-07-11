@@ -4,7 +4,7 @@ from Jasmin require import JModel JMemory JWord.
 
 require import Curve25519_Procedures Curve25519_auto_mulx Curve25519_mulx W64limbs Zp_25519 Zplimbs EClib.
 
-import Zp_25519.Zp Curve25519_auto_mulx Curve25519_Procedures Curve25519_mulx Array4 Array8 Array32 StdOrder.IntOrder EClib.
+import Zp Curve25519_auto_mulx Curve25519_Procedures Curve25519_mulx Array4 Array8 Array32 StdOrder.IntOrder EClib.
 
 (* additions, substractions and powers *)
 equiv eq_spec_impl_add_sss_mulx : CurveProcedures.add ~ M_mulx.__add4_sss:

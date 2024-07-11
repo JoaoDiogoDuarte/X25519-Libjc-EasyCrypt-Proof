@@ -3,7 +3,7 @@ require import Zp_25519.
 
 from Jasmin require import JModel.
 
-import Zp_25519.Zp.
+import Zp.
 
 op spec_decode_scalar_25519 (k:W256.t) =
     let k = k.[0   <- false] in

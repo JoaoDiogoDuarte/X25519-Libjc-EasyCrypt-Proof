@@ -158,7 +158,7 @@ proof.
     case: (toswap{1}).
         rcondt {1} 1 => //. wp => /=. skip.
         move => &1 &2 [#] 4!->> ??.
-        have mask_set :  (set0_64.`6 - toswap{2}) = W64.onew. rewrite /set0_64_ /=. smt(@W64).
+        have mask_set :  (set0_64.`6 - toswap{2}) = W64.onew. rewrite /set0_64_ /=. smt().
         rewrite !mask_set /=.
         have lxor1 : forall (x1 x2:W64.t),  x1 `^` (x2 `^` x1) = x2.
             move=> *. rewrite xorwC -xorwA xorwK xorw0 //.
@@ -168,12 +168,16 @@ proof.
         split. congr. apply Array4.ext_eq. smt(Array4.get_setE).
         split. congr. apply Array4.ext_eq. smt(Array4.get_setE).
         split. congr. apply Array4.ext_eq. smt(Array4.get_setE).
-        congr. apply Array4.ext_eq. smt(@Array4).
+        congr. apply Array4.ext_eq. rewrite /copy_64 => />. smt(Array4.get_setE).
     rcondf {1} 1 => //. wp => /=; skip.
     move => &1 &2 [#] 4!->> ??.
-    have mask_not_set :  (set0_64.`6 - toswap{2}) = W64.zero. smt(@W64).
-    rewrite !mask_not_set !andw0 !xorw0.
-    smt(@Array4).
+    have mask_not_set :  (set0_64.`6 - toswap{2}) = W64.zero. rewrite /set0_64_ => />. smt().
+    rewrite !mask_not_set !andw0 !xorw0 !/copy_64 => />.
+    do split.
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
 qed.
 
 (** step 5 : add_and_double **)
@@ -240,8 +244,8 @@ proof.
     split;  auto => />. rewrite /H14 /H13.
     rewrite /b2i.
     case: (swapped{1} ^^ H10).
-    move => *. smt(@W64).
-    move => *. smt(@W64).
+    move => *. smt(W64.to_uintK W64.xorw0 W64.xorwC).
+    move => *. smt(W64.ge2_modulus W64.to_uintK W64.of_uintK W64.xorwK).
 qed.
 
 
@@ -272,7 +276,7 @@ proof.
         rewrite to_uintB. rewrite uleE to_uint1 => />. smt(). rewrite to_uint1 => />.
         move => H3 H4 H5 H6 H7 H8 H9 H10. split.
         rewrite ultE to_uintB. rewrite uleE to_uint1. smt().
-        rewrite to_uint1 to_uint0. trivial. smt(@W64).
+        rewrite to_uint1 to_uint0. trivial. smt(W64.to_uintK).
     call eq_spec_impl_montgomery_ladder_step_ref4. wp. call eq_spec_impl_init_points_ref4. skip. done.
 qed.
 
@@ -299,13 +303,17 @@ proof.
     move => H6 H7 H8 H9. split. split. apply H9. split.
     rewrite to_uintB. rewrite  uleE => />. by smt(). rewrite to_uint1 H0 //.
     split. move: H1. smt(). move: H2. smt(). split. rewrite H0. move => H10.
-    smt(@W32). smt(@W32). skip. auto => />. wp.
+    smt(W32.of_uintK W32.to_uintK W32.of_intN W32.to_uintN W32.of_intD).
+    smt(W32.of_uintK W32.to_uintK W32.of_intN W32.to_uintN W32.of_intD).
+    skip. auto => />. wp.
     rewrite /DEC_32 /rflags_of_aluop_nocf_w /ZF_of => /=.
     call eq_spec_impl_sqr_p_ref4.
     skip. auto => />. move => &2 H H0. split. split.
     rewrite to_uintB. rewrite uleE => />. move: H. smt().
     rewrite to_uint1 //. split. move: H0. smt(). move: H. smt().
-    split. move => H1. smt(@W32). move => H1. move: H. smt().
+    split. move => H1.
+    smt(W32.ge2_modulus W32.of_uintK W32.to_uintK W32.to_uintN W32.of_intD).
+    move => H1. move: H. smt().
 qed.
 
 equiv eq_spec_impl_it_sqr_s_ref4 :
@@ -524,7 +532,7 @@ proof.
     call (eq_spec_impl_scalarmult_ptr_ref4 mem _qp _np _pp). skip. auto => />.
     move => &1 H H0 H1 H2 H3 H4 H5 H6 H7 H8 H9.
     rewrite -H9. rewrite to_uint_unpack32u8. rewrite /inzpRep32List /valRep32List.
-    congr. congr. congr. smt(@W32u8).
+    congr. congr. congr. smt().
 qed.
 
 

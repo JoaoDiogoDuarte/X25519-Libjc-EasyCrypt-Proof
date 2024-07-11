@@ -202,7 +202,7 @@ proof.
     case: (toswap{1}).
         rcondt {1} 1 => //. wp => /=. skip.
         move => &1 &2 [#] 4!->> ??.
-        have mask_set :  (set0_64.`6 - toswap{2}) = W64.onew. rewrite /set0_64_ /=. smt(@W64).
+        have mask_set :  (set0_64.`6 - toswap{2}) = W64.onew. rewrite /set0_64_ /=. smt().
         rewrite !mask_set /=.
         have lxor1 : forall (x1 x2:W64.t),  x1 `^` (x2 `^` x1) = x2.
             move=> *. rewrite xorwC -xorwA xorwK xorw0 //.
@@ -212,12 +212,16 @@ proof.
         split. congr. apply Array4.ext_eq. smt(Array4.get_setE).
         split. congr. apply Array4.ext_eq. smt(Array4.get_setE).
         split. congr. apply Array4.ext_eq. smt(Array4.get_setE).
-        congr. apply Array4.ext_eq. smt(@Array4).
+        congr. apply Array4.ext_eq. smt(Array4.get_setE).
     rcondf {1} 1 => //. wp => /=; skip.
     move => &1 &2 [#] 4!->> ??.
-    have mask_not_set :  (set0_64.`6 - toswap{2}) = W64.zero. smt(@W64).
+    have mask_not_set :  (set0_64.`6 - toswap{2}) = W64.zero. rewrite /set0_64_ => />. smt().
     rewrite !mask_not_set !andw0 !xorw0.
-    smt(@Array4).
+    do split.
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
+    congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
 qed.
 
 (** step 5 : add_and_double **)
@@ -285,8 +289,8 @@ proof.
     split;  auto => />. rewrite /H14 /H13.
     rewrite /b2i.
     case: (swapped{1} ^^ H10).
-    move => *. smt(@W64).
-    move => *. smt(@W64).
+    move => *. smt(W64.to_uintK W64.xorw0 W64.xorwC).
+    move => *. smt(W64.ge2_modulus W64.to_uintK W64.of_uintK W64.xorwK).
 qed.
 
 (** step 7 : montgomery_ladder **)
@@ -316,8 +320,8 @@ proof.
         rewrite to_uintB. rewrite uleE to_uint1 => />. smt(). rewrite to_uint1 => />.
         move => H3 H4 H5 H6 H7 H8 H9 H10. split.
         rewrite ultE to_uintB. rewrite uleE to_uint1. smt().
-        rewrite to_uint1 to_uint0. trivial. smt(@W64).
-    call eq_spec_impl_montgomery_ladder_step_mulx. wp. call eq_spec_impl_init_points_mulx. skip. done.
+        rewrite to_uint1 to_uint0. trivial. smt(W64.to_uintK).
+        call eq_spec_impl_montgomery_ladder_step_mulx. wp. call eq_spec_impl_init_points_mulx. skip. done.
 qed.
 
 (** step 9 : invert **)

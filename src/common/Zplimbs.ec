@@ -5,6 +5,7 @@ from Jasmin require import JModel JWord.
 
 import Zp Ring.IntID Array4 Array32 IntOrder JWord.W8 JWord.W64.
 
+
 op inzp_limbs base l = inzp (val_limbs base l).
 
 type Rep4 = W64.t Array4.t.
@@ -114,7 +115,7 @@ proof.
     move => *. smt(W8.initE).
     case: (i = 8). auto => />.
     case: (V1 %/ 8 = 0). move => V3.
-    do 23! (rewrite ifF 1:/#). smt(@W8).
+    do 23! (rewrite ifF 1:/#). smt(W8.initE).
     case: (V1 %/ 8 - 1 = 0). move => *.
     do 22! (rewrite ifF 1:/#). smt(W8.initE).
     case: (V1 %/ 8 - 2 = 0). move => *.

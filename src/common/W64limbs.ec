@@ -55,7 +55,7 @@ op mul1_digits (x:int) (y: int list): int list = map (fun h => x*h) y.
 
 lemma mul1_digitsCE x y:
  mul1_digits x y = List.map (transpose Int.( * ) x) y.
-proof. by elim: y => //= y ys IH => @/mul1_digits /=; split; 1: ring. qed.
+proof. by elim: y => //= y ys IH  @/mul1_digits /=; split; 1: ring. qed.
 
 lemma mul1_digitsP x y base:
  val_digits base (mul1_digits x y) = x * val_digits base y.
@@ -573,7 +573,7 @@ move=> H; elim: x y => //= x xs IH; elim => /=.
  apply (bW64W_limbs 0); first smt(size_ge0 bW64_pos).
  by apply bW64M_limbs_nilr.
 move=> y ys IH2 [??] [??]; split.
- smt(@BW64 size_ge0).
+ smt(BW64.bW64W' BW64.bW64MW size_ge0).
 apply (bW64W_limbs (max (nx+ny) (nx+ny+size xs) + 1)); first smt(size_ge0).
 apply bW64D_limbs.
  by rewrite -(mul1_limbsE x); apply bW64M1_limbs.

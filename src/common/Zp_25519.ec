@@ -52,9 +52,9 @@ proof.
 qed.
 
 
-lemma twop255_cgr : 2^255 %% p = 19 by smt(@JUtils ).
-lemma twop256_cgr : 2^256 %% p = 38 by smt(@JUtils).
-lemma twop256_cgr2 : 2^256 * 2  %% p = 76 by smt(@JUtils).
+lemma twop255_cgr : 2^255 %% p = 19 by smt(powS_minus  pow2_256).
+lemma twop256_cgr : 2^256 %% p = 38 by smt(powS_minus  pow2_256).
+lemma twop256_cgr2 : 2^256 * 2  %% p = 76 by smt(powS_minus  pow2_256).
 
 lemma ltP_overflow x:
     (x + 2^255 + 19 < 2^256) = (x < p).
@@ -127,9 +127,9 @@ proof.
     apply addz_ge0; first smt(modz_cmp).
     apply mulr_ge0; first done.
     apply divz_ge0; smt().
-    have H1: x %/ W256.modulus < B by smt(@JUtils).
+    have H1: x %/ W256.modulus < B by smt(pow2_256).
     have H2: x %% W256.modulus < W256.modulus by smt(modz_cmp).
-    smt(@JUtils).
+    smt(pow2_256).
 qed.
 
 lemma red256_once x:
@@ -161,7 +161,7 @@ proof.
     have Ha: 0 <= a < 2.
     have H := (red256_twice x Hx).
     move: Hab; rewrite /split256.
-    move => [-> _]. smt(@JUtils).
+    move => [-> _]. smt(pow2_256).
     case: (a=0) => Ea /=; first done.
     have {Ea} Ea: a=1 by smt().
     rewrite Ea /=.
@@ -173,7 +173,7 @@ proof.
     have HyH : 0 <= yH <= 38 by smt().
     move => [Hab1 Hab2].
     have E: W256.modulus + b = yL + 38 * yH.
-    by move: (divz_eq (yL + 38 * yH) W256.modulus); smt(@JUtils).
+    by move: (divz_eq (yL + 38 * yH) W256.modulus); smt(pow2_256).
     smt(modz_cmp).
 qed.
 
@@ -184,7 +184,7 @@ proof.
     move=> Hx; pose y:= red256 (red256 x).
     rewrite /red256.
     have := (red256_twiceP x (bezout_coef256 y).`1 (bezout_coef256 y).`2 _ _).
-    smt(@JUtils).
+    smt(pow2_256).
     smt(red256_twice).
     move=> [->|[-> H2]] /=.
     rewrite /bezout_coef256; smt(modz_cmp).
@@ -200,7 +200,7 @@ lemma reduceP x:
     Zp.zpcgr x (reduce x) /\ 0 <= reduce x < W256.modulus.
 proof.
     rewrite /reduce => H; split; first smt(red256P).
-    smt(@JUtils red256_thrice).
+    smt(pow2_256 red256_thrice).
 qed.
 
 lemma expE (z : zp) (e1 e2 : int) : 0 <= e1 /\ 0 <= e2 =>

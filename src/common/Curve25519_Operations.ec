@@ -323,6 +323,18 @@ proof.
     apply eq_op_it_sqr_x2_4; trivial.
 qed.
 
+lemma eq_op_it_sqr1_x2_4_twice (e : int, z : zp) :
+    0 <= e  => e %% 2 = 0 =>
+    op_it_sqr1 (2*e) z = op_it_sqr1_x2 e z.
+proof.
+    move => H H0.
+    rewrite eq_op_it_sqr1 //. smt(). rewrite eq_op_it_sqr1_x2. smt().
+    rewrite /op_it_sqr /op_it_sqr_x2 => />.
+    have ->: 4 ^ e = 2 ^ 2 ^ e. rewrite expr2 => />.
+    rewrite -exprM => />.
+qed.
+
+
 lemma op_it_sqr1_0 (e : int) (z : zp) :
      0 = e => op_it_sqr1 e z = z.
 proof.

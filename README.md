@@ -18,8 +18,7 @@ Below are files that run without errors as of latest commit date and time and do
 - [X] Curve25519_auto4.ec
 
 ### Mulx
-- [ ] CorrectnessProof.ec
-    - it_sqr not done.
+- [X] CorrectnessProof.ec
 - [X] Curve25519_auto_mulx.ec
 
 Everything that is to be proven in Cryptoline are in the Curve25519_auto* files, Due to this, all lemmas are admitted for now.

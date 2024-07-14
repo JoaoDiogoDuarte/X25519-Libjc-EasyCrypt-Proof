@@ -1,9 +1,9 @@
 require import Int StdOrder Ring IntDiv Bool List Real BitEncoding.
-require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Procedures Curve25519_mulx.
+require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Operations Curve25519_Procedures Curve25519_mulx.
 
 from Jasmin require import JWord JWord_array JModel JUtils.
 
-import Zp Curve25519_Procedures Curve25519_mulx Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
+import Zp Curve25519_Procedures Curve25519_Operations Curve25519_mulx Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
 
 (* Probably needs to be moved elsewhere, such as W64limbs *)
 
@@ -76,6 +76,15 @@ equiv eq_spec_impl__sqr_rr_mulx : CurveProcedures.sqr ~ M_mulx.__sqr4_rr:
     f{1}   = inzpRep4 f{2}
     ==>
     res{1} = inzpRep4 res{2}.
+proof.
+    proc *.
+    admit.
+qed.
+
+equiv eq_spec_impl__sqr_rr_mulx_rev : M_mulx.__sqr4_rr ~ CurveProcedures.sqr:
+    f{2}   = inzpRep4 f{1}
+    ==>
+    res{2} = inzpRep4 res{1}.
 proof.
     proc *.
     admit.

@@ -49,10 +49,11 @@ module CurveProcedures = {
   (* iterated sqr *)
   proc it_sqr (f : zp, i : int) : zp =
   {
-    var h: zp;
-    var ii: int;
+    var h, g: zp;
+    var ii, counter: int;
+    counter <- 1;
 
-    h <- f;
+    g <- f;
     ii <- i;
 
     h <@ sqr(f);
@@ -60,11 +61,34 @@ module CurveProcedures = {
 
     while (0 < ii) {
       h <@ sqr(h);
+      counter <- counter + 1;
       ii <- ii - 1;
     }
 
     return h;
   }
+
+   proc it_sqr_aux (a : zp, l : int) : zp =
+  {
+    var f, h: zp;
+    var ii: int;
+
+    h <- witness;
+    ii <- l;
+
+    h <@ sqr(a);
+    f <@ sqr(h);
+    ii <- ii - 1;
+
+    while (0 < ii) {
+        h <@ sqr(f);
+        f <@ sqr(h);
+        ii <- ii - 1;
+    }
+
+    return f;
+  }
+
 
   (* f ** 2**255-19-2 *)
   proc invert (fs : zp) : zp =

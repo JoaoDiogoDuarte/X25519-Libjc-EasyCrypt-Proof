@@ -515,25 +515,24 @@ proof.
     + assumption. move => H9.
     rewrite H3 /H5 => />. smt(op_it_sqr1_m2_exp1). skip.
 
-     move => &hr [H] [H0] [H1] [H2] [H3] [H4] H5.
+     move => &hr [H] [H0] [H1] [H2] [H3] [H4] [H5] [H6] H7.
     do! split.
-    + smt(). move => H6.
+    + smt(). move => H8.
     split.
-    + rewrite H1; first smt(). move => H7.
+    + rewrite H3; first smt(). move => H9.
     split.
-    + rewrite -H2. auto => />. move: H3 H2 H4. smt(). move => H9.
+    + rewrite -H4. auto => />. smt(). move => H10.
     split.
-
-    rewrite eq_op_it_sqr1_x2. rewrite -H2. move: H4 H3. smt().
+    rewrite eq_op_it_sqr1_x2. rewrite -H4. smt().
     rewrite eq_op_it_sqr1. smt().
-    rewrite /op_it_sqr_x2 /op_it_sqr H5 -H9. congr.
-    rewrite exprM => />. move => H10.
+    rewrite /op_it_sqr_x2 /op_it_sqr H7 -H10. congr.
+    rewrite exprM => />. move => H11.
     rewrite !eq_op_it_sqr1; first smt(). smt().
-    rewrite !/op_it_sqr. rewrite H0 H H5 H1 -H9. rewrite -ZModpRing.exprM => />.
-    congr. have ->: 2 * 2^(2*e-1) = 2^1 * 2^(2*e-1). rewrite expr1 //.
+    rewrite !/op_it_sqr. rewrite H3 H2 H1 -H7 H10. rewrite -ZModpRing.exprM => />.
+    congr. have ->: 2 * 2 ^ (i{hr} - 1) = 2^1 * 2 ^ (i{hr} - 1). rewrite expr1 //.
     rewrite -exprD_nneg //. smt().
 
-    move => h II H6 [H7] [H8] [H9] [H10] H11. rewrite H10 -H9 H5 H11.
+    move => h II H8 [H9] [H10] [H11] [H12] H13. rewrite H12 -H11 H7 H13.
     smt(op_it_sqr1_0).
 qed.
 

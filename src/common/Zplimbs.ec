@@ -324,7 +324,7 @@ lemma nine_256_k (k: int) :
     (init (nth false w64_zero))%W64]).[k].
 proof.
     move => [K] K0.
-     case(k = 255) => /> *; case(k = 254) => /> *; case(k = 253) => /> *; case(k = 252) => /> *;
+    case(k = 255) => /> *; case(k = 254) => /> *; case(k = 253) => /> *; case(k = 252) => /> *;
     case(k = 251) => /> *; case(k = 250) => /> *; case(k = 249) => /> *; case(k = 248) => /> *;
     case(k = 247) => /> *; case(k = 246) => /> *; case(k = 245) => /> *; case(k = 244) => /> *;
     case(k = 243) => /> *; case(k = 242) => /> *; case(k = 241) => /> *; case(k = 240) => /> *;

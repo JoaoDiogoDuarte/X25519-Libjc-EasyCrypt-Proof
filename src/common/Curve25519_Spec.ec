@@ -13,7 +13,7 @@ op spec_decode_scalar_25519 (k:W256.t) =
     let k = k.[254 <- true ] in
         k.
 
-op spec_decode_u_coordinate (u:W256.t) = inzp (to_uint u).
+op spec_decode_u_coordinate (u:W256.t) = let u = u.[255 <- false] in u.
 
 op spec_add_and_double (qx : zp) (nqs : (zp * zp) * (zp * zp)) =
     let x_1 = qx                                      in
@@ -56,7 +56,7 @@ op spec_scalarmult_internal (k: zp) (u: W256.t) : W256.t =
 op spec_scalarmult (k: W256.t) (u: W256.t) : W256.t =
     let k = spec_decode_scalar_25519 k                 in
     let u = spec_decode_u_coordinate u                 in
-        spec_scalarmult_internal u k                 axiomatized by spec_scalarmultE.
+        spec_scalarmult_internal (inzp (to_uint u)) k                 axiomatized by spec_scalarmultE.
 
 hint simplify spec_scalarmultE.
 

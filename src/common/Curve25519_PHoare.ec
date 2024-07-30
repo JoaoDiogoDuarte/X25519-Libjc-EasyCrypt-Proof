@@ -26,10 +26,20 @@ lemma eq_ph_decode_u_coordinate u:
     phoare [CurveProcedures.decode_u_coordinate :
         u' = u
         ==>
-        res = spec_decode_u_coordinate u] = 1%r.
+        res = inzp (to_uint (spec_decode_u_coordinate u))] = 1%r.
 proof.
     by conseq ill_decode_u_coordinate (eq_proc_op_decode_u_coordinate u).
 qed.
+
+lemma eq_ph_decode_u_coordinate_base:
+    phoare [CurveProcedures.decode_u_coordinate_base :
+        true
+        ==>
+        res = inzp (to_uint (spec_decode_u_coordinate (W256.of_int 9)))] = 1%r.
+proof.
+    by conseq ill_decode_u_coordinate_base (eq_proc_op_decode_u_coordinate_base).
+qed.
+
 
 (** step 3 : spec_ith_bit **)
 lemma ill_ith_bit : islossless CurveProcedures.ith_bit by islossless.

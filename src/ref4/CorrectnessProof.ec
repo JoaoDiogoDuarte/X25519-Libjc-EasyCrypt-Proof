@@ -7,9 +7,6 @@ require import Curve25519_Procedures Curve25519_auto4 Curve25519_Ref4 W64limbs Z
 import Zp Curve25519_auto4 Curve25519_Procedures Curve25519_Ref4 Array4 Array8 Array32 StdOrder.IntOrder EClib.
 
 
-
-(* additions, substractions and powers *)
-
 (* additions, substractions and powers *)
 equiv eq_spec_impl_add_ssr_ref4 : CurveProcedures.add ~ M_ref4.__add4_ssr:
     f{1}   = inzpRep4 g{2} /\
@@ -128,14 +125,67 @@ proof.
     rewrite /H6  /H0 /H3 /H2 /Zp.zero /set0_64_ /inzpRep4 // /valRep4 /to_list /mkseq -iotaredE  => />.
 qed.
 
+lemma eq_set_msb_to_zero x :
+  hoare [
+      M_ref4.__decode_u_coordinate4 :
+      u = x
+      ==>
+      res = Curve25519_Operations.msb_to_zero x
+  ].
+proof.
+    proc; wp; skip => />.
+    rewrite /msb_to_zero => />; congr.
+    rewrite /of_int /int2bs  /mkseq /to_list -iotaredE => />.
+    rewrite wordP => /> k K0 K1. rewrite get_setE. smt().
+    apply x3_255_false. smt().
+qed.
+
+lemma ill_set_msb_to_zero: islossless M_ref4.__decode_u_coordinate4 by islossless.
+
+lemma eq_ph_set_msb_to_zero x:
+  phoare [
+    M_ref4.__decode_u_coordinate4 :
+    u = x
+    ==>
+    res = Curve25519_Operations.msb_to_zero x
+  ] = 1%r.
+proof.
+    by conseq ill_set_msb_to_zero (eq_set_msb_to_zero x).
+qed.
+
+(** step 2 : decode_u_coordinate **)
+equiv eq_spec_impl_decode_u_coordinate_not_inzp_ref4 : CurveProcedures.decode_u_coordinate ~ M_ref4.__decode_u_coordinate4:
+    u'{1}                      =     W4u64.pack4 (Array4.to_list u{2})
+    ==>
+    res{1}                     =    inzpRep4 res{2}.
+proof.
+    proc *.
+    ecall {2} (eq_ph_set_msb_to_zero u{2}).
+    inline *; wp; skip => /> &2.
+    rewrite to_uint_unpack4u64 inzpRep4E valRep4E.
+    congr; congr; congr.
+    rewrite /msb_to_zero => />.
+    rewrite /to_list /mkseq /to_list -iotaredE => />.
+    rewrite !wordP => />. do split.
+    move => i I I0; apply x0k_255_false. smt().
+    move => i I I0; apply x1k_255_false. smt().
+    move => i I I0; apply x2k_255_false. smt().
+    move => i I I0; apply x3k_255_false. smt().
+qed.
+
+
 equiv eq_spec_impl_decode_u_coordinate_base_ref4 :
     CurveProcedures.decode_u_coordinate_base ~ M_ref4.__decode_u_coordinate_base4:
         true
         ==>
         res{1} = inzpRep4 res{2}.
 proof.
-    proc. wp. skip. move => &1 &2 H.
-    rewrite /inzpRep4. congr. rewrite /valRep4 /to_list /mkseq -iotaredE => />.
+    proc; inline *; wp; skip => />.
+    rewrite inzpRep4E. congr. rewrite valRep4ToPack. congr.
+    rewrite !of_intE modz_small // /int2bs !/to_list !/mkseq -iotaredE => />.
+    rewrite !/bits2w => />. rewrite !wordP.
+    move => k [K0] K1 => />.
+    apply nine_256_k. smt().
 qed.
 
 
@@ -400,8 +450,8 @@ qed.
 
 equiv eq_spec_impl_scalarmult_ref4 :
     CurveProcedures.scalarmult ~ M_ref4._curve25519_ref4:
-        inzp(W256.to_uint k'{1}) = inzpRep4 _k{2} /\
-        inzp (to_uint u'{1}) = inzpRep4 _u{2}
+        W256.to_uint k'{1} = valRep4 _k{2} /\
+        to_uint u'{1} = valRep4 _u{2}
         ==>
         inzp(W256.to_uint res{1}) = inzpRep4 res{2} /\
         inzpRep32List (W32u8.to_list res{1}) = inzpRep4 res{2}.
@@ -412,16 +462,22 @@ proof.
     rewrite -H7.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
-    call eq_spec_impl_decode_u_coordinate_ref4 => />.
+    call eq_spec_impl_decode_u_coordinate_not_inzp_ref4 => />.
     call eq_spec_impl_decode_scalar_25519_ref4 => />.
-    move => &1 &2 [H] H0 H1. split. auto => />.
-    move => H2 H3 H4 H5 H6. split. auto => />.
-    move => H7 H8 H9 H10. rewrite -H10.
+    move => &1 &2 [H] H0 H1. split. auto => />. rewrite inzpRep4E.
+    congr. assumption.
+    move => H2 H3 H4 H5. split. auto => />.
+    smt().
+    move => H7. split. assumption. move => H8 H9 H10 H11.
+    rewrite -H11.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
     wp. skip.
-    auto => />. move => &1 &2 H H0 H1 H2 H3 H4 H5 H6.
-    rewrite -H6.
+    auto => />. move => &1 &2 H H0. split.
+    rewrite inzpRep4E; congr. move => H1 H2 H3 H4. split.
+    move: H0. rewrite valRep4ToPack => H0.
+    smt(@Zplimbs). move => H5 H6 H7 H8.
+    rewrite -H8.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
 qed.
@@ -436,8 +492,8 @@ lemma eq_spec_impl_scalarmult_ptr_ref4 mem _rp _kp _up :
         rp{2} = _rp                                                                              /\
         kp{2} = _kp                                                                              /\
         up{2} = _up                                                                              /\
-        inzp (W256.to_uint u'{1}) = inzpRep4List (load_array4 (mem) (W64.to_uint _up))           /\
-        inzp (W256.to_uint k'{1}) = inzpRep4List (load_array4 (mem) (W64.to_uint _kp))
+        W256.to_uint u'{1} = valRep4List (load_array4 (mem) (W64.to_uint _up))           /\
+        W256.to_uint k'{1} = valRep4List (load_array4 (mem) (W64.to_uint _kp))
         ==>
         inzpRep32List(W32u8.to_list res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp))    /\
         res{2} = tt
@@ -452,11 +508,11 @@ proof.
     move => &1 &2 H H0 H1 H2 H3 H4 H5 H6.
     split. split.
     rewrite H6 /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
-    congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />.
+    congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />.
     rewrite !to_uintD_small !to_uint_small => />.
     move: H2. smt(). move: H1. smt(). move: H2. smt().
     rewrite H5 /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
-    congr. congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />.
+    congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />.
     rewrite !to_uintD_small !to_uint_small => />.
     move: H5. smt(). move: H5. smt(). move: H5. smt().
     move => H7 H8 H9 H10 H11. auto => />. rewrite -H11.
@@ -476,7 +532,7 @@ qed.
 
 equiv eq_spec_impl_scalarmult_base_ref4 :
     CurveProcedures.scalarmult_base ~ M_ref4._curve25519_ref4_base:
-        inzp(W256.to_uint k'{1}) = inzpRep4 _k{2}
+        W256.to_uint k'{1} = valRep4 _k{2}
         ==>
         inzp(W256.to_uint res{1}) = inzpRep4 res{2}.
 proof.
@@ -484,7 +540,7 @@ proof.
     call eq_spec_impl_scalarmult_internal_ref4 => />.
     call eq_spec_impl_decode_u_coordinate_base_ref4 => />.
     call eq_spec_impl_decode_scalar_25519_ref4.
-    wp. skip. done.
+    wp. skip. move => *. rewrite inzpRep4E; congr.
 qed.
 
 
@@ -495,16 +551,17 @@ lemma eq_spec_impl_scalarmult_base_ptr_ref4 mem _rp _kp :
         Glob.mem{2} = mem /\
         rp{2} = _rp /\
         kp{2} = _kp /\
-        inzp(W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint _kp))
+        W256.to_uint k'{1} =  valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint _kp))
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp)) /\ res{2} = tt].
+        inzp (W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp)) /\ res{2} = tt].
 proof.
     proc *. inline M_ref4.__curve25519_ref4_base_ptr M_ref4.__load4 M_ref4.__store4.
     do 2! unroll for{2} ^while. wp. sp. call eq_spec_impl_scalarmult_base_ref4.
     skip. auto => />.  move => &1 &2 H H0 H1 H2. split.
     rewrite H2. rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4 /to_list /mkseq -iotaredE.
-    congr. congr. congr. auto => />. rewrite !to_uintD_small !to_uint_small; smt(); smt().
-    move => H3 H4 H5 H6. rewrite H6. rewrite /inzpRep4 /inzpRep4List /valRep4 /valRep4List.
+    congr. congr. auto => />. rewrite !to_uintD_small !to_uint_small; smt(); smt().
+    move => H3 H4 H5 H6.
+    rewrite H6. rewrite /inzpRep4 /inzpRep4List /valRep4 /valRep4List.
     congr. congr. congr. rewrite /to_list /mkseq /load_array4 -iotaredE => />. split.
     apply (load_store_pos mem _rp H5 0). rewrite /valid_ptr. smt(). smt(). split.
     apply (load_store_pos mem _rp H5 8). rewrite /valid_ptr. smt(). smt(). split.
@@ -522,8 +579,8 @@ lemma eq_spec_impl_scalarmult_jade_ref4 mem _qp _np _pp:
         qp{2} = _qp                                                                              /\
         np{2} = _np                                                                              /\
         pp{2} = _pp                                                                              /\
-        inzp (W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2})) /\
-        inzp (to_uint u'{1})      = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint pp{2}))
+        W256.to_uint k'{1} = valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2})) /\
+        to_uint u'{1}      = valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint pp{2}))
         ==>
         inzp(W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _qp))     /\
         res{2} = W64.zero].
@@ -543,7 +600,7 @@ lemma eq_spec_impl_scalarmult_jade_base_ref4  mem _qp _np:
         Glob.mem{2} = mem                                                                        /\
         qp{2} = _qp                                                                              /\
         np{2} = _np                                                                              /\
-        inzp (W256.to_uint k'{1}) = inzpRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2}))
+        W256.to_uint k'{1} = valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2}))
         ==>
         inzp(W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _qp))     /\
         res{2} = W64.zero].

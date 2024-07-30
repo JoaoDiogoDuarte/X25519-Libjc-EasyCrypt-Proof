@@ -1,9 +1,9 @@
-require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr StdOrder.
+require import Bool List Int IntDiv CoreMap Real Zp_25519 Ring Distr StdOrder BitEncoding.
 require import Zp_25519 Curve25519_Spec Curve25519_Operations W64limbs.
 
 from Jasmin require import JModel JWord JModel_x86.
 
-import Zp Ring.IntID StdOrder.IntOrder.
+import Zp Ring.IntID StdOrder.IntOrder BitEncoding.BS2Int.
 
 
 module CurveProcedures = {
@@ -160,16 +160,15 @@ module CurveProcedures = {
   proc decode_u_coordinate (u' : W256.t) : zp =
   {
     (* last bit of u is cleared but that can be introduced at the same time as arrays *)
-    u'.[256] <- false;
+    u'.[255] <- false;
     return inzp ( to_uint u' );
   }
 
     proc decode_u_coordinate_base () : zp =
   {
-    var u'' : zp;
-    (* last bit of u is cleared but that can be introduced at the same time as arrays *)
-    u'' <- inzp ( 9 );
-    return u'';
+      var u' : zp;
+      u' <@ decode_u_coordinate (W256.of_int 9);
+      return u';
   }
 
   proc init_points (init : zp) : zp * zp * zp * zp =
@@ -344,10 +343,10 @@ lemma eq_proc_op_decode_u_coordinate u:
     hoare [ CurveProcedures.decode_u_coordinate :
         u' = u
         ==>
-        res = spec_decode_u_coordinate u
+        res = inzp (to_uint (spec_decode_u_coordinate u))
     ].
 proof.
-    proc; wp; rewrite /decode_u_coordinate /=; skip.
+    proc; wp. rewrite /spec_decode_u_coordinate /=; skip.
     move => &mu hu; rewrite hu //.
 qed.
 
@@ -355,10 +354,12 @@ lemma eq_proc_op_decode_u_coordinate_base:
     hoare[ CurveProcedures.decode_u_coordinate_base:
         true
         ==>
-        res = spec_decode_u_coordinate(W256.of_int(9%Int))
+        res = inzp (to_uint (spec_decode_u_coordinate( W256.of_int 9)))
     ].
 proof.
-    proc; wp; rewrite /decode_u_coordinate_base /=; skip. auto => />.
+    proc *; inline 1; wp.
+    ecall (eq_proc_op_decode_u_coordinate (W256.of_int 9)).
+    auto => />.
 qed.
 
 (** step 3 : ith_bit **)

@@ -1,9 +1,9 @@
-require import Int StdOrder Ring IntDiv Bool List BitEncoding.
-require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Procedures Curve25519_Ref4.
+require import AllCore StdOrder IntDiv Bool List BitEncoding StdRing Pervasive Logic.
+require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Procedures Curve25519_Ref4 EClib.
 
 from Jasmin require import JWord JWord_array JModel JUtils.
 
-import Zp Curve25519_Procedures Curve25519_Ref4 Array4 Array32 Ring.IntID StdOrder.IntOrder Array4.
+import Zp Curve25519_Procedures Curve25519_Ref4 Array4 Array32 StdOrder.IntOrder Array4 BitEncoding.BS2Int EClib.
 
 equiv eq_spec_impl_add_rrs_ref4 : CurveProcedures.add  ~ M_ref4.__add4_rrs:
     f{1} = inzpRep4 f{2} /\
@@ -108,18 +108,13 @@ equiv eq_spec_impl_decode_scalar_25519_ref4 : CurveProcedures.decode_scalar ~ M_
     ==>
     inzp (W256.to_uint res{1}) = inzpRep32 res{2}.
 proof.
+proc.
     admit. (* AUTO *)
 qed.
 
 
-(** step 2 : decode_u_coordinate **)
-equiv eq_spec_impl_decode_u_coordinate_ref4 : CurveProcedures.decode_u_coordinate ~ M_ref4.__decode_u_coordinate4:
-    inzp (W256.to_uint u'{1}) = inzpRep4 u{2}
-    ==>
-    res{1}                    = inzpRep4 res{2}.
-proof.
-    admit. (* AUTO MSB already 0 -  ask tiago *)
-qed.
+
+
 
 (** step 3 : ith_bit **)
 equiv eq_spec_impl_ith_bit_ref4 : CurveProcedures.ith_bit ~ M_ref4.__ith_bit :
@@ -128,7 +123,7 @@ equiv eq_spec_impl_ith_bit_ref4 : CurveProcedures.ith_bit ~ M_ref4.__ith_bit :
     ==>
     b2i res{1}                = to_uint res{2}.
 proof.
-    proc.
+    proc. wp; skip => /> &1 &2 H.
     admit. (* AUTO *)
 qed.
 

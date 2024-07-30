@@ -1,8 +1,12 @@
 require import Bool List Int IntDiv CoreMap Real Ring StdOrder.
 require import Zp_25519 Zplimbs Curve25519_Spec.
-import Zp StdOrder.IntOrder Ring.IntID.
+import Zp StdOrder.IntOrder Ring.IntID Array4.
 
 from Jasmin require import JModel.
+
+
+(* sets msb to 0 *)
+op msb_to_zero (x: Rep4) = let x = x.[3 <- x.[3].[63 <- false]] in x.
 
 (* returns the first 2 elements of the input triple *)
 op select_double_from_triple (t : ('a * 'a) * ('a * 'a) * 'c) = (t.`1, t.`2).
@@ -516,7 +520,7 @@ hint simplify op_scalarmult_internalE.
 op op_scalarmult (k:W256.t) (u:W256.t) : W256.t =
     let k = spec_decode_scalar_25519 k in
     let u = spec_decode_u_coordinate u in
-    op_scalarmult_internal u k axiomatized by op_scalarmultE.
+    op_scalarmult_internal (inzp (to_uint u)) k axiomatized by op_scalarmultE.
 
 hint simplify op_scalarmultE.
 
@@ -534,7 +538,7 @@ proof.
     congr.
     have kb0f  : (dk).[0] = false. (* k bit 0 false *)
         rewrite /dk /spec_decode_scalar_25519 //.
-    have ml123 : spec_montgomery_ladder du dk = select_double_from_triple (op_montgomery_ladder3 du dk).
+    have ml123 : spec_montgomery_ladder (inzp (to_uint du)) dk = select_double_from_triple (op_montgomery_ladder3 (inzp (to_uint du)) dk).
         move : kb0f. apply eq_op_montgomery_ladder123.
     rewrite ml123 /select_double_from_triple //.
 qed.

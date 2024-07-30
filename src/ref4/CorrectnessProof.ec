@@ -125,7 +125,9 @@ proof.
     rewrite /H6  /H0 /H3 /H2 /Zp.zero /set0_64_ /inzpRep4 // /valRep4 /to_list /mkseq -iotaredE  => />.
 qed.
 
-lemma eq_set_msb_to_zero x :
+(** step 2 : decode_u_coordinate **)
+
+lemma eq_set_msb_to_zero_ref4 x :
   hoare [
       M_ref4.__decode_u_coordinate4 :
       u = x
@@ -150,11 +152,10 @@ lemma eq_ph_set_msb_to_zero x:
     res = Curve25519_Operations.msb_to_zero x
   ] = 1%r.
 proof.
-    by conseq ill_set_msb_to_zero (eq_set_msb_to_zero x).
+    by conseq ill_set_msb_to_zero (eq_set_msb_to_zero_ref4 x).
 qed.
 
-(** step 2 : decode_u_coordinate **)
-equiv eq_spec_impl_decode_u_coordinate_not_inzp_ref4 : CurveProcedures.decode_u_coordinate ~ M_ref4.__decode_u_coordinate4:
+equiv eq_spec_impl_decode_u_coordinate_ref4 : CurveProcedures.decode_u_coordinate ~ M_ref4.__decode_u_coordinate4:
     u'{1}                      =     W4u64.pack4 (Array4.to_list u{2})
     ==>
     res{1}                     =    inzpRep4 res{2}.
@@ -462,7 +463,7 @@ proof.
     rewrite -H7.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
-    call eq_spec_impl_decode_u_coordinate_not_inzp_ref4 => />.
+    call eq_spec_impl_decode_u_coordinate_ref4 => />.
     call eq_spec_impl_decode_scalar_25519_ref4 => />.
     move => &1 &2 [H] H0 H1. split. auto => />. rewrite inzpRep4E.
     congr. assumption.

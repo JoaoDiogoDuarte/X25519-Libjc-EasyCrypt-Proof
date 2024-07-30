@@ -100,15 +100,6 @@ proof.
 qed.
 
 
-(** step 2 : decode_u_coordinate **)
-equiv eq_spec_impl_decode_u_coordinate_mulx : CurveProcedures.decode_u_coordinate ~ M_mulx.__decode_u_coordinate4:
-    inzp (W256.to_uint u'{1}) = inzpRep4 u{2}
-    ==>
-    res{1}                    = inzpRep4 res{2}.
-proof.
-    admit. (* AUTO MSB already 0 -  ask tiago *)
-qed.
-
 (** step 3 : ith_bit **)
 equiv eq_spec_impl_ith_bit_mulx : CurveProcedures.ith_bit ~ M_mulx.__ith_bit :
     inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\

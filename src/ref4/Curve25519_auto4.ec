@@ -113,13 +113,11 @@ proc.
 qed.
 
 
-
-(** step 3 : ith_bit **)
 equiv eq_spec_impl_ith_bit_ref4 : CurveProcedures.ith_bit ~ M_ref4.__ith_bit :
-    k'{1} = W32u8.pack32 (to_list k{2}) /\
-    ctr{1}                   =  to_uint ctr{2}
+    inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\
+    (ctr{1}                   = to_uint ctr{2})
     ==>
-    res{1}                = res{2}.[0].
+    b2i res{1}                = to_uint res{2}.
 proof.
     proc.
     admit. (* AUTO *)

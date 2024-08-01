@@ -662,7 +662,7 @@ proof.
     call eq_spec_impl_invert_ref4.
     wp; skip => /> &2 H H0 H1 H2.
     rewrite -H2. rewrite inzpRep4E. congr.
-    smt(@Zplimbs).
+    smt(Zplimbs.valRep4ToPack).
 qed.
 
 
@@ -705,9 +705,9 @@ proof.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
     wp. skip.
-    auto => />. move => &1 &2 H H0. split. smt(@Zplimbs).
+    auto => />. move => &1 &2 H H0. split. smt(Zplimbs.valRep4ToPack_xy).
     move => H1 H2 H3 H4. split.
-    smt(@Zplimbs). move => H5 H6 H7 H8.
+    smt(Zplimbs.valRep4ToPack_xy). move => H5 H6 H7 H8.
     rewrite -H8.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
@@ -771,7 +771,7 @@ proof.
     call eq_spec_impl_scalarmult_internal_ref4 => />.
     call eq_spec_impl_decode_u_coordinate_base_ref4 => />.
     call eq_spec_impl_decode_scalar_25519_ref4.
-    wp. skip. move => *. smt(@Zplimbs).
+    wp. skip. move => *. smt(Zplimbs.valRep4ToPack_xy).
 qed.
 
 

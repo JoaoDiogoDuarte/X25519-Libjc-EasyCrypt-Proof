@@ -953,7 +953,7 @@ proof.
     call eq_spec_impl_invert_mulx.
     wp; skip => /> H H0 H1.
     rewrite -H1. rewrite inzpRep4E. congr.
-    smt(@Zplimbs).
+    smt(Zplimbs.valRep4ToPack).
 qed.
 
 (** step 11 : scalarmult **)
@@ -995,9 +995,9 @@ proof.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
     wp. skip.
-    auto => />. move => &1 &2 H H0. split. smt(@Zplimbs).
+    auto => />. move => &1 &2 H H0. split. smt(Zplimbs.valRep4ToPack_xy).
     move => H1 H2 H3 H4. split.
-    smt(@Zplimbs). move => H5 H6 H7 H8.
+    smt(Zplimbs.valRep4ToPack_xy). move => H5 H6 H7 H8.
     rewrite -H8.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
@@ -1013,7 +1013,7 @@ proof.
     call eq_spec_impl_scalarmult_internal_mulx => />.
     call eq_spec_impl_decode_u_coordinate_base_mulx => />.
     call eq_spec_impl_decode_scalar_25519_mulx.
-    wp. skip => />. smt(@Zplimbs).
+    wp. skip => />. smt(Zplimbs.valRep4ToPack_xy).
 qed.
 
 lemma eq_spec_impl_scalarmult_jade_mulx mem _qp _np _pp:

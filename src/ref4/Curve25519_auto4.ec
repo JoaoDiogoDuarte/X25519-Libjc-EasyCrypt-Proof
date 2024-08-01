@@ -102,16 +102,6 @@ proof.
     admit.
 qed.
 
-(** step 1 : decode_scalar_25519 **)
-equiv eq_spec_impl_decode_scalar_25519_ref4 : CurveProcedures.decode_scalar ~ M_ref4.__decode_scalar:
-    inzp (W256.to_uint k'{1})  = inzpRep4 k{2}
-    ==>
-    inzp (W256.to_uint res{1}) = inzpRep32 res{2}.
-proof.
-proc.
-    admit. (* AUTO *)
-qed.
-
 
 equiv eq_spec_impl_ith_bit_ref4 : CurveProcedures.ith_bit ~ M_ref4.__ith_bit :
     inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\

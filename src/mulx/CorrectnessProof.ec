@@ -155,8 +155,184 @@ proof.
     call eq_spec_impl__sqr_rr_mulx. skip. auto => />.
 qed.
 
+(** step 1 : decode_scalar_25519 **)
 
-(** step 1: init points and decoding u-coordinates **)
+equiv eq_spec_impl_decode_scalar_25519_mulx : CurveProcedures.decode_scalar ~ M_mulx.__decode_scalar:
+    k'{1}  = pack4 (to_list k{2})
+    ==>
+    inzp (W256.to_uint res{1}) = inzpRep32 res{2}.
+proof.
+    proc; wp; auto => />.
+    unroll for{2} ^while => />; wp; skip => /> &2.
+    rewrite !/set64_direct !/get8 !/init8 => />.
+    rewrite to_uint_unpack32u8 inzpRep32E valRep32E /val_digits pack4E.
+    congr. congr. congr. rewrite !/to_list /mkseq -iotaredE => /> .
+    rewrite of_intE modz_small. by apply bound_abs. rewrite bits2wE /int2bs /mkseq -iotaredE => />.
+    rewrite !W8.wordP.
+    do split.
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: i <> 254 by smt(). have ->: i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 8 + i <> 254 by smt(). have ->: 8 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 16 + i <> 254 by smt(). have ->: 16 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 24 + i <> 254 by smt(). have ->: 24 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 32 + i <> 254 by smt(). have ->: 32 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 40 + i <> 254 by smt(). have ->: 40 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 48 + i <> 254 by smt(). have ->: 48 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 56 + i <> 254 by smt(). have ->: 56 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 64 + i <> 254 by smt(). have ->: 64 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 72 + i <> 254 by smt(). have ->: 72 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 80 + i <> 254 by smt(). have ->: 80 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 88 + i <> 254 by smt(). have ->: 88 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 96 + i <> 254 by smt(). have ->: 96 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 104 + i <> 254 by smt(). have ->: 104 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 112 + i <> 254 by smt(). have ->: 112 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 120 + i <> 254 by smt(). have ->: 120 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 128 + i <> 254 by smt(). have ->: 128 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 136 + i <> 254 by smt(). have ->: 136 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 144 + i <> 254 by smt(). have ->: 144 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 152 + i <> 254 by smt(). have ->: 152 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 160 + i <> 254 by smt(). have ->: 160 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 168 + i <> 254 by smt(). have ->: 168 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 176 + i <> 254 by smt(). have ->: 176 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 184 + i <> 254 by smt(). have ->: 184 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 192 + i <> 254 by smt(). have ->: 192 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 200 + i <> 254 by smt(). have ->: 200 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 208 + i <> 254 by smt(). have ->: 208 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 216 + i <> 254 by smt(). have ->: 216 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 224 + i <> 254 by smt(). have ->: 224 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 232 + i <> 254 by smt(). have ->: 232 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. have ->: 240 + i <> 254 by smt(). have ->: 240 + i <> 255 by smt(). auto => />.
+    + rewrite !initiE. by smt(). smt().
+
+    + move => i rgi />. rewrite !of_intE !bits2wE !/int2bs !/mkseq -!iotaredE => />.
+    + rewrite !initiE. by smt(). by smt().
+    rewrite of_listE !bits8E !initiE //= => />.
+    + rewrite !get_setE //=. rewrite !initiE. by smt().
+    + auto => />. rewrite !initiE. by smt().
+    smt().
+qed.
+
 equiv eq_spec_impl_init_points_mulx :
     CurveProcedures.init_points ~ M_mulx.__init_points4 :
         init{1} = inzpRep4 initr{2}
@@ -811,18 +987,16 @@ proof.
     rewrite to_uint_unpack32u8. congr. congr. smt().
     call eq_spec_impl_decode_u_coordinate_mulx => />.
     call eq_spec_impl_decode_scalar_25519_mulx => />.
-    move => &1 &2 [H] H0 H1. split. auto => />. rewrite inzpRep4E.
-    congr. assumption.
-    move => H2 H3 H4 H5. split. auto => />.
+    move => &1 &2 [H] H0 [H1] H2. split. auto => />.
+    move => H3 H4 H5 H6. split. auto => />.
     smt().
     move => H7. split. assumption. move => H8 H9 H10 H11.
     rewrite -H11.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
     rewrite to_uint_unpack32u8. congr. congr. smt().
     wp. skip.
-    auto => />. move => &1 &2 H H0. split.
-    rewrite inzpRep4E; congr. move => H1 H2 H3 H4. split.
-    move: H0. rewrite valRep4ToPack => H0.
+    auto => />. move => &1 &2 H H0. split. smt(@Zplimbs).
+    move => H1 H2 H3 H4. split.
     smt(@Zplimbs). move => H5 H6 H7 H8.
     rewrite -H8.
     rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
@@ -831,7 +1005,7 @@ qed.
 
 equiv eq_spec_impl_scalarmult_base_mulx :
     CurveProcedures.scalarmult_base ~ M_mulx.__curve25519_mulx_base:
-        inzp(W256.to_uint k'{1}) = inzpRep4 _k{2}
+        W256.to_uint k'{1} = valRep4 _k{2}
         ==>
         inzp(W256.to_uint res{1}) = inzpRep4 res{2}.
 proof.
@@ -839,7 +1013,7 @@ proof.
     call eq_spec_impl_scalarmult_internal_mulx => />.
     call eq_spec_impl_decode_u_coordinate_base_mulx => />.
     call eq_spec_impl_decode_scalar_25519_mulx.
-    wp. skip. done.
+    wp. skip => />. smt(@Zplimbs).
 qed.
 
 lemma eq_spec_impl_scalarmult_jade_mulx mem _qp _np _pp:
@@ -900,7 +1074,7 @@ proof.
     call eq_spec_impl_scalarmult_base_mulx. skip. auto => />.
     move => &1 &2 H H0 H1 H2 H3. split.
     rewrite H3. rewrite /inzpRep4List /inzpRep4 /inzpRep4 /valRep4 /valRep4List /load_array4.
-    congr. congr. congr. rewrite /to_list /mkseq -iotaredE => />.  split.
+    congr. congr.  rewrite /to_list /mkseq -iotaredE => />.  split.
     rewrite !to_uintD_small !to_uint_small => />. move: H2. smt(). split.
     rewrite !to_uintD_small !to_uint_small => />. move: H2. smt().
     rewrite !to_uintD_small !to_uint_small => />. move: H2. smt().

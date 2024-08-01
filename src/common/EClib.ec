@@ -1,6 +1,7 @@
-require import List Int IntDiv CoreMap Ring StdOrder W64limbs.
+require import List Int IntDiv CoreMap Ring StdOrder W64limbs StdBigop BitEncoding.
 from Jasmin require import JModel JWord JWord_array.
-import Ring.IntID IntOrder.
+import Ring.IntID IntOrder StdBigop.Bigint.BIA BitEncoding.BS2Int.
+
 
 
 lemma ltr_pmul2 x1 x2 y1 y2:

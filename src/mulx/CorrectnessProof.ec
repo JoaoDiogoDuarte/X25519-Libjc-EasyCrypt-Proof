@@ -46,7 +46,7 @@ equiv eq_spec_impl_sub_ssr_mulx : CurveProcedures.sub ~ M_mulx.__sub4_ssr:
    f{1}   = inzpRep4 fs{2} /\
    g{1}   = inzpRep4 g{2}
    ==>
-   res{1} = inzpRep4 res{2}.
+       res{1} = inzpRep4 res{2}.
 proof.
     proc *. inline M_mulx.__sub4_ssr. wp. sp.
     call eq_spec_impl_sub_rsr_mulx. skip. auto => />.
@@ -187,9 +187,11 @@ lemma eq_set_msb_to_zero_mulx x :
 proof.
     proc; wp; skip => />.
     rewrite /msb_to_zero => />; congr.
+    pose X := x.[3].
     rewrite /of_int /int2bs  /mkseq /to_list -iotaredE => />.
-    rewrite wordP => /> k K0 K1. rewrite get_setE. smt().
-    apply x3_255_false. smt().
+    rewrite andE  wordP => /> k K0 K1.
+    rewrite  map2iE //  get_bits2w //.
+    smt(W64.initE).
 qed.
 
 lemma ill_set_msb_to_zero_mulx: islossless M_mulx.__decode_u_coordinate4 by islossless.
@@ -208,20 +210,51 @@ qed.
 equiv eq_spec_impl_decode_u_coordinate_mulx : CurveProcedures.decode_u_coordinate ~ M_mulx.__decode_u_coordinate4:
     u'{1}                      =     W4u64.pack4 (Array4.to_list u{2})
     ==>
-    res{1}                     =    inzpRep4 res{2}.
+    res{1}                     =     inzpRep4 res{2}.
 proof.
     proc *.
     ecall {2} (eq_ph_set_msb_to_zero_mulx u{2}).
     inline *; wp; skip => /> &2.
-    rewrite to_uint_unpack4u64 inzpRep4E valRep4E.
-    congr; congr; congr.
+    rewrite inzpRep4E. congr.
+    rewrite to_uint_unpack4u64  valRep4E; congr; congr.
     rewrite /msb_to_zero => />.
     rewrite /to_list /mkseq /to_list -iotaredE => />.
-    rewrite !wordP => />. do split.
-    move => i I I0; apply x0k_255_false. smt().
-    move => i I I0; apply x1k_255_false. smt().
-    move => i I I0; apply x2k_255_false. smt().
-    move => i I I0; apply x3k_255_false. smt().
+    do split.
+    + rewrite !wordP => /> i I I0. rewrite !bits64iE => />.
+    + rewrite set_neqiE. smt().
+    + rewrite pack4E => />. rewrite of_listE => />.
+    + rewrite initE => />.
+    + have ->: (0 <= i && i < 256) by smt(). auto => />.
+    + rewrite initE => />. have ->: 0 <= i %/ 64 by smt(). auto => />.
+    + case(i %/ 64 < 4) => /> *. smt(). smt().
+
+    + rewrite !wordP => /> i I I0. rewrite !bits64iE => />.
+    + rewrite set_neqiE. smt().
+    + rewrite pack4E => />. rewrite of_listE => />.
+    + rewrite initE => />.
+    + have ->: (0 <= 64 + i && 64 + i < 256) by smt(). auto => />.
+    + rewrite initE => />. have ->: 0 <= (64 + i) %/ 64 by smt(). auto => />.
+    + case((64 + i) %/ 64 < 4) => /> *. smt(). smt().
+
+    + rewrite !wordP => /> i I I0. rewrite !bits64iE => />.
+    + rewrite set_neqiE. smt().
+    + rewrite pack4E => />. rewrite of_listE => />.
+    + rewrite initE => />.
+    + have ->: (0 <= 128 + i && 128 + i < 256) by smt(). auto => />.
+    + rewrite initE => />. have ->: 0 <= (128 + i) %/ 64 by smt(). auto => />.
+    + case((128 + i) %/ 64 < 4) => /> *. smt(). smt().
+    + rewrite !wordP => /> i I I0. rewrite !bits64iE => />.
+
+    rewrite pack4E => />. rewrite of_listE => />.
+    rewrite !setE => />. rewrite initE => />.
+    have ->: (0 <= 192 + i && 192 + i < 256) by smt(). auto => />.
+    rewrite !initE => />.
+    have ->: (0 <= i && i < 64) by smt().
+    have ->: (0 <= 192 + i && 192 + i < 256) by smt().
+    auto => />.
+    case (i <> 63) => /> C.
+    have ->: 192 + i <> 255 by smt().
+    auto => />. rewrite !initE. smt().
 qed.
 
 
@@ -231,12 +264,16 @@ equiv eq_spec_impl_decode_u_coordinate_base_mulx :
         ==>
         res{1} = inzpRep4 res{2}.
 proof.
-    proc; inline *; wp; skip => />.
-    rewrite inzpRep4E. congr. rewrite valRep4ToPack. congr.
-    rewrite !of_intE modz_small // /int2bs !/to_list !/mkseq -iotaredE => />.
-    rewrite !/bits2w => />. rewrite !wordP.
-    move => k [K0] K1 => />.
-    apply nine_256_k. smt().
+    proc *.
+    inline *; wp; skip => />.
+    rewrite inzpRep4E. congr.
+    rewrite to_uint_unpack4u64  valRep4E; congr; congr.
+    rewrite /msb_to_zero => />.
+    have !->: ((of_int 9))%W256.[255 <- false] = ((of_int 9))%W256.
+    rewrite !of_intE !bits2wE !/int2bs !/mkseq -iotaredE => />.
+    apply W256.ext_eq => />. move => X X0 X1.
+    rewrite get_setE //. case (X = 255) => /> C.
+    rewrite /to_list /mkseq /to_list -iotaredE => />.
 qed.
 
 

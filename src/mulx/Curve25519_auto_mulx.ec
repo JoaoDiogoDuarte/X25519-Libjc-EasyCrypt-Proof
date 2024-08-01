@@ -111,13 +111,25 @@ proof.
     admit. (* AUTO *)
 qed.
 
-
-(** step 10 : encode point **)
-equiv eq_spec_impl_encode_point_mulx : CurveProcedures.encode_point ~ M_mulx.__encode_point4:
-    x2{1}                 = inzpRep4 x2{2} /\
-    z2{1}                 = inzpRep4 z2r{2}
-    ==>
-    inzp (to_uint res{1}) = inzpRep4 res{2}.
+lemma eq_to_bytes_mulx r:
+  hoare [M_mulx.__tobytes4 :
+      r = inzpRep4 f
+      ==>
+      pack4 (to_list res) = (W256.of_int (asint r))
+  ].
 proof.
-    admit. (* AUTO *)
+    proc.
+    admit.
+qed.
+
+lemma ill_eq_to_bytes_mulx : islossless M_mulx.__tobytes4 by islossless.
+
+lemma ph_eq_to_bytes_mulx r:
+  phoare [M_mulx.__tobytes4 :
+      r = inzpRep4 f
+      ==>
+      pack4 (to_list res) = (W256.of_int (asint r))
+  ] = 1%r.
+proof.
+    by conseq ill_eq_to_bytes_mulx (eq_to_bytes_mulx r).
 qed.

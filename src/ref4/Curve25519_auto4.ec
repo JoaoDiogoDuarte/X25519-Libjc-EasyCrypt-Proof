@@ -124,12 +124,25 @@ proof.
 qed.
 
 
-(** step 10 : encode point **)
-equiv eq_spec_impl_encode_point_ref4 : CurveProcedures.encode_point ~ M_ref4.__encode_point4:
-    x2{1}                 = inzpRep4 x2{2} /\
-    z2{1}                 = inzpRep4 z2r{2}
-    ==>
-    inzp (to_uint res{1}) = inzpRep4 res{2}.
+lemma eq_to_bytes_ref4 r:
+  hoare [M_ref4.__tobytes4 :
+      r = inzpRep4 f
+      ==>
+      pack4 (to_list res) = (W256.of_int (asint r))
+  ].
 proof.
-    admit. (* AUTO *)
+    proc.
+    admit.
+qed.
+
+lemma ill_eq_to_bytes_ref4 : islossless M_ref4.__tobytes4 by islossless.
+
+lemma ph_eq_to_bytes_ref4 r:
+  phoare [M_ref4.__tobytes4 :
+      r = inzpRep4 f
+      ==>
+      pack4 (to_list res) = (W256.of_int (asint r))
+  ] = 1%r.
+proof.
+    by conseq ill_eq_to_bytes_ref4 (eq_to_bytes_ref4 r).
 qed.

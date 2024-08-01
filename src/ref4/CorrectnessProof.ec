@@ -471,6 +471,23 @@ proof.
 qed.
 
 
+(** step 10 : encode point **)
+equiv eq_spec_impl_encode_point_ref4 : CurveProcedures.encode_point ~ M_ref4.__encode_point4:
+    x2{1}                 = inzpRep4 x2{2} /\
+    z2{1}                 = inzpRep4 z2r{2}
+    ==>
+    inzp (to_uint res{1}) = inzpRep4 res{2}.
+proof.
+    proc.
+    ecall {2} (ph_eq_to_bytes_ref4 (inzpRep4 r{2})).
+    call eq_spec_impl_mul_rss_ref4.
+    call eq_spec_impl_invert_ref4.
+    wp; skip => /> &2 H H0 H1 H2.
+    rewrite -H2. rewrite inzpRep4E. congr.
+    smt(@Zplimbs).
+qed.
+
+
 (** step 11 : scalarmult **)
 
 equiv eq_spec_impl_scalarmult_internal_ref4 :

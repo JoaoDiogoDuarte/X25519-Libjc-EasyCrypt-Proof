@@ -727,15 +727,12 @@ qed.
 
 
 
-lemma eq_spec_impl_invert_mulx (i1: int) (i2: int) :
-    i1 = 2*i2 => 0 < i1 =>
-    equiv[
+equiv eq_spec_impl_invert_mulx :
     CurveProcedures.invert ~ M_mulx.__invert4 :
         fs{1} = inzpRep4 f{2}
         ==>
-        res{1} = inzpRep4 res{2}].
+        res{1} = inzpRep4 res{2}.
 proof.
-    move => H H0.
     proc. sp.
     auto => />.
     call eq_spec_impl_mul_rsr__mulx.
@@ -764,6 +761,23 @@ proof.
     call eq_spec_impl_sqr_rr__mulx. wp.
     call eq_spec_impl_sqr_rr__mulx.
     skip.  done.
+qed.
+
+
+(** step 10 : encode point **)
+equiv eq_spec_impl_encode_point_mulx : CurveProcedures.encode_point ~ M_mulx.__encode_point4:
+    x2{1}                 = inzpRep4 x2{2} /\
+    z2{1}                 = inzpRep4 z2r{2}
+    ==>
+    inzp (to_uint res{1}) = inzpRep4 res{2}.
+proof.
+    proc.
+    ecall {2} (ph_eq_to_bytes_mulx (inzpRep4 r{2})).
+    call eq_spec_impl_mul_rsr_mulx.
+    call eq_spec_impl_invert_mulx.
+    wp; skip => /> H H0 H1.
+    rewrite -H1. rewrite inzpRep4E. congr.
+    smt(@Zplimbs).
 qed.
 
 (** step 11 : scalarmult **)

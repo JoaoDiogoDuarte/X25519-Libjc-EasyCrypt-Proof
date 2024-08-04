@@ -1,9 +1,9 @@
-require import AllCore StdOrder IntDiv Bool List BitEncoding StdRing Pervasive Logic.
+require import AllCore StdOrder IntDiv Bool List BitEncoding StdRing Pervasive Logic StdBigop.
 require import Zp_25519 W64limbs Zplimbs Curve25519_Spec Curve25519_Procedures Curve25519_Ref4 EClib.
 
 from Jasmin require import JWord JWord_array JModel JUtils.
 
-import Zp Curve25519_Procedures Curve25519_Ref4 Array4 Array32 StdOrder.IntOrder Array4 BitEncoding.BS2Int EClib.
+import Zp Curve25519_Procedures Curve25519_Ref4 Array4 Array32 StdOrder.IntOrder Array4 BitEncoding.BS2Int EClib Ring.IntID StdBigop.Bigint.
 
 equiv eq_spec_impl_add_rrs_ref4 : CurveProcedures.add  ~ M_ref4.__add4_rrs:
     f{1} = inzpRep4 f{2} /\
@@ -100,17 +100,6 @@ equiv eq_spec_impl_sqr_p_ref4 : CurveProcedures.sqr ~ M_ref4._sqr4_p:
 proof.
     proc.
     admit.
-qed.
-
-
-equiv eq_spec_impl_ith_bit_ref4 : CurveProcedures.ith_bit ~ M_ref4.__ith_bit :
-    inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\
-    (ctr{1}                   = to_uint ctr{2})
-    ==>
-    b2i res{1}                = to_uint res{2}.
-proof.
-    proc.
-    admit. (* AUTO *)
 qed.
 
 

@@ -106,7 +106,7 @@ proof.
     call eq_spec_impl_sqr_p_ref4. skip. auto => />.
 qed.
 
-(** step 1: init points and decoding u-coordinates **)
+
 equiv eq_spec_impl_init_points_ref4 :
     CurveProcedures.init_points ~ M_ref4.__init_points4 :
         init{1} = inzpRep4 initr{2}
@@ -126,184 +126,120 @@ proof.
 qed.
 
 
-(** step 1 : decode_scalar_25519 **)
+equiv eq_spec_impl_ith_bit_ref4 : CurveProcedures.ith_bit ~ M_ref4.__ith_bit :
+    k'{1}                    = pack32 (to_list k{2}) /\
+    ctr{1}                   = to_uint ctr{2} /\
+    0 <= ctr{1} < 256
+    ==>
+    b2i res{1}                = to_uint res{2}.
+proof.
+    proc; wp; skip => /> &2 H H0.
+    rewrite (W64.and_mod 3 ctr{2}) //=  (W64.and_mod 6 (of_int (to_uint ctr{2} %% 8))%W64) //= !to_uint_shr //= !shr_shrw.
+    smt(W64.to_uint_cmp  W64.of_uintK W64.to_uintK).
+    rewrite /zeroextu64 /truncateu8 //=  !of_uintK => />.
+    + rewrite  of_intE modz_small.  apply bound_abs. smt(W8.to_uint_cmp JUtils.powS_minus JUtils.pow2_0).
+    rewrite bits2wE /int2bs /mkseq -iotaredE => />.
+    auto => />.
+    rewrite (modz_small (to_uint ctr{2} %% 8) W64.modulus). apply bound_abs. smt(W64.to_uint_cmp).
+    rewrite (modz_small (to_uint ctr{2} %% 8) 64). apply bound_abs. smt(W64.to_uint_cmp).
+    rewrite (modz_small (to_uint ctr{2} %% 8) W64.modulus). apply bound_abs. smt(W64.to_uint_cmp).
+    pose ctr := to_uint ctr{2}.
+    rewrite pack32E of_listE /to_list !/mkseq !initiE // -!iotaredE => />.
+    rewrite !initiE //=. auto => />. smt().
+    rewrite !/b2i !of_intE !bits2wE !/int2bs !/mkseq //=.
+    rewrite -!iotaredE => />.
+    rewrite !to_uintE !/bs2int !/w2bits !/mkseq /big /range !/predT -!iotaredE => />.
+    rewrite !b2i0 => />.
+    rewrite !initiE => />. smt(). auto => />.
+    smt().
+qed.
+
 equiv eq_spec_impl_decode_scalar_25519_ref4 : CurveProcedures.decode_scalar ~ M_ref4.__decode_scalar:
     k'{1}  = pack4 (to_list k{2})
     ==>
-    inzp (W256.to_uint res{1}) = inzpRep32 res{2}.
+    res{1} = pack32 (to_list res{2}).
 proof.
     proc; wp; auto => />.
     unroll for{2} ^while => />; wp; skip => /> &2.
     rewrite !/set64_direct !/get8 !/init8 => />.
-    rewrite to_uint_unpack32u8 inzpRep32E valRep32E /val_digits pack4E.
-    congr. congr. congr. rewrite !/to_list /mkseq -iotaredE => /> .
-    rewrite of_intE modz_small. by apply bound_abs. rewrite bits2wE /int2bs /mkseq -iotaredE => />.
-    rewrite !W8.wordP.
-    do split.
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: i <> 254 by smt(). have ->: i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 8 + i <> 254 by smt(). have ->: 8 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 16 + i <> 254 by smt(). have ->: 16 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 24 + i <> 254 by smt(). have ->: 24 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 32 + i <> 254 by smt(). have ->: 32 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 40 + i <> 254 by smt(). have ->: 40 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 48 + i <> 254 by smt(). have ->: 48 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 56 + i <> 254 by smt(). have ->: 56 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 64 + i <> 254 by smt(). have ->: 64 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 72 + i <> 254 by smt(). have ->: 72 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 80 + i <> 254 by smt(). have ->: 80 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 88 + i <> 254 by smt(). have ->: 88 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 96 + i <> 254 by smt(). have ->: 96 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 104 + i <> 254 by smt(). have ->: 104 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 112 + i <> 254 by smt(). have ->: 112 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 120 + i <> 254 by smt(). have ->: 120 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 128 + i <> 254 by smt(). have ->: 128 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 136 + i <> 254 by smt(). have ->: 136 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 144 + i <> 254 by smt(). have ->: 144 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 152 + i <> 254 by smt(). have ->: 152 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 160 + i <> 254 by smt(). have ->: 160 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 168 + i <> 254 by smt(). have ->: 168 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 176 + i <> 254 by smt(). have ->: 176 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 184 + i <> 254 by smt(). have ->: 184 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 192 + i <> 254 by smt(). have ->: 192 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 200 + i <> 254 by smt(). have ->: 200 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 208 + i <> 254 by smt(). have ->: 208 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 216 + i <> 254 by smt(). have ->: 216 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 224 + i <> 254 by smt(). have ->: 224 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 232 + i <> 254 by smt(). have ->: 232 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. have ->: 240 + i <> 254 by smt(). have ->: 240 + i <> 255 by smt(). auto => />.
-    + rewrite !initiE. by smt(). smt().
-
-    + move => i rgi />. rewrite !of_intE !bits2wE !/int2bs !/mkseq -!iotaredE => />.
-    + rewrite !initiE. by smt(). by smt().
-    rewrite of_listE !bits8E !initiE //= => />.
-    + rewrite !get_setE //=. rewrite !initiE. by smt().
-    + auto => />. rewrite !initiE. by smt().
-    smt().
+    rewrite pack4E pack32E.
+    rewrite !/to_list /mkseq -!iotaredE => /> .
+    rewrite !of_intE modz_small. by apply bound_abs. rewrite !bits2wE /int2bs /mkseq -!iotaredE => />.
+    rewrite wordP => i rgi />.
+    rewrite !of_listE !bits8E //= => />.
+    rewrite !get_setE //= !orE !andE !map2E //=.
+    rewrite !initiE => />.
+    rewrite !initiE => />. smt(). smt().
+    + case(i = 0) => /> *; case(i = 1) => /> *; case(i = 2) => /> *; case(i = 254) => /> *; case(i = 255) => /> *.
+    + case(i %/ 8 = 0) => /> *.
+    + rewrite initiE => /> . smt(). rewrite initiE => />. smt(). rewrite initiE => />. smt(). smt().
+    + case(i %/ 8 - 1 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 2 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 3 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 4 = 0) => /> *.
+    rewrite initiE => /> /#.
+    + case(i %/ 8 - 5 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 6 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 7 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 8 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 9 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 10 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 11 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 12 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 13 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 14 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 15 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 16 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 17 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 18 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 19 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 20 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 21 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 22 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 23 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 24 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 25 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 26 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 27 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 28 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 29 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 30 = 0) => /> *.
+    + rewrite initiE => /> /#.
+    + case(i %/ 8 - 31 = 0) => /> *.
+    + rewrite !initiE => />. smt().
+    + rewrite !initiE => />. smt().
+    case(i %/ 64 = 0) => /> *. smt(). smt().
+    + rewrite !initiE => /> /#. smt().
 qed.
 
-(** step 2 : decode_u_coordinate **)
 
 lemma eq_set_msb_to_zero_ref4 x :
   hoare [
@@ -336,7 +272,7 @@ proof.
 qed.
 
 equiv eq_spec_impl_decode_u_coordinate_ref4 : CurveProcedures.decode_u_coordinate ~ M_ref4.__decode_u_coordinate4:
-    u'{1}                      =     W4u64.pack4 (Array4.to_list u{2})
+    u'{1}                      =     pack4 (to_list u{2})
     ==>
     res{1}                     =     inzpRep4 res{2}.
 proof.
@@ -446,7 +382,6 @@ proof.
     congr. smt(Array4.initE Array4.ext_eq Array4.set_set_if).
 qed.
 
-(** step 5 : add_and_double **)
 equiv eq_spec_impl_add_and_double_ref4 :
     CurveProcedures.add_and_double ~ M_ref4.__add_and_double4:
         init{1} = inzpRep4 init{2}     /\
@@ -482,17 +417,17 @@ proof.
     wp. done.
 qed.
 
-(** step 7 : montgomery_ladder **)
 equiv eq_spec_impl_montgomery_ladder_step_ref4 :
     CurveProcedures.montgomery_ladder_step ~ M_ref4.__montgomery_ladder_step4:
-        inzp (to_uint k'{1}) =   inzpRep32 k{2} /\
+        k'{1} =   pack32 (to_list k{2}) /\
         init'{1} = inzpRep4 init{2}             /\
         x2{1} = inzpRep4 x2{2}                  /\
         z2{1} = inzpRep4 z2r{2}                 /\
         x3{1} = inzpRep4 x3{2}                  /\
         z3{1} = inzpRep4 z3{2}                  /\
         b2i swapped{1} = to_uint swapped{2}     /\
-        ctr'{1} = to_uint ctr{2}
+        ctr'{1} = to_uint ctr{2}                /\
+        0 <= ctr'{1} < 256
         ==>
         res{1}.`1 = inzpRep4 res{2}.`1          /\
         res{1}.`2 = inzpRep4 res{2}.`2          /\
@@ -518,19 +453,19 @@ qed.
 equiv eq_spec_impl_montgomery_ladder_ref4 :
     CurveProcedures.montgomery_ladder ~ M_ref4.__montgomery_ladder4 :
         init'{1} = inzpRep4 u{2}                     /\
-        inzp (W256.to_uint k'{1}) =  inzpRep32 k{2}
+        k'{1} =  pack32 (to_list k{2})
         ==>
         res{1}.`1 = inzpRep4 res{2}.`1               /\
-        res{1}.`2 =inzpRep4  res{2}.`2.
+        res{1}.`2 = inzpRep4 res{2}.`2.
 proof.
     proc. wp. sp.
     unroll {1} 4.
     rcondt {1} 4. auto => />. inline CurveProcedures.init_points.
         wp. sp. skip. auto => />.
     while(
-          inzp (to_uint k'{1}) = inzpRep32 k{2}            /\
+          k'{1} = pack32 (to_list  k{2})                   /\
           ctr{1} = to_uint ctr{2}                          /\
-          inzp (to_uint k'{1}) = inzpRep32 k{2}            /\
+          -1 <= ctr{1} < 256                                /\
           init'{1} = inzpRep4 us{2}                        /\
           x2{1} = inzpRep4 x2{2}                           /\
           x3{1} = inzpRep4 x3{2}                           /\
@@ -538,15 +473,15 @@ proof.
           z3{1} = inzpRep4 z3{2}                           /\
           b2i swapped{1} = to_uint swapped{2}).
         wp. sp. call eq_spec_impl_montgomery_ladder_step_ref4. skip. auto => />.
-        move => &1 &2 ctrR H H0 H1 H2. split.
+        move => &1 &2 ctrR H H0 H1 H2 E3. split.
         rewrite to_uintB. rewrite uleE to_uint1 => />. smt(). rewrite to_uint1 => />.
-        move => H3 H4 H5 H6 H7 H8 H9 H10. split.
+        smt(W64.to_uint_cmp).
+        move => H3 H4 H5 H6 H7 H8 H9 H10 H11 H12. split. smt(W64.to_uint_cmp).
         rewrite ultE to_uintB. rewrite uleE to_uint1. smt().
-        rewrite to_uint1 to_uint0. trivial. smt(W64.to_uintK).
-    call eq_spec_impl_montgomery_ladder_step_ref4. wp. call eq_spec_impl_init_points_ref4. skip. done.
+        rewrite to_uint1 to_uint0. trivial.
+        call eq_spec_impl_montgomery_ladder_step_ref4. wp. call eq_spec_impl_init_points_ref4. skip. done.
 qed.
 
-(** step 8 : iterated square **)
 equiv eq_spec_impl_it_sqr_ref4 :
     CurveProcedures.it_sqr ~ M_ref4._it_sqr4_p:
         f{1}            =    inzpRep4 x{2} /\
@@ -558,7 +493,7 @@ equiv eq_spec_impl_it_sqr_ref4 :
         res{1} = inzpRep4 res{2}.
 proof.
     proc. simplify. wp. sp.
-    while (h{1}            =    inzpRep4 x{2}            /\
+    while (h{1}           =    inzpRep4 x{2}            /\
          ii{1}            =    to_uint i{2}              /\
          ii{1}            <=   W32.modulus               /\
          0                <=   ii{1}
@@ -611,7 +546,6 @@ proof.
     apply Array4.ext_eq. move => H1 [H2] H3. smt(Array4.get_setE).
 qed.
 
-(** step 9 : invert **)
 equiv eq_spec_impl_invert_ref4 :
     CurveProcedures.invert ~ M_ref4.__invert4 :
         fs{1} = inzpRep4 fs{2}
@@ -648,32 +582,26 @@ proof.
     skip. done.
 qed.
 
-
-(** step 10 : encode point **)
 equiv eq_spec_impl_encode_point_ref4 : CurveProcedures.encode_point ~ M_ref4.__encode_point4:
     x2{1}                 = inzpRep4 x2{2} /\
     z2{1}                 = inzpRep4 z2r{2}
     ==>
-    inzp (to_uint res{1}) = inzpRep4 res{2}.
+    res{1} = pack4 (to_list  res{2}).
 proof.
     proc.
     ecall {2} (ph_eq_to_bytes_ref4 (inzpRep4 r{2})).
     call eq_spec_impl_mul_rss_ref4.
     call eq_spec_impl_invert_ref4.
     wp; skip => /> &2 H H0 H1 H2.
-    rewrite -H2. rewrite inzpRep4E. congr.
-    smt(Zplimbs.valRep4ToPack).
+    by rewrite -H2.
 qed.
-
-
-(** step 11 : scalarmult **)
 
 equiv eq_spec_impl_scalarmult_internal_ref4 :
     CurveProcedures.scalarmult_internal ~ M_ref4.__curve25519_internal_ref4:
-        inzp(W256.to_uint k'{1}) = inzpRep32 k{2} /\
+        k'{1} = pack32 (to_list  k{2}) /\
         u''{1} = inzpRep4 u{2}
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4 res{2}.
+        res{1} = pack4 (to_list res{2}).
 proof.
     proc.
     call eq_spec_impl_encode_point_ref4.
@@ -683,34 +611,16 @@ qed.
 
 equiv eq_spec_impl_scalarmult_ref4 :
     CurveProcedures.scalarmult ~ M_ref4._curve25519_ref4:
-        W256.to_uint k'{1} = valRep4 _k{2} /\
-        to_uint u'{1} = valRep4 _u{2}
+        k'{1} = pack4 (to_list  _k{2}) /\
+        u'{1} = pack4 (to_list _u{2})
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4 res{2} /\
-        inzpRep32List (W32u8.to_list res{1}) = inzpRep4 res{2}.
+        res{1} = pack4 (to_list res{2}).
 proof.
     proc.
-    call eq_spec_impl_scalarmult_internal_ref4 => />. auto => />.
-    move => &1 &2 H H0 H1 H2 H3 H4 H5 H6 H7. auto => />.
-    rewrite -H7.
-    rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
-    rewrite to_uint_unpack32u8. congr. congr. smt().
+    call eq_spec_impl_scalarmult_internal_ref4 => />.
     call eq_spec_impl_decode_u_coordinate_ref4 => />.
     call eq_spec_impl_decode_scalar_25519_ref4 => />.
-    move => &1 &2 [H] H0 [H1] H2. split. auto => />.
-    move => H3 H4 H5 H6. split. auto => />.
-    smt().
-    move => H7. split. assumption. move => H8 H9 H10 H11.
-    rewrite -H11.
-    rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
-    rewrite to_uint_unpack32u8. congr. congr. smt().
-    wp. skip.
-    auto => />. move => &1 &2 H H0. split. smt(Zplimbs.valRep4ToPack_xy).
-    move => H1 H2 H3 H4. split.
-    smt(Zplimbs.valRep4ToPack_xy). move => H5 H6 H7 H8.
-    rewrite -H8.
-    rewrite /inzpRep32List /inzpRep4 /valRep32List. congr.
-    rewrite to_uint_unpack32u8. congr. congr. smt().
+    wp; skip => />.
 qed.
 
 
@@ -723,10 +633,10 @@ lemma eq_spec_impl_scalarmult_ptr_ref4 mem _rp _kp _up :
         rp{2} = _rp                                                                              /\
         kp{2} = _kp                                                                              /\
         up{2} = _up                                                                              /\
-        W256.to_uint u'{1} = valRep4List (load_array4 (mem) (W64.to_uint _up))           /\
-        W256.to_uint k'{1} = valRep4List (load_array4 (mem) (W64.to_uint _kp))
+        u'{1} = pack4 (load_array4 (mem) (W64.to_uint _up))           /\
+        k'{1} = pack4 (load_array4 (mem) (W64.to_uint _kp))
         ==>
-        inzpRep32List(W32u8.to_list res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp))    /\
+        res{1} = pack4 (load_array4 Glob.mem{2} (W64.to_uint _rp))    /\
         res{2} = tt
     ].
 proof.
@@ -736,40 +646,42 @@ proof.
     do 3! unroll for{2} ^while.
     sp. wp. auto => />.
     call eq_spec_impl_scalarmult_ref4. skip. auto => />.
-    move => &1 &2 H H0 H1 H2 H3 H4 H5 H6.
-    split. split.
-    rewrite H6 /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
-    congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />.
-    rewrite !to_uintD_small !to_uint_small => />.
-    move: H2. smt(). move: H1. smt(). move: H2. smt().
-    rewrite H5 /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
-    congr. congr. rewrite /to_list /mkseq -iotaredE. auto => />.
-    rewrite !to_uintD_small !to_uint_small => />.
-    move: H5. smt(). move: H5. smt(). move: H5. smt().
-    move => H7 H8 H9 H10 H11. auto => />. rewrite -H11.
-    move => H12. rewrite H12 H11.
-    rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4.
-    congr. congr. congr. rewrite /to_list /mkseq -iotaredE => />.
-    split. apply (load_store_pos Glob.mem{2} rp{2} H10 0).
-    rewrite /valid_ptr. split. trivial. apply H4. trivial.
-    split. apply (load_store_pos Glob.mem{2} rp{2} H10 8).
-    rewrite /valid_ptr. split. trivial. apply H4. trivial.
-    split. apply (load_store_pos Glob.mem{2} rp{2} H10 16).
-    rewrite /valid_ptr. split. trivial. apply H4. trivial.
-    apply (load_store_pos Glob.mem{2} rp{2} H10 24).
-    rewrite /valid_ptr. split. trivial. apply H4. trivial.
+    move => &2 H H0 H1 H2 H3 H4.
+    do split.
+    congr. congr.
+    rewrite  /load_array4 /to_list /mkseq -iotaredE => />.
+    do split.
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr. congr. rewrite /load_array4 /to_list /mkseq -iotaredE => />.
+    do split.
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    move => H5 H6 H7.
+    congr. congr. rewrite /load_array4 /to_list /mkseq -iotaredE => />.
+    do split.
+    apply (load_store_pos Glob.mem{2} rp{2} H7 0).
+    rewrite /valid_ptr; split => />. done.
+    apply (load_store_pos Glob.mem{2} rp{2} H7 8).
+    rewrite /valid_ptr; split => />. done.
+    apply (load_store_pos Glob.mem{2} rp{2} H7 16).
+    rewrite /valid_ptr; split => />. done.
+    apply (load_store_pos Glob.mem{2} rp{2} H7 24).
+    rewrite /valid_ptr; split => />. done.
 qed.
 
 
 equiv eq_spec_impl_scalarmult_base_ref4 :
     CurveProcedures.scalarmult_base ~ M_ref4._curve25519_ref4_base:
-        W256.to_uint k'{1} = valRep4 _k{2}
+        k'{1} = pack4 (to_list _k{2})
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4 res{2}.
+        res{1} = pack4 (to_list res{2}).
 proof.
     proc.
-    call eq_spec_impl_scalarmult_internal_ref4 => />.
-    call eq_spec_impl_decode_u_coordinate_base_ref4 => />.
+    call eq_spec_impl_scalarmult_internal_ref4.
+    call eq_spec_impl_decode_u_coordinate_base_ref4.
     call eq_spec_impl_decode_scalar_25519_ref4.
     wp. skip. move => *. smt(Zplimbs.valRep4ToPack_xy).
 qed.
@@ -782,22 +694,29 @@ lemma eq_spec_impl_scalarmult_base_ptr_ref4 mem _rp _kp :
         Glob.mem{2} = mem /\
         rp{2} = _rp /\
         kp{2} = _kp /\
-        W256.to_uint k'{1} =  valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint _kp))
+        k'{1} =  pack4 (load_array4 (Glob.mem{2}) (W64.to_uint _kp))
         ==>
-        inzp (W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _rp)) /\ res{2} = tt].
+        res{1} = pack4 (load_array4 Glob.mem{2} (W64.to_uint _rp)) /\ res{2} = tt].
 proof.
     proc *. inline M_ref4.__curve25519_ref4_base_ptr M_ref4.__load4 M_ref4.__store4.
-    do 2! unroll for{2} ^while. wp. sp. call eq_spec_impl_scalarmult_base_ref4.
-    skip. auto => />.  move => &1 &2 H H0 H1 H2. split.
-    rewrite H2. rewrite /inzpRep4List /inzpRep4 /valRep4 /valRep4List /load_array4 /to_list /mkseq -iotaredE.
-    congr. congr. auto => />. rewrite !to_uintD_small !to_uint_small; smt(); smt().
-    move => H3 H4 H5 H6.
-    rewrite H6. rewrite /inzpRep4 /inzpRep4List /valRep4 /valRep4List.
-    congr. congr. congr. rewrite /to_list /mkseq /load_array4 -iotaredE => />. split.
-    apply (load_store_pos mem _rp H5 0). rewrite /valid_ptr. smt(). smt(). split.
-    apply (load_store_pos mem _rp H5 8). rewrite /valid_ptr. smt(). smt(). split.
-    apply (load_store_pos mem _rp H5 16). rewrite /valid_ptr. smt(). smt().
-    apply (load_store_pos mem _rp H5 24). rewrite /valid_ptr. smt(). smt().
+    do 2! unroll for{2} ^while.
+    wp; call eq_spec_impl_scalarmult_base_ref4; wp; skip => />.
+    move => H H0 H1 H2.
+    do split.
+    congr; congr.
+    rewrite  /load_array4 /to_list /mkseq -iotaredE => />.
+    do split.
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    congr; rewrite !to_uintD_small !to_uint_small => />. smt().
+    move => H3 H4.
+    congr; congr.
+    rewrite  /load_array4 /to_list /mkseq -iotaredE => />.
+    do split.
+    apply (load_store_pos mem _rp H4 0); rewrite /valid_ptr. smt(). smt().
+    apply (load_store_pos mem _rp H4 8); rewrite /valid_ptr. smt(). smt().
+    apply (load_store_pos mem _rp H4 16); rewrite /valid_ptr. smt(). smt().
+    apply (load_store_pos mem _rp H4 24); rewrite /valid_ptr. smt(). smt().
 qed.
 
 
@@ -810,17 +729,14 @@ lemma eq_spec_impl_scalarmult_jade_ref4 mem _qp _np _pp:
         qp{2} = _qp                                                                              /\
         np{2} = _np                                                                              /\
         pp{2} = _pp                                                                              /\
-        W256.to_uint k'{1} = valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2})) /\
-        to_uint u'{1}      = valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint pp{2}))
+        k'{1} = pack4 (load_array4 (Glob.mem{2}) (W64.to_uint np{2})) /\
+        u'{1}      = pack4 (load_array4 (Glob.mem{2}) (W64.to_uint pp{2}))
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _qp))     /\
+        res{1} = pack4 (load_array4 Glob.mem{2} (W64.to_uint _qp))     /\
         res{2} = W64.zero].
 proof.
-    proc *. inline M_ref4.jade_scalarmult_curve25519_amd64_ref4. wp. sp.
-    call (eq_spec_impl_scalarmult_ptr_ref4 mem _qp _np _pp). skip. auto => />.
-    move => &1 H H0 H1 H2 H3 H4 H5 H6 H7 H8 H9.
-    rewrite -H9. rewrite to_uint_unpack32u8. rewrite /inzpRep32List /valRep32List.
-    congr. congr. congr. smt().
+    proc *. inline M_ref4.jade_scalarmult_curve25519_amd64_ref4; wp.
+    call (eq_spec_impl_scalarmult_ptr_ref4 mem _qp _np _pp); wp; skip => />.
 qed.
 
 
@@ -831,9 +747,9 @@ lemma eq_spec_impl_scalarmult_jade_base_ref4  mem _qp _np:
         Glob.mem{2} = mem                                                                        /\
         qp{2} = _qp                                                                              /\
         np{2} = _np                                                                              /\
-        W256.to_uint k'{1} = valRep4List (load_array4 (Glob.mem{2}) (W64.to_uint np{2}))
+        k'{1} = pack4 (load_array4 (Glob.mem{2}) (W64.to_uint np{2}))
         ==>
-        inzp(W256.to_uint res{1}) = inzpRep4List (load_array4 Glob.mem{2} (W64.to_uint _qp))     /\
+        res{1} = pack4 (load_array4 Glob.mem{2} (W64.to_uint _qp))     /\
         res{2} = W64.zero].
 proof.
     proc *. inline M_ref4.jade_scalarmult_curve25519_amd64_ref4_base. wp. sp.

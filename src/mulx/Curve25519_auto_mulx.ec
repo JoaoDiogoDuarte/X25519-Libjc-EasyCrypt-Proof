@@ -90,17 +90,6 @@ proof.
     admit.
 qed.
 
-(** step 3 : ith_bit **)
-equiv eq_spec_impl_ith_bit_mulx : CurveProcedures.ith_bit ~ M_mulx.__ith_bit :
-    inzp (W256.to_uint k'{1}) = inzpRep32 k{2} /\
-    (ctr{1}                   = to_uint ctr{2})
-    ==>
-    b2i res{1}                = to_uint res{2}.
-proof.
-    proc.
-    admit. (* AUTO *)
-qed.
-
 lemma eq_to_bytes_mulx r:
   hoare [M_mulx.__tobytes4 :
       r = inzpRep4 f

@@ -289,16 +289,16 @@ proof.
 qed.
 
 
-lemma eq_set_msb_to_zero_mulx x :
+lemma eq_set_last_bit_to_zero64_mulx x :
   hoare [
       M_mulx.__decode_u_coordinate4 :
       u = x
       ==>
-      res = Curve25519_Operations.msb_to_zero x
+      res = Curve25519_Operations.last_bit_to_zero64 x
   ].
 proof.
     proc; wp; skip => />.
-    rewrite /msb_to_zero => />; congr.
+    rewrite /last_bit_to_zero64 => />; congr.
     pose X := x.[3].
     rewrite /of_int /int2bs  /mkseq /to_list -iotaredE => />.
     rewrite andE  wordP => /> k K0 K1.
@@ -306,17 +306,17 @@ proof.
     smt(W64.initE).
 qed.
 
-lemma ill_set_msb_to_zero_mulx: islossless M_mulx.__decode_u_coordinate4 by islossless.
+lemma ill_set_last_bit_to_zero64_mulx: islossless M_mulx.__decode_u_coordinate4 by islossless.
 
-lemma eq_ph_set_msb_to_zero_mulx x:
+lemma eq_ph_set_last_bit_to_zero64_mulx x:
   phoare [
     M_mulx.__decode_u_coordinate4 :
     u = x
     ==>
-    res = Curve25519_Operations.msb_to_zero x
+    res = Curve25519_Operations.last_bit_to_zero64 x
   ] = 1%r.
 proof.
-    by conseq ill_set_msb_to_zero_mulx (eq_set_msb_to_zero_mulx x).
+    by conseq ill_set_last_bit_to_zero64_mulx (eq_set_last_bit_to_zero64_mulx x).
 qed.
 
 equiv eq_spec_impl_decode_u_coordinate_mulx : CurveProcedures.decode_u_coordinate ~ M_mulx.__decode_u_coordinate4:
@@ -325,11 +325,11 @@ equiv eq_spec_impl_decode_u_coordinate_mulx : CurveProcedures.decode_u_coordinat
     res{1}                     =     inzpRep4 res{2}.
 proof.
     proc *.
-    ecall {2} (eq_ph_set_msb_to_zero_mulx u{2}).
+    ecall {2} (eq_ph_set_last_bit_to_zero64_mulx u{2}).
     inline *; wp; skip => /> &2.
     rewrite inzpRep4E. congr.
     rewrite to_uint_unpack4u64  valRep4E; congr; congr.
-    rewrite /msb_to_zero => />.
+    rewrite /last_bit_to_zero64 => />.
     rewrite /to_list /mkseq /to_list -iotaredE => />.
     do split.
     + rewrite !wordP => /> i I I0. rewrite !bits64iE => />.
@@ -380,7 +380,7 @@ proof.
     inline *; wp; skip => />.
     rewrite inzpRep4E. congr.
     rewrite to_uint_unpack4u64  valRep4E; congr; congr.
-    rewrite /msb_to_zero => />.
+    rewrite /last_bit_to_zero64 => />.
     have !->: ((of_int 9))%W256.[255 <- false] = ((of_int 9))%W256.
     rewrite !of_intE !bits2wE !/int2bs !/mkseq -iotaredE => />.
     apply W256.ext_eq => />. move => X X0 X1.

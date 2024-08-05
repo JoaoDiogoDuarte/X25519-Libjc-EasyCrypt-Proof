@@ -2,6 +2,22 @@ require import List Int IntDiv CoreMap Ring StdOrder W64limbs StdBigop BitEncodi
 from Jasmin require import JModel JWord JWord_array.
 import Ring.IntID IntOrder StdBigop.Bigint.BIA BitEncoding.BS2Int.
 
+lemma foldl_in_eq_r (f1 : 'a1 -> 'b -> 'a1)
+                    (f2 : 'a2 -> 'b -> 'a2)
+                    (s  : 'b list)
+                    (a2 : 'a2)
+                    (r  : 'a2 -> 'a1) :
+    (forall a2 b, b \in s => f1 (r a2) b = r (f2 a2 b)) =>
+                        foldl f1 (r a2) s = r (foldl f2 a2 s).
+proof.
+    move: s a2. elim.
+        by move => a2.
+    move => x l hrec a2 /= hin. rewrite hin.
+    by left.
+    rewrite hrec //; move => ? ? h; rewrite hin.
+        by right.
+    by trivial.
+qed.
 
 
 lemma ltr_pmul2 x1 x2 y1 y2:

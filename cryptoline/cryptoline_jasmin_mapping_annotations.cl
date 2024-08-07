@@ -24,6 +24,7 @@ mov L0x7fffffffd970 a0;
 mov L0x7fffffffd978 a1;
 mov L0x7fffffffd980 a2;
 mov L0x7fffffffd988 a3;
+
 mov L0x7fffffffd990 b0;
 mov L0x7fffffffd998 b1;
 mov L0x7fffffffd9a0 b2;
@@ -39,6 +40,8 @@ mov r9 L0x7fffffffd978;
 mov r10 L0x7fffffffd980;
 mov r11 L0x7fffffffd988;
 
+
+
 ## zeroing out z is not done
 
 # r8, carry = r8 + valueAtAddress L0x7fffffffd990
@@ -53,13 +56,21 @@ adcs carry r11 r11 L0x7fffffffd9a8 carry;
 
 # substract with borrow, rax, carry = rax - rax + carry
 ## _, z -= z - cf;
+
+ghost carryo@bit:
+      carryo = carry && carryo = carry;
+
 sbbs carry rax rax rax carry;
 
-# rax is either 0 or -1
-assert true && or [rax = 0@64, rax = (-1)@64];
-# rax is -38 if carry = -1 or 0 otherwise
-## z &= 38;
+assert true && carry = carryo;
+assume carry = carryo && true;
+
 and rax@uint64 rax 0x26@uint64;
+
+assert true && or [and [carry = 0@1, rax=0@64], and [carry = 1@1, rax=0x26@64]];
+assume rax = carry*0x26 && true;
+
+
 
 # begin second round of addition, so r8 = r8 + 38 or r8 = r8
 ## cf, h[0] += z;
@@ -75,22 +86,33 @@ adcs carry r11 r11 0@uint64 carry;
 # move r10, which has its carry dealt with, to the result address
 mov L0x7fffffffd9c0 r10;
 
+ghost carryoo@bit:
+      carryoo = carry && carryoo = carry;
+
 # any other carries? same as above
 ## _, z -= z - cf;
 sbbs carry rax rax rax carry;
 
-assert true && or [rax = 0@64, rax = (-1)@64];
+assert true && carry = carryoo;
+assume carry = carryoo && true;
+
+
 # move r11 to result address
 mov L0x7fffffffd9c8 r11;
 # either 0 or -38
 ## z &= 38;
 and rax@uint64 rax 0x26@uint64;
+
+assert true && or [and [carry = 0@1, rax=0@64], and [carry = 1@1, rax=0x26@64]];
+assume rax = carry*0x26 && true;
+
 # final propegation, carry should be 0
 ## h[0] += z;
 adds carry r8 r8 rax;
 
 (* NOTE: cannot carry *)
-assert true && carry = 0@1;
+assert true && carry=0@1;
+assume carry=0 && true;
 
 # move r8 to result address
 mov L0x7fffffffd9b0 r8;
@@ -104,10 +126,10 @@ mov r3 L0x7fffffffd9c8;
 
 
 {
-  true
+  eqmod (limbs 64 [r0, r1, r2, r3])
+         (limbs 64 [a0, a1, a2, a3] + limbs 64 [b0, b1, b2, b3])
+         ((2**255)-19)
 &&
+    true
   # the addition of both limbs are congruent 2^255 - 19
-  eqsmod (ulimbs 64 [r0, r1, r2, r3, 0@64])
-         (ulimbs 64 [a0, a1, a2, a3, 0@64] + ulimbs 64 [b0, b1, b2, b3, 0@64])
-         ((2**255) - 19)@320
 }

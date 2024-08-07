@@ -1,0 +1,332 @@
+===== Verifying program safety =====
+=== Cut #0 ===
+INPUT IN SMTLIB2 FORMAT:
+; Verify: safety
+; Cut: #0
+; Target: all instructions in this cut
+; Output file: /tmp/outputqfbv_d61e2b.log
+(set-logic QF_BV)
+(set-info :smt-lib-version 2.0)
+(declare-fun rax_5 () (_ BitVec 64))
+(declare-fun rax_4 () (_ BitVec 64))
+(declare-fun rax_3 () (_ BitVec 64))
+(declare-fun rax_2 () (_ BitVec 64))
+(declare-fun rax_1 () (_ BitVec 64))
+(declare-fun r9_3 () (_ BitVec 64))
+(declare-fun r9_2 () (_ BitVec 64))
+(declare-fun r8_4 () (_ BitVec 64))
+(declare-fun r8_3 () (_ BitVec 64))
+(declare-fun r8_2 () (_ BitVec 64))
+(declare-fun r11_3 () (_ BitVec 64))
+(declare-fun r11_2 () (_ BitVec 64))
+(declare-fun r10_3 () (_ BitVec 64))
+(declare-fun r10_2 () (_ BitVec 64))
+(declare-fun carry_12 () (_ BitVec 1))
+(declare-fun carry_11 () (_ BitVec 1))
+(declare-fun carry_10 () (_ BitVec 1))
+(declare-fun carry_9 () (_ BitVec 1))
+(declare-fun carry_8 () (_ BitVec 1))
+(declare-fun carry_7 () (_ BitVec 1))
+(declare-fun carry_6 () (_ BitVec 1))
+(declare-fun carry_5 () (_ BitVec 1))
+(declare-fun carry_4 () (_ BitVec 1))
+(declare-fun carry_3 () (_ BitVec 1))
+(declare-fun carry_2 () (_ BitVec 1))
+(declare-fun b3_0 () (_ BitVec 64))
+(declare-fun b2_0 () (_ BitVec 64))
+(declare-fun b1_0 () (_ BitVec 64))
+(declare-fun b0_0 () (_ BitVec 64))
+(declare-fun a3_0 () (_ BitVec 64))
+(declare-fun a2_0 () (_ BitVec 64))
+(declare-fun a1_0 () (_ BitVec 64))
+(declare-fun a0_0 () (_ BitVec 64))
+(assert true)
+(assert true)
+(assert (and (= carry_2 ((_ extract 64 64) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0)))) (= r8_2 ((_ extract 63 0) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0))))))
+(assert (and (= carry_3 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2)))) (= r9_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2))))))
+(assert (and (= carry_4 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3)))) (= r10_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3))))))
+(assert (and (= carry_5 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4)))) (= r11_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4))))))
+(assert (and (= carry_6 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5))))) (= rax_2 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5)))))))
+(assert (= rax_3 (bvand rax_2 #x0000000000000026)))
+(assert true)
+(assert true)
+(assert (and (= carry_7 ((_ extract 64 64) (bvadd ((_ zero_extend 1) r8_2) ((_ zero_extend 1) rax_3)))) (= r8_3 ((_ extract 63 0) (bvadd ((_ zero_extend 1) r8_2) ((_ zero_extend 1) rax_3))))))
+(assert (and (= carry_8 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r9_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_7)))) (= r9_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r9_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_7))))))
+(assert (and (= carry_9 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r10_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_8)))) (= r10_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r10_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_8))))))
+(assert (and (= carry_10 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r11_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_9)))) (= r11_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r11_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_9))))))
+(assert (and (= carry_11 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_3) (bvadd ((_ zero_extend 1) rax_3) ((_ zero_extend 64) carry_10))))) (= rax_4 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_3) (bvadd ((_ zero_extend 1) rax_3) ((_ zero_extend 64) carry_10)))))))
+(assert (= rax_5 (bvand rax_4 #x0000000000000026)))
+(assert true)
+(assert true)
+(assert (and (= carry_12 ((_ extract 64 64) (bvadd ((_ zero_extend 1) r8_3) ((_ zero_extend 1) rax_5)))) (= r8_4 ((_ extract 63 0) (bvadd ((_ zero_extend 1) r8_3) ((_ zero_extend 1) rax_5))))))
+(assert true)
+(assert true)
+(assert (not (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and (and true true) true) true) true) true) true) true) true) true) true) true) true) true) true) true) true) true) true) true) true)))
+(check-sat)
+(exit)
+
+Run boolector with command: boolector  /tmp/inputqfbv_d4970d.smt2
+Execution time of boolector: 0.0032 seconds
+OUTPUT FROM boolector:
+unsat
+
+Execution of safety task: 0.0149 seconds
+===== Verifying range assertions =====
+=== Cut #0 ===
+INPUT IN SMTLIB2 FORMAT:
+; Verify: range assertions
+; Cut: #0
+; Range assertion #2: carry_12 = 0@1
+; Range condition: carry_12 = 0
+; Output file: /tmp/outputqfbv_ac1b24.log
+(set-logic QF_BV)
+(set-info :smt-lib-version 2.0)
+(declare-fun rax_5 () (_ BitVec 64))
+(declare-fun rax_4 () (_ BitVec 64))
+(declare-fun rax_3 () (_ BitVec 64))
+(declare-fun rax_2 () (_ BitVec 64))
+(declare-fun rax_1 () (_ BitVec 64))
+(declare-fun r9_3 () (_ BitVec 64))
+(declare-fun r9_2 () (_ BitVec 64))
+(declare-fun r8_4 () (_ BitVec 64))
+(declare-fun r8_3 () (_ BitVec 64))
+(declare-fun r8_2 () (_ BitVec 64))
+(declare-fun r11_3 () (_ BitVec 64))
+(declare-fun r11_2 () (_ BitVec 64))
+(declare-fun r10_3 () (_ BitVec 64))
+(declare-fun r10_2 () (_ BitVec 64))
+(declare-fun carry_12 () (_ BitVec 1))
+(declare-fun carry_11 () (_ BitVec 1))
+(declare-fun carry_10 () (_ BitVec 1))
+(declare-fun carry_9 () (_ BitVec 1))
+(declare-fun carry_8 () (_ BitVec 1))
+(declare-fun carry_7 () (_ BitVec 1))
+(declare-fun carry_6 () (_ BitVec 1))
+(declare-fun carry_5 () (_ BitVec 1))
+(declare-fun carry_4 () (_ BitVec 1))
+(declare-fun carry_3 () (_ BitVec 1))
+(declare-fun carry_2 () (_ BitVec 1))
+(declare-fun b3_0 () (_ BitVec 64))
+(declare-fun b2_0 () (_ BitVec 64))
+(declare-fun b1_0 () (_ BitVec 64))
+(declare-fun b0_0 () (_ BitVec 64))
+(declare-fun a3_0 () (_ BitVec 64))
+(declare-fun a2_0 () (_ BitVec 64))
+(declare-fun a1_0 () (_ BitVec 64))
+(declare-fun a0_0 () (_ BitVec 64))
+(assert true)
+(assert true)
+(assert (and (= carry_2 ((_ extract 64 64) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0)))) (= r8_2 ((_ extract 63 0) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0))))))
+(assert (and (= carry_3 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2)))) (= r9_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2))))))
+(assert (and (= carry_4 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3)))) (= r10_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3))))))
+(assert (and (= carry_5 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4)))) (= r11_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4))))))
+(assert (and (= carry_6 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5))))) (= rax_2 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5)))))))
+(assert (= rax_3 (bvand rax_2 #x0000000000000026)))
+(assert true)
+(assert true)
+(assert (and (= carry_7 ((_ extract 64 64) (bvadd ((_ zero_extend 1) r8_2) ((_ zero_extend 1) rax_3)))) (= r8_3 ((_ extract 63 0) (bvadd ((_ zero_extend 1) r8_2) ((_ zero_extend 1) rax_3))))))
+(assert (and (= carry_8 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r9_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_7)))) (= r9_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r9_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_7))))))
+(assert (and (= carry_9 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r10_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_8)))) (= r10_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r10_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_8))))))
+(assert (and (= carry_10 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r11_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_9)))) (= r11_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r11_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_9))))))
+(assert (and (= carry_11 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_3) (bvadd ((_ zero_extend 1) rax_3) ((_ zero_extend 64) carry_10))))) (= rax_4 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_3) (bvadd ((_ zero_extend 1) rax_3) ((_ zero_extend 64) carry_10)))))))
+(assert (= rax_5 (bvand rax_4 #x0000000000000026)))
+(assert true)
+(assert true)
+(assert (and (= carry_12 ((_ extract 64 64) (bvadd ((_ zero_extend 1) r8_3) ((_ zero_extend 1) rax_5)))) (= r8_4 ((_ extract 63 0) (bvadd ((_ zero_extend 1) r8_3) ((_ zero_extend 1) rax_5))))))
+(assert (not (= carry_12 #b0)))
+(check-sat)
+(exit)
+
+Run boolector with command: boolector  /tmp/inputqfbv_47bff2.smt2
+Execution time of boolector: 0.0147 seconds
+OUTPUT FROM boolector:
+unsat
+
+=== Cut #0 ===
+INPUT IN SMTLIB2 FORMAT:
+; Verify: range assertions
+; Cut: #0
+; Range assertion #1: carry_11 = 0@1 /\ rax_5 = 0@64 \/ carry_11 = 1@1 /\ rax_5 = 38@64
+; Range condition: carry_11 = 0 /\ rax_5 = 0 \/ carry_11 = 1 /\ rax_5 = 38
+; Output file: /tmp/outputqfbv_df0678.log
+(set-logic QF_BV)
+(set-info :smt-lib-version 2.0)
+(declare-fun rax_5 () (_ BitVec 64))
+(declare-fun rax_4 () (_ BitVec 64))
+(declare-fun rax_3 () (_ BitVec 64))
+(declare-fun rax_2 () (_ BitVec 64))
+(declare-fun rax_1 () (_ BitVec 64))
+(declare-fun r9_3 () (_ BitVec 64))
+(declare-fun r9_2 () (_ BitVec 64))
+(declare-fun r8_3 () (_ BitVec 64))
+(declare-fun r8_2 () (_ BitVec 64))
+(declare-fun r11_3 () (_ BitVec 64))
+(declare-fun r11_2 () (_ BitVec 64))
+(declare-fun r10_3 () (_ BitVec 64))
+(declare-fun r10_2 () (_ BitVec 64))
+(declare-fun carry_11 () (_ BitVec 1))
+(declare-fun carry_10 () (_ BitVec 1))
+(declare-fun carry_9 () (_ BitVec 1))
+(declare-fun carry_8 () (_ BitVec 1))
+(declare-fun carry_7 () (_ BitVec 1))
+(declare-fun carry_6 () (_ BitVec 1))
+(declare-fun carry_5 () (_ BitVec 1))
+(declare-fun carry_4 () (_ BitVec 1))
+(declare-fun carry_3 () (_ BitVec 1))
+(declare-fun carry_2 () (_ BitVec 1))
+(declare-fun b3_0 () (_ BitVec 64))
+(declare-fun b2_0 () (_ BitVec 64))
+(declare-fun b1_0 () (_ BitVec 64))
+(declare-fun b0_0 () (_ BitVec 64))
+(declare-fun a3_0 () (_ BitVec 64))
+(declare-fun a2_0 () (_ BitVec 64))
+(declare-fun a1_0 () (_ BitVec 64))
+(declare-fun a0_0 () (_ BitVec 64))
+(assert true)
+(assert true)
+(assert (and (= carry_2 ((_ extract 64 64) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0)))) (= r8_2 ((_ extract 63 0) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0))))))
+(assert (and (= carry_3 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2)))) (= r9_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2))))))
+(assert (and (= carry_4 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3)))) (= r10_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3))))))
+(assert (and (= carry_5 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4)))) (= r11_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4))))))
+(assert (and (= carry_6 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5))))) (= rax_2 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5)))))))
+(assert (= rax_3 (bvand rax_2 #x0000000000000026)))
+(assert true)
+(assert true)
+(assert (and (= carry_7 ((_ extract 64 64) (bvadd ((_ zero_extend 1) r8_2) ((_ zero_extend 1) rax_3)))) (= r8_3 ((_ extract 63 0) (bvadd ((_ zero_extend 1) r8_2) ((_ zero_extend 1) rax_3))))))
+(assert (and (= carry_8 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r9_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_7)))) (= r9_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r9_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_7))))))
+(assert (and (= carry_9 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r10_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_8)))) (= r10_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r10_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_8))))))
+(assert (and (= carry_10 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) r11_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_9)))) (= r11_3 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) r11_2) ((_ zero_extend 1) #x0000000000000000)) ((_ zero_extend 64) carry_9))))))
+(assert (and (= carry_11 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_3) (bvadd ((_ zero_extend 1) rax_3) ((_ zero_extend 64) carry_10))))) (= rax_4 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_3) (bvadd ((_ zero_extend 1) rax_3) ((_ zero_extend 64) carry_10)))))))
+(assert (= rax_5 (bvand rax_4 #x0000000000000026)))
+(assert (not (or (and (= carry_11 #b0) (= rax_5 #x0000000000000000)) (and (= carry_11 #b1) (= rax_5 #x0000000000000026)))))
+(check-sat)
+(exit)
+
+Run boolector with command: boolector  /tmp/inputqfbv_26fe3f.smt2
+Execution time of boolector: 0.0263 seconds
+OUTPUT FROM boolector:
+unsat
+
+=== Cut #0 ===
+INPUT IN SMTLIB2 FORMAT:
+; Verify: range assertions
+; Cut: #0
+; Range assertion #0: carry_6 = 0@1 /\ rax_3 = 0@64 \/ carry_6 = 1@1 /\ rax_3 = 38@64
+; Range condition: carry_6 = 0 /\ rax_3 = 0 \/ carry_6 = 1 /\ rax_3 = 38
+; Output file: /tmp/outputqfbv_68ef11.log
+(set-logic QF_BV)
+(set-info :smt-lib-version 2.0)
+(declare-fun rax_3 () (_ BitVec 64))
+(declare-fun rax_2 () (_ BitVec 64))
+(declare-fun rax_1 () (_ BitVec 64))
+(declare-fun r9_2 () (_ BitVec 64))
+(declare-fun r8_2 () (_ BitVec 64))
+(declare-fun r11_2 () (_ BitVec 64))
+(declare-fun r10_2 () (_ BitVec 64))
+(declare-fun carry_6 () (_ BitVec 1))
+(declare-fun carry_5 () (_ BitVec 1))
+(declare-fun carry_4 () (_ BitVec 1))
+(declare-fun carry_3 () (_ BitVec 1))
+(declare-fun carry_2 () (_ BitVec 1))
+(declare-fun b3_0 () (_ BitVec 64))
+(declare-fun b2_0 () (_ BitVec 64))
+(declare-fun b1_0 () (_ BitVec 64))
+(declare-fun b0_0 () (_ BitVec 64))
+(declare-fun a3_0 () (_ BitVec 64))
+(declare-fun a2_0 () (_ BitVec 64))
+(declare-fun a1_0 () (_ BitVec 64))
+(declare-fun a0_0 () (_ BitVec 64))
+(assert true)
+(assert true)
+(assert (and (= carry_2 ((_ extract 64 64) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0)))) (= r8_2 ((_ extract 63 0) (bvadd ((_ zero_extend 1) a0_0) ((_ zero_extend 1) b0_0))))))
+(assert (and (= carry_3 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2)))) (= r9_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a1_0) ((_ zero_extend 1) b1_0)) ((_ zero_extend 64) carry_2))))))
+(assert (and (= carry_4 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3)))) (= r10_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a2_0) ((_ zero_extend 1) b2_0)) ((_ zero_extend 64) carry_3))))))
+(assert (and (= carry_5 ((_ extract 64 64) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4)))) (= r11_2 ((_ extract 63 0) (bvadd (bvadd ((_ zero_extend 1) a3_0) ((_ zero_extend 1) b3_0)) ((_ zero_extend 64) carry_4))))))
+(assert (and (= carry_6 ((_ extract 64 64) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5))))) (= rax_2 ((_ extract 63 0) (bvsub ((_ zero_extend 1) rax_1) (bvadd ((_ zero_extend 1) rax_1) ((_ zero_extend 64) carry_5)))))))
+(assert (= rax_3 (bvand rax_2 #x0000000000000026)))
+(assert (not (or (and (= carry_6 #b0) (= rax_3 #x0000000000000000)) (and (= carry_6 #b1) (= rax_3 #x0000000000000026)))))
+(check-sat)
+(exit)
+
+Run boolector with command: boolector  /tmp/inputqfbv_46586f.smt2
+Execution time of boolector: 0.0336 seconds
+OUTPUT FROM boolector:
+unsat
+
+===== Verifying range specifications =====
+===== Verifying algebraic assertions =====
+===== Verifying algebraic specifications =====
+=== Cut #0 ===
+INPUT TO SINGULAR:
+// Verify: algebraic specifications
+// Cut: #0
+// Algebraic specification #0: r8_4 + r9_3 * 2 ** 64 + r10_3 * 2 ** 128 + r11_3 * 2 ** 192 = a0_0 + a1_0 * 2 ** 64 + a2_0 * 2 ** 128 + a3_0 * 2 ** 192 + b0_0 + b1_0 * 2 ** 64 + b2_0 * 2 ** 128 + b3_0 * 2 ** 192 (mod 2 ** 255 - 19)
+// Algebraic condition: r8_4 + r9_3 * 2 ** 64 + r10_3 * 2 ** 128 + r11_3 * 2 ** 192 = a0_0 + a1_0 * 2 ** 64 + a2_0 * 2 ** 128 + a3_0 * 2 ** 192 + b0_0 + b1_0 * 2 ** 64 + b2_0 * 2 ** 128 + b3_0 * 2 ** 192 (mod 2 ** 255 - 19)
+// Try: #0 (pure equality)
+// Output file: /tmp/outputfgb_48b56d
+proc is_generator(poly p, ideal I) {
+  int idx;
+  for (idx=1; idx<=size(I); idx++) {
+    if (p == I[idx]) { return (0==0); }
+  }
+  return (0==1);
+}
+
+ring r = integer, (b3_0,a3_0,b2_0,a2_0,b1_0,a1_0,b0_0,a0_0,carry_11,carry_10,carry_9,carry_8,carry_7,carry_6,carry_5,carry_4,carry_3,carry_2), lp;
+ideal gs = 0;
+poly p = a0_0 + b0_0 - carry_2 * bigint(18446744073709551616) + carry_6 * bigint(38) - carry_7 * bigint(18446744073709551616) + carry_11 * bigint(38) - bigint(0) * bigint(18446744073709551616) + (a1_0 + b1_0 + carry_2 - carry_3 * bigint(18446744073709551616) + bigint(0) + carry_7 - carry_8 * bigint(18446744073709551616)) * bigint(2)^64 + (a2_0 + b2_0 + carry_3 - carry_4 * bigint(18446744073709551616) + bigint(0) + carry_8 - carry_9 * bigint(18446744073709551616)) * bigint(2)^128 + (a3_0 + b3_0 + carry_4 - carry_5 * bigint(18446744073709551616) + bigint(0) + carry_9 - carry_10 * bigint(18446744073709551616)) * bigint(2)^192 - (a0_0 + a1_0 * bigint(2)^64 + a2_0 * bigint(2)^128 + a3_0 * bigint(2)^192 + b0_0 + b1_0 * bigint(2)^64 + b2_0 * bigint(2)^128 + b3_0 * bigint(2)^192);
+if (is_generator(p, gs) || reduce(p, gs) == 0) {
+  0;
+} else {
+  ideal I = groebner(gs);
+  reduce(p, I);
+}
+exit;
+
+Execution time of Singular: 0.0105 seconds
+OUTPUT FROM SINGULAR:
+38*carry_11-115792089237316195423570985008687907853269984665640564039457584007913129639936*carry_10+38*carry_6-115792089237316195423570985008687907853269984665640564039457584007913129639936*carry_5
+
+=== Cut #0 ===
+INPUT TO SINGULAR:
+// Verify: algebraic specifications
+// Cut: #0
+// Algebraic specification #0: r8_4 + r9_3 * 2 ** 64 + r10_3 * 2 ** 128 + r11_3 * 2 ** 192 = a0_0 + a1_0 * 2 ** 64 + a2_0 * 2 ** 128 + a3_0 * 2 ** 192 + b0_0 + b1_0 * 2 ** 64 + b2_0 * 2 ** 128 + b3_0 * 2 ** 192 (mod 2 ** 255 - 19)
+// Algebraic condition: r8_4 + r9_3 * 2 ** 64 + r10_3 * 2 ** 128 + r11_3 * 2 ** 192 = a0_0 + a1_0 * 2 ** 64 + a2_0 * 2 ** 128 + a3_0 * 2 ** 192 + b0_0 + b1_0 * 2 ** 64 + b2_0 * 2 ** 128 + b3_0 * 2 ** 192 (mod 2 ** 255 - 19)
+// Try: #1 (modular equality)
+// Output file: /tmp/outputfgb_e51b54
+proc is_generator(poly p, ideal I) {
+  int idx;
+  for (idx=1; idx<=size(I); idx++) {
+    if (p == I[idx]) { return (0==0); }
+  }
+  return (0==1);
+}
+
+ring r = integer, (b3_0,a3_0,b2_0,a2_0,b1_0,a1_0,b0_0,a0_0,carry_11,carry_10,carry_9,carry_8,carry_7,carry_6,carry_5,carry_4,carry_3,carry_2), lp;
+ideal gs = bigint(2)^255 - bigint(19),
+  carry_2 * (carry_2 - bigint(1)),
+  carry_3 * (carry_3 - bigint(1)),
+  carry_4 * (carry_4 - bigint(1)),
+  carry_5 * (carry_5 - bigint(1)),
+  carry_6 * (carry_6 - bigint(1)),
+  carry_7 * (carry_7 - bigint(1)),
+  carry_8 * (carry_8 - bigint(1)),
+  carry_9 * (carry_9 - bigint(1)),
+  carry_10 * (carry_10 - bigint(1)),
+  carry_11 * (carry_11 - bigint(1)),
+  bigint(0) * (bigint(0) - bigint(1));
+poly p = a0_0 + b0_0 - carry_2 * bigint(18446744073709551616) + carry_6 * bigint(38) - carry_7 * bigint(18446744073709551616) + carry_11 * bigint(38) - bigint(0) * bigint(18446744073709551616) + (a1_0 + b1_0 + carry_2 - carry_3 * bigint(18446744073709551616) + bigint(0) + carry_7 - carry_8 * bigint(18446744073709551616)) * bigint(2)^64 + (a2_0 + b2_0 + carry_3 - carry_4 * bigint(18446744073709551616) + bigint(0) + carry_8 - carry_9 * bigint(18446744073709551616)) * bigint(2)^128 + (a3_0 + b3_0 + carry_4 - carry_5 * bigint(18446744073709551616) + bigint(0) + carry_9 - carry_10 * bigint(18446744073709551616)) * bigint(2)^192 - (a0_0 + a1_0 * bigint(2)^64 + a2_0 * bigint(2)^128 + a3_0 * bigint(2)^192 + b0_0 + b1_0 * bigint(2)^64 + b2_0 * bigint(2)^128 + b3_0 * bigint(2)^192);
+if (is_generator(p, gs) || reduce(p, gs) == 0) {
+  0;
+} else {
+  ideal I = groebner(gs);
+  reduce(p, I);
+}
+exit;
+
+Execution time of Singular: 0.0089 seconds
+OUTPUT FROM SINGULAR:
+// ** gs is no standard basis
+38*carry_11-38*carry_10+38*carry_6-38*carry_5
+
